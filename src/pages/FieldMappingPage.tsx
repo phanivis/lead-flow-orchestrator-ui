@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { FieldMapping, MappingTable } from '@/components/field-mapping/MappingTable';
+import MappingTable, { FieldMapping } from '@/components/field-mapping/MappingTable';
 import FieldMappingHeader from '@/components/field-mapping/FieldMappingHeader';
 import CDPFieldSelector from '@/components/field-mapping/CDPFieldSelector';
 import MappingPreview from '@/components/field-mapping/MappingPreview';

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Shuffle, 
@@ -131,7 +130,8 @@ const FieldMappingPage = () => {
   const handleAddCDPField = (field: string) => {
     if (editingIndex === null) return;
     
-    const cursorPos = document.getElementById('expressionInput')?.selectionStart || newExpression.length;
+    const inputElement = document.getElementById('expressionInput') as HTMLInputElement;
+    const cursorPos = inputElement?.selectionStart || newExpression.length;
     const updatedExpression = 
       newExpression.substring(0, cursorPos) + 
       field + 

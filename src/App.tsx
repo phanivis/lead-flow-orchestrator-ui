@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./components/layout/AppLayout";
 import UploadLeadsPage from "./pages/UploadLeadsPage";
-import FieldMappingPage from "./pages/FieldMappingPage";
 import ScoringRulesPage from "./pages/ScoringRulesPage";
 import NotFound from "./pages/NotFound";
 
@@ -22,7 +21,7 @@ const App = () => (
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Navigate to="/upload" replace />} />
             <Route path="upload" element={<UploadLeadsPage />} />
-            <Route path="field-mapping" element={<FieldMappingPage />} />
+            {/* Field Mapping page has been removed */}
             <Route path="scoring-rules" element={<ScoringRulesPage />} />
             {/* Lead Explorer page has been removed */}
             {/* Add routes for additional pages here */}

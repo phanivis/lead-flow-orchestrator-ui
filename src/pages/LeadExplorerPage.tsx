@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Search, Filter, Edit, RefreshCcw, UserPlus, Database, Car, Bike, Heart, Briefcase, MedicalBag } from 'lucide-react';
+import { Search, Filter, Edit, RefreshCcw, UserPlus, Database, Car, Bike, Heart, Briefcase, Ambulance } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -321,7 +322,7 @@ const LeadExplorerPage = () => {
               </TableHead>
               <TableHead className="p-2 text-center">
                 <div className="flex flex-col items-center">
-                  <MedicalBag className="h-4 w-4 mb-1" />
+                  <Ambulance className="h-4 w-4 mb-1" />
                   <span className="text-xs">Health</span>
                 </div>
               </TableHead>

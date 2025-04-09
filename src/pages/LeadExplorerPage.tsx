@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Edit, RefreshCcw, UserPlus, Database } from 'lucide-react';
+import { Search, Filter, Edit, RefreshCcw, UserPlus, Database, Car, Bike, Heart, Briefcase, MedicalBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -31,7 +31,13 @@ const dummyLeads = [
     city: 'Mumbai',
     existingPolicyHolder: 'Yes',
     ltv: 5000,
-    leadScore: 85,
+    leadScores: {
+      car: 85,
+      bike: 72,
+      life: 65,
+      health: 78,
+      travel: 50
+    },
     status: 'Qualified',
     lastActivity: '2025-04-05',
   },
@@ -43,7 +49,13 @@ const dummyLeads = [
     city: 'Delhi',
     existingPolicyHolder: 'No',
     ltv: 4200,
-    leadScore: 72,
+    leadScores: {
+      car: 65,
+      bike: 89,
+      life: 72,
+      health: 45,
+      travel: 81
+    },
     status: 'New',
     lastActivity: '2025-04-07',
   },
@@ -55,7 +67,13 @@ const dummyLeads = [
     city: 'Bangalore',
     existingPolicyHolder: 'Yes',
     ltv: 7800,
-    leadScore: 68,
+    leadScores: {
+      car: 58,
+      bike: 45,
+      life: 90,
+      health: 82,
+      travel: 67
+    },
     status: 'In Progress',
     lastActivity: '2025-04-02',
   },
@@ -67,7 +85,13 @@ const dummyLeads = [
     city: 'Chennai',
     existingPolicyHolder: 'No',
     ltv: 9500,
-    leadScore: 91,
+    leadScores: {
+      car: 91,
+      bike: 60,
+      life: 55,
+      health: 79,
+      travel: 83
+    },
     status: 'Qualified',
     lastActivity: '2025-04-08',
   },
@@ -79,7 +103,13 @@ const dummyLeads = [
     city: 'Hyderabad',
     existingPolicyHolder: 'Yes',
     ltv: 12000,
-    leadScore: 93,
+    leadScores: {
+      car: 62,
+      bike: 70,
+      life: 93,
+      health: 85,
+      travel: 50
+    },
     status: 'Hot Lead',
     lastActivity: '2025-04-06',
   },
@@ -91,7 +121,13 @@ const dummyLeads = [
     city: 'Pune',
     existingPolicyHolder: 'No',
     ltv: 3800,
-    leadScore: 79,
+    leadScores: {
+      car: 79,
+      bike: 58,
+      life: 63,
+      health: 95,
+      travel: 40
+    },
     status: 'In Progress',
     lastActivity: '2025-04-04',
   },
@@ -103,7 +139,13 @@ const dummyLeads = [
     city: 'Kolkata',
     existingPolicyHolder: 'Yes',
     ltv: 8200,
-    leadScore: 81,
+    leadScores: {
+      car: 81,
+      bike: 77,
+      life: 50,
+      health: 61,
+      travel: 90
+    },
     status: 'Qualified',
     lastActivity: '2025-04-09',
   },
@@ -115,7 +157,13 @@ const dummyLeads = [
     city: 'Ahmedabad',
     existingPolicyHolder: 'No',
     ltv: 6500,
-    leadScore: 88,
+    leadScores: {
+      car: 88,
+      bike: 69,
+      life: 73,
+      health: 47,
+      travel: 85
+    },
     status: 'New',
     lastActivity: '2025-04-01',
   }
@@ -173,6 +221,12 @@ const LeadExplorerPage = () => {
       currency: 'INR',
       maximumFractionDigits: 0
     }).format(ltv);
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
   };
 
   return (
@@ -235,10 +289,51 @@ const LeadExplorerPage = () => {
               <TableHead>City</TableHead>
               <TableHead>Existing Policy Holder</TableHead>
               <TableHead>LTV</TableHead>
-              <TableHead>Lead Score</TableHead>
+              <TableHead colSpan={5} className="text-center">Lead Scores by Product</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Last Activity</TableHead>
               <TableHead className="w-16">Actions</TableHead>
+            </TableRow>
+            <TableRow>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
+              <TableHead className="p-2 text-center">
+                <div className="flex flex-col items-center">
+                  <Car className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Car</span>
+                </div>
+              </TableHead>
+              <TableHead className="p-2 text-center">
+                <div className="flex flex-col items-center">
+                  <Bike className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Bike</span>
+                </div>
+              </TableHead>
+              <TableHead className="p-2 text-center">
+                <div className="flex flex-col items-center">
+                  <Heart className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Life</span>
+                </div>
+              </TableHead>
+              <TableHead className="p-2 text-center">
+                <div className="flex flex-col items-center">
+                  <MedicalBag className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Health</span>
+                </div>
+              </TableHead>
+              <TableHead className="p-2 text-center">
+                <div className="flex flex-col items-center">
+                  <Briefcase className="h-4 w-4 mb-1" />
+                  <span className="text-xs">Travel</span>
+                </div>
+              </TableHead>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -260,17 +355,72 @@ const LeadExplorerPage = () => {
                     </Badge>
                   </TableCell>
                   <TableCell>{formatLTV(lead.ltv)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <div className="h-2 w-16 bg-gray-200 rounded-full overflow-hidden">
+                  
+                  <TableCell className="p-2">
+                    <div className="flex justify-center items-center">
+                      <div className="h-2 w-12 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full ${lead.leadScore >= 80 ? 'bg-green-500' : lead.leadScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                          style={{ width: `${lead.leadScore}%` }}
+                          className={getScoreColor(lead.leadScores.car)} 
+                          style={{ width: `${lead.leadScores.car}%` }}
+                          aria-hidden="true"
                         />
                       </div>
-                      <span className="ml-2 text-xs">{lead.leadScore}</span>
+                      <span className="ml-2 text-xs">{lead.leadScores.car}</span>
                     </div>
                   </TableCell>
+                  
+                  <TableCell className="p-2">
+                    <div className="flex justify-center items-center">
+                      <div className="h-2 w-12 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={getScoreColor(lead.leadScores.bike)} 
+                          style={{ width: `${lead.leadScores.bike}%` }}
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <span className="ml-2 text-xs">{lead.leadScores.bike}</span>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className="p-2">
+                    <div className="flex justify-center items-center">
+                      <div className="h-2 w-12 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={getScoreColor(lead.leadScores.life)} 
+                          style={{ width: `${lead.leadScores.life}%` }}
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <span className="ml-2 text-xs">{lead.leadScores.life}</span>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className="p-2">
+                    <div className="flex justify-center items-center">
+                      <div className="h-2 w-12 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={getScoreColor(lead.leadScores.health)} 
+                          style={{ width: `${lead.leadScores.health}%` }}
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <span className="ml-2 text-xs">{lead.leadScores.health}</span>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className="p-2">
+                    <div className="flex justify-center items-center">
+                      <div className="h-2 w-12 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={getScoreColor(lead.leadScores.travel)} 
+                          style={{ width: `${lead.leadScores.travel}%` }}
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <span className="ml-2 text-xs">{lead.leadScores.travel}</span>
+                    </div>
+                  </TableCell>
+                  
                   <TableCell>
                     <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
                   </TableCell>
@@ -294,7 +444,7 @@ const LeadExplorerPage = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-6 text-gray-500">
+                <TableCell colSpan={14} className="text-center py-6 text-gray-500">
                   No leads found matching your search.
                 </TableCell>
               </TableRow>

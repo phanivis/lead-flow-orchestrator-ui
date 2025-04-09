@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Plus, 
@@ -907,7 +906,7 @@ const ScoringRulesPage = () => {
                                 value as 'AND' | 'OR'
                               )}
                             >
-                              <SelectTrigger className="w-24">
+                              <SelectTrigger>
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -1130,7 +1129,7 @@ const ScoringRulesPage = () => {
           <DialogHeader>
             <DialogTitle>Test Rule: {editingRule?.name}</DialogTitle>
             <DialogDescription>
-              See how this rule would score a sample lead in the {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name} business unit.
+              See how this rule would score a sample lead in the {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name || ''} business unit.
             </DialogDescription>
           </DialogHeader>
           
@@ -1211,7 +1210,7 @@ const ScoringRulesPage = () => {
                 </div>
                 
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Sample {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name} Lead</h4>
+                  <h4 className="text-sm font-medium mb-2">Sample {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name || ''} Lead</h4>
                   <Card>
                     <CardContent className="p-4 max-h-[200px] overflow-y-auto">
                       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">

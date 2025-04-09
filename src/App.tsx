@@ -8,6 +8,7 @@ import AppLayout from "./components/layout/AppLayout";
 import UploadLeadsPage from "./pages/UploadLeadsPage";
 import ScoringRulesPage from "./pages/ScoringRulesPage";
 import LeadExplorerPage from "./pages/LeadExplorerPage";
+import IngestionHistoryPage from "./pages/IngestionHistoryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,7 +25,7 @@ const App = () => (
             <Route path="upload" element={<UploadLeadsPage />} />
             <Route path="scoring-rules" element={<ScoringRulesPage />} />
             <Route path="lead-explorer" element={<LeadExplorerPage />} />
-            {/* Add routes for additional pages here */}
+            <Route path="ingestion-history" element={<IngestionHistoryPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

@@ -32,11 +32,6 @@ const navigationItems = [
     icon: Star
   },
   {
-    name: 'Lead Analytics',
-    path: '/lead-analytics',
-    icon: Activity
-  },
-  {
     name: 'Manage Lead Attributes',
     path: '/cdp-attributes',
     icon: Database
@@ -50,6 +45,11 @@ const navigationItems = [
     name: 'Ingestion History',
     path: '/ingestion-history',
     icon: List
+  },
+  {
+    name: 'Lead Analytics',
+    path: '/lead-analytics',
+    icon: Activity
   }
 ];
 

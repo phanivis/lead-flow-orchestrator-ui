@@ -66,4 +66,5 @@ export const AssignmentRuleForm = ({ editingRule, onClose, onSubmit }: Assignmen
   );
 };
 
-export { AssignmentRuleFormValues };
+// Using 'export type' for re-exporting TypeScript types when isolatedModules is enabled
+export type { AssignmentRuleFormValues };

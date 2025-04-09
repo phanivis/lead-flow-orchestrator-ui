@@ -10,13 +10,15 @@ interface LeadFiltersProps {
   setSearchTerm: (term: string) => void;
   onRefreshData: () => void;
   onOpenAttributeDialog: () => void;
+  onOpenFilterDialog: () => void;
 }
 
 export const LeadFilters = ({
   searchTerm,
   setSearchTerm,
   onRefreshData,
-  onOpenAttributeDialog
+  onOpenAttributeDialog,
+  onOpenFilterDialog
 }: LeadFiltersProps) => {
   return (
     <div className="flex justify-between items-center">
@@ -38,7 +40,11 @@ export const LeadFilters = ({
           <RefreshCcw size={16} className="mr-2" />
           Refresh
         </Button>
-        <Button variant="outline" size="sm">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={onOpenFilterDialog}
+        >
           <Filter size={16} className="mr-2" />
           Filter
         </Button>

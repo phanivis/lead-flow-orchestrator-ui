@@ -103,6 +103,11 @@ const getOperatorsForType = (type: string) => {
   }
 };
 
+// Helper to generate proper UUID
+const generateUUID = (): `${string}-${string}-${string}-${string}-${string}` => {
+  return crypto.randomUUID() as `${string}-${string}-${string}-${string}-${string}`;
+};
+
 interface AssignmentRule {
   id: string;
   name: string;
@@ -110,7 +115,7 @@ interface AssignmentRule {
   campaign: string;
   priority: number;
   conditions: Array<{
-    id: string;
+    id: `${string}-${string}-${string}-${string}-${string}`;
     attribute: string;
     operator: string;
     value: string;
@@ -127,8 +132,8 @@ const sampleAssignmentRules: AssignmentRule[] = [
     campaign: '1',
     priority: 1,
     conditions: [
-      { id: '101', attribute: 'city', operator: 'equals', value: 'Mumbai' },
-      { id: '102', attribute: 'ltv', operator: 'greaterThan', value: '5000' },
+      { id: generateUUID(), attribute: 'city', operator: 'equals', value: 'Mumbai' },
+      { id: generateUUID(), attribute: 'ltv', operator: 'greaterThan', value: '5000' },
     ]
   },
   {
@@ -138,7 +143,7 @@ const sampleAssignmentRules: AssignmentRule[] = [
     campaign: '3',
     priority: 2,
     conditions: [
-      { id: '201', attribute: 'existingPolicyHolder', operator: 'equals', value: 'Yes' },
+      { id: generateUUID(), attribute: 'existingPolicyHolder', operator: 'equals', value: 'Yes' },
     ]
   },
   {
@@ -148,8 +153,8 @@ const sampleAssignmentRules: AssignmentRule[] = [
     campaign: '5',
     priority: 3,
     conditions: [
-      { id: '301', attribute: 'status', operator: 'equals', value: 'Qualified' },
-      { id: '302', attribute: 'leadScore', operator: 'greaterThan', value: '70' },
+      { id: generateUUID(), attribute: 'status', operator: 'equals', value: 'Qualified' },
+      { id: generateUUID(), attribute: 'leadScore', operator: 'greaterThan', value: '70' },
     ]
   }
 ];
@@ -167,7 +172,7 @@ const LeadAssignmentPage: React.FC = () => {
       businessUnit: '',
       campaign: '',
       priority: 1,
-      conditions: [{ id: crypto.randomUUID(), attribute: '', operator: '', value: '', value2: '' }]
+      conditions: [{ id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }]
     }
   });
   
@@ -177,7 +182,7 @@ const LeadAssignmentPage: React.FC = () => {
       businessUnit: '',
       campaign: '',
       priority: 1,
-      conditions: [{ id: crypto.randomUUID(), attribute: '', operator: '', value: '', value2: '' }]
+      conditions: [{ id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }]
     });
     setEditingRule(null);
     setIsAddDialogOpen(true);
@@ -204,7 +209,7 @@ const LeadAssignmentPage: React.FC = () => {
     const currentConditions = form.getValues('conditions');
     form.setValue('conditions', [
       ...currentConditions,
-      { id: crypto.randomUUID(), attribute: '', operator: '', value: '', value2: '' }
+      { id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }
     ]);
   };
   

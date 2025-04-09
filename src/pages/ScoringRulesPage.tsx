@@ -622,6 +622,153 @@ const ScoringRulesPage = () => {
   // Filter rules by active business unit
   const filteredRules = rules.filter(rule => rule.businessUnit === activeTab);
   
+  const TestRuleDialog = ({ open, onOpenChange, selectedRule, businessUnit }) => {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Test Scoring Rule</DialogTitle>
+            <DialogDescription>
+              Test how {selectedRule?.name || 'this rule'} scores leads for {businessUnits.find(bu => bu.id === businessUnit)?.name || 'this business unit'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedRule && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Rule Definition</h4>
+                  <Card>
+                    <CardContent className="p-4 text-sm">
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-muted-foreground">If</span>
+                          {selectedRule.conditions.map((condition, index) => (
+                            <div key={index} className="ml-4 mt-1">
+                              {index > 0 && (
+                                <span className="text-muted-foreground">
+                                  {condition.conjunction}
+                                </span>
+                              )}
+                              <div className="flex items-center mt-1">
+                                <Badge variant="outline" className="mr-2">
+                                  {condition.attribute}
+                                </Badge>
+                                <span className="mr-2">{condition.operator.replace('_', ' ')}</span>
+                                <Badge className="bg-secondary text-foreground">
+                                  {condition.value}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Then</span>
+                          <div className="ml-4 mt-1">
+                            <span>
+                              Adjust score by{' '}
+                              <Badge className="bg-primary">
+                                {selectedRule.action.value > 0 ? '+' : ''}
+                                {selectedRule.action.value}
+                              </Badge>
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Show frequency and expiry in test modal */}
+                        {(selectedRule.frequency.enabled || selectedRule.expiry.enabled) && (
+                          <div className="border-t pt-2 mt-2">
+                            <span className="text-muted-foreground">Limits</span>
+                            <div className="ml-4 mt-1">
+                              {selectedRule.frequency.enabled && (
+                                <div className="flex items-center">
+                                  <RepeatIcon className="h-3 w-3 mr-1 text-blue-600" />
+                                  <span className="text-xs">
+                                    {selectedRule.frequency.type === 'once'
+                                      ? 'Applied once per lead'
+                                      : selectedRule.frequency.type === 'custom'
+                                        ? `Max ${selectedRule.frequency.maxCount}x per ${selectedRule.frequency.period} days`
+                                        : `Max ${selectedRule.frequency.maxCount}x ${selectedRule.frequency.type}`}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {selectedRule.expiry.enabled && selectedRule.expiry.date && (
+                                <div className="flex items-center mt-1">
+                                  <Calendar className="h-3 w-3 mr-1 text-amber-600" />
+                                  <span className="text-xs">
+                                    Expires on {format(new Date(selectedRule.expiry.date), 'MMMM d, yyyy')}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Sample {businessUnits.find(bu => bu.id === businessUnit)?.name || ''} Lead</h4>
+                  <Card>
+                    <CardContent className="p-4 max-h-[200px] overflow-y-auto">
+                      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        {Object.entries(getTestLead()).map(([key, value]) => (
+                          <div key={key} className="col-span-1">
+                            <dt className="text-muted-foreground truncate">{key}</dt>
+                            <dd className="font-medium truncate">
+                              {Array.isArray(value) ? value.join(', ') : value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+              
+              <Card className={
+                evaluateRule(selectedRule, getTestLead()) 
+                  ? "border-green-500 bg-green-50"
+                  : "border-gray-300 bg-muted"
+              }>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    {evaluateRule(selectedRule, getTestLead()) ? (
+                      <>
+                        <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                        <span className="font-medium">
+                          Rule matched! Score would be adjusted by {selectedRule.action.value > 0 ? '+' : ''}
+                          {selectedRule.action.value} points.
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="h-5 w-5 text-muted-foreground mr-2" />
+                        <span className="font-medium text-muted-foreground">
+                          {selectedRule.expiry.enabled && selectedRule.expiry.date && new Date(selectedRule.expiry.date) < new Date() 
+                            ? "Rule is expired. No change to score." 
+                            : "Rule did not match. No change to score."}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setIsTestDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+  
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center">
@@ -1124,148 +1271,12 @@ const ScoringRulesPage = () => {
       </Dialog>
       
       {/* Test Rule Dialog */}
-      <Dialog open={isTestDialogOpen} onOpenChange={setIsTestDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Test Rule: {editingRule?.name}</DialogTitle>
-            <DialogDescription>
-              See how this rule would score a sample lead in the {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name || ''} business unit.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {editingRule && (
-            <div className="space-y-6 py-4">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Rule Definition</h4>
-                  <Card>
-                    <CardContent className="p-4 text-sm">
-                      <div className="space-y-2">
-                        <div>
-                          <span className="text-muted-foreground">If</span>
-                          {editingRule.conditions.map((condition, index) => (
-                            <div key={index} className="ml-4 mt-1">
-                              {index > 0 && (
-                                <span className="text-muted-foreground">
-                                  {condition.conjunction}
-                                </span>
-                              )}
-                              <div className="flex items-center mt-1">
-                                <Badge variant="outline" className="mr-2">
-                                  {condition.attribute}
-                                </Badge>
-                                <span className="mr-2">{condition.operator.replace('_', ' ')}</span>
-                                <Badge className="bg-secondary text-foreground">
-                                  {condition.value}
-                                </Badge>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Then</span>
-                          <div className="ml-4 mt-1">
-                            <span>
-                              Adjust score by{' '}
-                              <Badge className="bg-primary">
-                                {editingRule.action.value > 0 ? '+' : ''}
-                                {editingRule.action.value}
-                              </Badge>
-                            </span>
-                          </div>
-                        </div>
-                        
-                        {/* Show frequency and expiry in test modal */}
-                        {(editingRule.frequency.enabled || editingRule.expiry.enabled) && (
-                          <div className="border-t pt-2 mt-2">
-                            <span className="text-muted-foreground">Limits</span>
-                            <div className="ml-4 mt-1">
-                              {editingRule.frequency.enabled && (
-                                <div className="flex items-center">
-                                  <RepeatIcon className="h-3 w-3 mr-1 text-blue-600" />
-                                  <span className="text-xs">
-                                    {editingRule.frequency.type === 'once'
-                                      ? 'Applied once per lead'
-                                      : editingRule.frequency.type === 'custom'
-                                        ? `Max ${editingRule.frequency.maxCount}x per ${editingRule.frequency.period} days`
-                                        : `Max ${editingRule.frequency.maxCount}x ${editingRule.frequency.type}`}
-                                  </span>
-                                </div>
-                              )}
-                              
-                              {editingRule.expiry.enabled && editingRule.expiry.date && (
-                                <div className="flex items-center mt-1">
-                                  <Calendar className="h-3 w-3 mr-1 text-amber-600" />
-                                  <span className="text-xs">
-                                    Expires on {format(new Date(editingRule.expiry.date), 'MMMM d, yyyy')}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Sample {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name || ''} Lead</h4>
-                  <Card>
-                    <CardContent className="p-4 max-h-[200px] overflow-y-auto">
-                      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        {Object.entries(getTestLead()).map(([key, value]) => (
-                          <div key={key} className="col-span-1">
-                            <dt className="text-muted-foreground truncate">{key}</dt>
-                            <dd className="font-medium truncate">
-                              {Array.isArray(value) ? value.join(', ') : value}
-                            </dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-              
-              <Card className={
-                evaluateRule(editingRule, getTestLead()) 
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-300 bg-muted"
-              }>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center">
-                    {evaluateRule(editingRule, getTestLead()) ? (
-                      <>
-                        <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
-                        <span className="font-medium">
-                          Rule matched! Score would be adjusted by {editingRule.action.value > 0 ? '+' : ''}
-                          {editingRule.action.value} points.
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="h-5 w-5 text-muted-foreground mr-2" />
-                        <span className="font-medium text-muted-foreground">
-                          {editingRule.expiry.enabled && editingRule.expiry.date && new Date(editingRule.expiry.date) < new Date() 
-                            ? "Rule is expired. No change to score." 
-                            : "Rule did not match. No change to score."}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button onClick={() => setIsTestDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <TestRuleDialog
+        open={isTestDialogOpen}
+        onOpenChange={setIsTestDialogOpen}
+        selectedRule={editingRule}
+        businessUnit={activeTab}
+      />
     </div>
   );
 };

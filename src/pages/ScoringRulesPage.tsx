@@ -17,7 +17,12 @@ import {
   Edit,
   Calendar,
   RepeatIcon,
-  Timer
+  Timer,
+  Car,
+  Bike,
+  Heart,
+  ActivitySquare,
+  Plane
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,6 +56,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface RuleFrequency {
   enabled: boolean;
@@ -76,6 +82,7 @@ interface ScoringRule {
   createdAt: string;
   frequency: RuleFrequency;
   expiry: RuleExpiry;
+  businessUnit: 'car' | 'bike' | 'life' | 'health' | 'travel';
 }
 
 interface RuleCondition {
@@ -90,14 +97,26 @@ interface RuleAction {
   value: number;
 }
 
+// Business unit configuration with icons and color schemes
+const businessUnits = [
+  { id: 'car', name: 'Car', icon: Car, color: 'bg-blue-500', lightColor: 'bg-blue-100', textColor: 'text-blue-700' },
+  { id: 'bike', name: 'Bike', icon: Bike, color: 'bg-green-500', lightColor: 'bg-green-100', textColor: 'text-green-700' },
+  { id: 'life', name: 'Life', icon: Heart, color: 'bg-red-500', lightColor: 'bg-red-100', textColor: 'text-red-700' },
+  { id: 'health', name: 'Health', icon: ActivitySquare, color: 'bg-purple-500', lightColor: 'bg-purple-100', textColor: 'text-purple-700' },
+  { id: 'travel', name: 'Travel', icon: Plane, color: 'bg-amber-500', lightColor: 'bg-amber-100', textColor: 'text-amber-700' },
+];
+
 const ScoringRulesPage = () => {
+  const [activeTab, setActiveTab] = useState<string>('car');
+  
+  // Sample rules with business unit assignments
   const [rules, setRules] = useState<ScoringRule[]>([
     {
       id: '1',
       name: 'High-intent Website Visitor',
       description: 'Increase score for visitors who checked the pricing page',
       conditions: [
-        { attribute: 'page_visits', operator: 'contains', value: '/pricing' }
+        { attribute: 'page_visits', operator: 'contains', value: '/car/pricing' }
       ],
       action: { type: 'score', value: 10 },
       status: 'active',
@@ -105,15 +124,16 @@ const ScoringRulesPage = () => {
       version: 1,
       createdAt: '2025-03-15',
       frequency: { enabled: false, type: 'once' },
-      expiry: { enabled: false }
+      expiry: { enabled: false },
+      businessUnit: 'car'
     },
     {
       id: '2',
-      name: 'Enterprise Lead',
-      description: 'Higher score for enterprise customers',
+      name: 'Enterprise Fleet Lead',
+      description: 'Higher score for enterprise fleet customers',
       conditions: [
-        { attribute: 'company_size', operator: 'greater_than', value: '500' },
-        { conjunction: 'AND', attribute: 'product_interest', operator: 'equals', value: 'Enterprise Plan' }
+        { attribute: 'fleet_size', operator: 'greater_than', value: '10' },
+        { conjunction: 'AND', attribute: 'product_interest', operator: 'equals', value: 'Car Fleet Plan' }
       ],
       action: { type: 'score', value: 20 },
       status: 'active',
@@ -121,23 +141,75 @@ const ScoringRulesPage = () => {
       version: 3,
       createdAt: '2025-03-10',
       frequency: { enabled: true, type: 'once' },
-      expiry: { enabled: false }
+      expiry: { enabled: false },
+      businessUnit: 'car'
     },
     {
       id: '3',
-      name: 'Form Submitter',
-      description: 'Increase score for users who submitted contact form',
+      name: 'Premium Bike Inquiry',
+      description: 'Increase score for users interested in premium bikes',
       conditions: [
-        { attribute: 'form_submitted', operator: 'equals', value: 'true' }
+        { attribute: 'product_category', operator: 'equals', value: 'premium_bikes' }
       ],
       action: { type: 'score', value: 15 },
-      status: 'inactive',
-      priority: 3,
+      status: 'active',
+      priority: 1,
+      version: 1,
+      createdAt: '2025-03-12',
+      frequency: { enabled: true, type: 'daily', maxCount: 1 },
+      expiry: { enabled: false },
+      businessUnit: 'bike'
+    },
+    {
+      id: '4',
+      name: 'Life Insurance Calculator',
+      description: 'User completed life insurance calculation',
+      conditions: [
+        { attribute: 'calculator_usage', operator: 'equals', value: 'completed' },
+        { conjunction: 'AND', attribute: 'coverage_amount', operator: 'greater_than', value: '100000' }
+      ],
+      action: { type: 'score', value: 25 },
+      status: 'active',
+      priority: 1,
+      version: 1,
+      createdAt: '2025-03-14',
+      frequency: { enabled: false, type: 'once' },
+      expiry: { enabled: false },
+      businessUnit: 'life'
+    },
+    {
+      id: '5',
+      name: 'Health Checkup Inquiry',
+      description: 'User requested health checkup information',
+      conditions: [
+        { attribute: 'form_submitted', operator: 'equals', value: 'health_checkup' }
+      ],
+      action: { type: 'score', value: 15 },
+      status: 'active',
+      priority: 2,
       version: 1,
       createdAt: '2025-03-05',
-      frequency: { enabled: true, type: 'daily', maxCount: 1 },
-      expiry: { enabled: true, date: '2025-06-30' }
-    }
+      frequency: { enabled: true, type: 'once' },
+      expiry: { enabled: true, date: '2025-06-30' },
+      businessUnit: 'health'
+    },
+    {
+      id: '6',
+      name: 'International Travel Quote',
+      description: 'User requested international travel insurance quote',
+      conditions: [
+        { attribute: 'destination_type', operator: 'equals', value: 'international' },
+        { conjunction: 'AND', attribute: 'coverage_type', operator: 'contains', value: 'premium' }
+      ],
+      action: { type: 'score', value: 20 },
+      status: 'inactive',
+      priority: 1,
+      version: 2,
+      createdAt: '2025-02-28',
+      frequency: { enabled: true, type: 'monthly', maxCount: 2 },
+      expiry: { enabled: false },
+      businessUnit: 'travel'
+    },
   ]);
   
   const [editingRule, setEditingRule] = useState<ScoringRule | null>(null);
@@ -145,11 +217,18 @@ const ScoringRulesPage = () => {
   const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
   
   // Sample attributes for the condition builder
-  const availableAttributes = [
-    'page_visits', 'company_size', 'product_interest', 'form_submitted',
-    'email_domain', 'visit_count', 'time_on_site', 'lead_source',
-    'country', 'industry', 'job_title', 'campaign_source'
-  ];
+  const attributesByBusinessUnit = {
+    car: ['page_visits', 'fleet_size', 'vehicle_type', 'quote_value', 'form_submitted', 'lead_source'],
+    bike: ['product_category', 'engine_size', 'bike_type', 'usage_type', 'visit_count', 'form_submitted'],
+    life: ['coverage_amount', 'policy_term', 'calculator_usage', 'beneficiary_count', 'risk_profile'],
+    health: ['coverage_type', 'family_size', 'pre_existing_conditions', 'form_submitted', 'plan_interest'],
+    travel: ['destination_type', 'trip_duration', 'coverage_type', 'traveler_count', 'purpose_of_travel']
+  };
+  
+  // Get attributes for current business unit
+  const getAvailableAttributes = () => {
+    return attributesByBusinessUnit[activeTab as keyof typeof attributesByBusinessUnit] || [];
+  };
   
   // Sample operators
   const operators = {
@@ -159,20 +238,60 @@ const ScoringRulesPage = () => {
     date: ['equals', 'not_equals', 'before', 'after', 'between']
   };
   
-  // Sample test lead
-  const testLead = {
-    name: 'John Smith',
-    email: 'john.smith@acme.com',
-    page_visits: ['/home', '/products', '/pricing', '/contact'],
-    company_size: '750',
-    product_interest: 'Enterprise Plan',
-    form_submitted: 'true',
-    visit_count: '5',
-    time_on_site: '324',
-    lead_source: 'Google Search',
-    country: 'United States',
-    industry: 'Technology',
-    job_title: 'CTO'
+  // Sample test leads for each business unit
+  const testLeadsByBusinessUnit = {
+    car: {
+      name: 'John Smith',
+      email: 'john.smith@acme.com',
+      page_visits: ['/car/home', '/car/products', '/car/pricing', '/car/contact'],
+      fleet_size: '12',
+      vehicle_type: 'SUV',
+      product_interest: 'Car Fleet Plan',
+      form_submitted: 'car_inquiry',
+      lead_source: 'Google Search'
+    },
+    bike: {
+      name: 'Amy Johnson',
+      email: 'amy.j@gmail.com',
+      product_category: 'premium_bikes',
+      engine_size: '1000cc',
+      bike_type: 'Sport',
+      usage_type: 'Weekend Riding',
+      visit_count: '3',
+      form_submitted: 'test_ride'
+    },
+    life: {
+      name: 'Michael Chen',
+      email: 'michael.c@example.com',
+      coverage_amount: '250000',
+      policy_term: '30',
+      calculator_usage: 'completed',
+      beneficiary_count: '2',
+      risk_profile: 'low'
+    },
+    health: {
+      name: 'Sarah Williams',
+      email: 'sarah.w@healthco.com',
+      coverage_type: 'Family',
+      family_size: '4',
+      pre_existing_conditions: 'none',
+      form_submitted: 'health_checkup',
+      plan_interest: 'Premium Health Plan'
+    },
+    travel: {
+      name: 'David Brown',
+      email: 'david.b@travel.net',
+      destination_type: 'international',
+      trip_duration: '14',
+      coverage_type: 'premium comprehensive',
+      traveler_count: '2',
+      purpose_of_travel: 'Leisure'
+    }
+  };
+  
+  // Get the current test lead based on active business unit
+  const getTestLead = () => {
+    return testLeadsByBusinessUnit[activeTab as keyof typeof testLeadsByBusinessUnit] || {};
   };
   
   const handleCreateRule = () => {
@@ -187,7 +306,8 @@ const ScoringRulesPage = () => {
       version: 1,
       createdAt: new Date().toISOString().split('T')[0],
       frequency: { enabled: false, type: 'once' },
-      expiry: { enabled: false }
+      expiry: { enabled: false },
+      businessUnit: activeTab as ScoringRule['businessUnit']
     };
     
     setEditingRule(newRule);
@@ -500,12 +620,15 @@ const ScoringRulesPage = () => {
     });
   };
   
+  // Filter rules by active business unit
+  const filteredRules = rules.filter(rule => rule.businessUnit === activeTab);
+  
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-2xl font-bold">Lead Scoring Rules</h3>
-          <p className="text-muted-foreground">Create and manage rules to score leads automatically</p>
+          <p className="text-muted-foreground">Create and manage rules to score leads automatically by business unit</p>
         </div>
         <Button onClick={handleCreateRule} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
@@ -513,119 +636,166 @@ const ScoringRulesPage = () => {
         </Button>
       </div>
       
-      <Card>
-        <CardContent className="p-6">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">Priority</TableHead>
-                  <TableHead>Rule Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="w-[100px]">Score</TableHead>
-                  <TableHead className="w-[100px]">Status</TableHead>
-                  <TableHead className="w-[150px]">Limits</TableHead>
-                  <TableHead className="w-[180px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rules.map((rule) => (
-                  <TableRow key={rule.id}>
-                    <TableCell className="font-medium">{rule.priority}</TableCell>
-                    <TableCell>{rule.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{rule.description}</TableCell>
-                    <TableCell>{rule.action.value > 0 ? `+${rule.action.value}` : rule.action.value}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {getStatusBadge(rule.status)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {getFrequencyBadge(rule)}
-                        {getExpiryBadge(rule)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-1">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={() => handleEditRule(rule)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit Rule</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={() => handleTestRule(rule)}
-                              >
-                                <Play className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Test Rule</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={() => handleChangeRuleStatus(
-                                  rule.id, 
-                                  rule.status === 'active' ? 'inactive' : 'active'
-                                )}
-                              >
-                                {rule.status === 'active' ? (
-                                  <XCircle className="h-4 w-4 text-muted-foreground" />
-                                ) : (
-                                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                )}
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {rule.status === 'active' ? 'Deactivate' : 'Activate'} Rule
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={() => handleDeleteRule(rule.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Delete Rule</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Business Unit Tabs */}
+      <Tabs 
+        defaultValue="car" 
+        value={activeTab} 
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
+        <TabsList className="w-full flex justify-between mb-4">
+          {businessUnits.map(bu => {
+            const BuIcon = bu.icon;
+            return (
+              <TabsTrigger 
+                key={bu.id} 
+                value={bu.id}
+                className="flex-1 flex items-center justify-center gap-2"
+              >
+                <BuIcon className="h-4 w-4" />
+                <span>{bu.name}</span>
+                <Badge className={`ml-1 ${bu.lightColor} ${bu.textColor} border-0`}>
+                  {rules.filter(r => r.businessUnit === bu.id).length}
+                </Badge>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+        
+        {businessUnits.map(bu => (
+          <TabsContent key={bu.id} value={bu.id} className="mt-0">
+            <Card>
+              <CardContent className="p-6">
+                {filteredRules.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="flex justify-center mb-4">
+                      {React.createElement(bu.icon, { className: `h-12 w-12 ${bu.textColor} opacity-20` })}
+                    </div>
+                    <h3 className="text-xl font-medium mb-2">No scoring rules for {bu.name}</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Create your first scoring rule for {bu.name} insurance to start scoring leads automatically.
+                    </p>
+                    <Button onClick={handleCreateRule}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create {bu.name} Scoring Rule
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">Priority</TableHead>
+                          <TableHead>Rule Name</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead className="w-[100px]">Score</TableHead>
+                          <TableHead className="w-[100px]">Status</TableHead>
+                          <TableHead className="w-[150px]">Limits</TableHead>
+                          <TableHead className="w-[180px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredRules.map((rule) => (
+                          <TableRow key={rule.id}>
+                            <TableCell className="font-medium">{rule.priority}</TableCell>
+                            <TableCell>{rule.name}</TableCell>
+                            <TableCell className="text-muted-foreground">{rule.description}</TableCell>
+                            <TableCell>{rule.action.value > 0 ? `+${rule.action.value}` : rule.action.value}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {getStatusBadge(rule.status)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {getFrequencyBadge(rule)}
+                                {getExpiryBadge(rule)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-1">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon"
+                                        onClick={() => handleEditRule(rule)}
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Edit Rule</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon"
+                                        onClick={() => handleTestRule(rule)}
+                                      >
+                                        <Play className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Test Rule</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon"
+                                        onClick={() => handleChangeRuleStatus(
+                                          rule.id, 
+                                          rule.status === 'active' ? 'inactive' : 'active'
+                                        )}
+                                      >
+                                        {rule.status === 'active' ? (
+                                          <XCircle className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {rule.status === 'active' ? 'Deactivate' : 'Activate'} Rule
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon"
+                                        onClick={() => handleDeleteRule(rule.id)}
+                                        className="text-destructive"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Delete Rule</TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
       
       {/* Edit/Create Rule Dialog */}
       <Dialog open={isRuleDialogOpen} onOpenChange={setIsRuleDialogOpen}>
@@ -685,6 +855,31 @@ const ScoringRulesPage = () => {
                 />
               </div>
               
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Business Unit</label>
+                <Select 
+                  value={editingRule.businessUnit}
+                  onValueChange={(value) => setEditingRule({
+                    ...editingRule, 
+                    businessUnit: value as ScoringRule['businessUnit']
+                  })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select business unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessUnits.map((bu) => (
+                      <SelectItem key={bu.id} value={bu.id}>
+                        <div className="flex items-center gap-2">
+                          {React.createElement(bu.icon, { className: "h-4 w-4" })}
+                          <span>{bu.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium">Conditions</label>
@@ -733,7 +928,7 @@ const ScoringRulesPage = () => {
                                 <SelectValue placeholder="Select attribute" />
                               </SelectTrigger>
                               <SelectContent>
-                                {availableAttributes.map((attr) => (
+                                {getAvailableAttributes().map((attr) => (
                                   <SelectItem key={attr} value={attr}>{attr}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -935,7 +1130,7 @@ const ScoringRulesPage = () => {
           <DialogHeader>
             <DialogTitle>Test Rule: {editingRule?.name}</DialogTitle>
             <DialogDescription>
-              See how this rule would score a sample lead.
+              See how this rule would score a sample lead in the {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name} business unit.
             </DialogDescription>
           </DialogHeader>
           
@@ -1016,11 +1211,11 @@ const ScoringRulesPage = () => {
                 </div>
                 
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Sample Lead</h4>
+                  <h4 className="text-sm font-medium mb-2">Sample {businessUnits.find(bu => bu.id === editingRule?.businessUnit)?.name} Lead</h4>
                   <Card>
                     <CardContent className="p-4 max-h-[200px] overflow-y-auto">
                       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        {Object.entries(testLead).map(([key, value]) => (
+                        {Object.entries(getTestLead()).map(([key, value]) => (
                           <div key={key} className="col-span-1">
                             <dt className="text-muted-foreground truncate">{key}</dt>
                             <dd className="font-medium truncate">
@@ -1035,13 +1230,13 @@ const ScoringRulesPage = () => {
               </div>
               
               <Card className={
-                evaluateRule(editingRule, testLead) 
+                evaluateRule(editingRule, getTestLead()) 
                   ? "border-green-500 bg-green-50"
                   : "border-gray-300 bg-muted"
               }>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center">
-                    {evaluateRule(editingRule, testLead) ? (
+                    {evaluateRule(editingRule, getTestLead()) ? (
                       <>
                         <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
                         <span className="font-medium">

@@ -7,38 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Code, Calculator, Edit, Plus, Save, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ScoringRulesTable } from '@/components/scoring/ScoringRulesTable';
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
-type ScoringRule = {
-  id: string;
-  business_unit: string;
-  description: string;
-  criteria: string;
-  weight: number;
-  isSQL: boolean;
-};
-
-type BusinessUnit = {
-  id: string;
-  name: string;
-};
+import { BusinessUnitSelector } from '@/components/scoring/BusinessUnitSelector';
+import { ScoringRuleFormDialog } from '@/components/scoring/ScoringRuleFormDialog';
+import { ScoringRule, BusinessUnit, validateScoringRule } from '@/types/scoringTypes';
 
 const ScoringRulesPage: React.FC = () => {
   const [scoringRules, setScoringRules] = useState<ScoringRule[]>([]);
@@ -118,28 +93,13 @@ const ScoringRulesPage: React.FC = () => {
     }
   };
   
-  const validateInput = (): boolean => {
-    if (!formBusinessUnit) {
-      toast.error("Please select a Business Unit");
-      return false;
-    }
-    if (!criteria) {
-      toast.error("Please enter a Criteria");
-      return false;
-    }
-    if (weight === undefined) {
-      toast.error("Please enter a Weight");
-      return false;
-    }
-    if (weight <= 0 || weight > 100) {
-      toast.error("Weight must be between 1 and 100");
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = () => {
-    if (!validateInput()) return;
+    const validation = validateScoringRule(formBusinessUnit, criteria, weight);
+    
+    if (!validation.isValid) {
+      toast.error(validation.message);
+      return;
+    }
     
     if (editingRule) {
       const updatedRules = scoringRules.map(rule => {
@@ -173,22 +133,12 @@ const ScoringRulesPage: React.FC = () => {
     }
     
     setIsDialogOpen(false);
-    resetForm();
   };
   
   const deleteScoringRule = (id: string) => {
     const updatedRules = scoringRules.filter(rule => rule.id !== id);
     setScoringRules(updatedRules);
     toast.success("Scoring Rule deleted successfully");
-  };
-  
-  const resetForm = () => {
-    setFormBusinessUnit('');
-    setDescription('');
-    setCriteria('');
-    setWeight(undefined);
-    setIsSQL(false);
-    setEditingRule(null);
   };
   
   const filteredRules = selectedBusinessUnit === 'all'
@@ -200,17 +150,11 @@ const ScoringRulesPage: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Scoring Rules</h1>
         <div className="flex items-center gap-2">
-          <Select value={selectedBusinessUnit} onValueChange={handleBusinessUnitChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by BU" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Business Units</SelectItem>
-              {businessUnits.map(bu => (
-                <SelectItem key={bu.id} value={bu.id}>{bu.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <BusinessUnitSelector 
+            selectedBusinessUnit={selectedBusinessUnit}
+            businessUnits={businessUnits}
+            onBusinessUnitChange={handleBusinessUnitChange}
+          />
           <Button onClick={openAddDialog}>
             <Plus className="mr-2 h-4 w-4" />
             Create Rule
@@ -235,113 +179,23 @@ const ScoringRulesPage: React.FC = () => {
         </CardContent>
       </Card>
       
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{editingRule ? 'Edit Scoring Rule' : 'Create Scoring Rule'}</DialogTitle>
-            <DialogDescription>
-              {editingRule 
-                ? 'Modify the scoring rule details.' 
-                : 'Set up rules to score leads based on specific criteria.'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label htmlFor="business-unit" className="flex items-center">
-                  Business Unit <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Select
-                  value={formBusinessUnit}
-                  onValueChange={handleFormBusinessUnitChange}
-                >
-                  <SelectTrigger id="business-unit">
-                    <SelectValue placeholder="Select a business unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businessUnits.map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id}>{unit.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="description">
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Enter a description for this rule"
-                  value={description}
-                  onChange={handleDescriptionChange}
-                  className="resize-none"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="rule-type" className="mb-2 block">
-                  Rule Type
-                </Label>
-                <ToggleGroup
-                  type="single"
-                  value={isSQL ? 'sql' : 'builder'}
-                  onValueChange={handleRuleTypeChange}
-                  className="justify-start"
-                >
-                  <ToggleGroupItem value="builder">
-                    <Calculator className="h-4 w-4 mr-2" />
-                    Builder
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="sql">
-                    <Code className="h-4 w-4 mr-2" />
-                    SQL
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-              
-              <div>
-                <Label htmlFor="criteria" className="flex items-center">
-                  Criteria <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Input
-                  id="criteria"
-                  placeholder={isSQL ? "Enter SQL expression" : "Enter criteria"}
-                  value={criteria}
-                  onChange={handleCriteriaChange}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="weight" className="flex items-center">
-                  Weight (1-100) <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  placeholder="Enter weight"
-                  min={1}
-                  max={100}
-                  value={weight !== undefined ? weight.toString() : ''}
-                  onChange={handleWeightChange}
-                />
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>
-              <Save className="mr-2 h-4 w-4" />
-              {editingRule ? 'Update Rule' : 'Create Rule'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ScoringRuleFormDialog 
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        businessUnits={businessUnits}
+        editingRule={editingRule}
+        formBusinessUnit={formBusinessUnit}
+        description={description}
+        criteria={criteria}
+        weight={weight}
+        isSQL={isSQL}
+        onBusinessUnitChange={handleFormBusinessUnitChange}
+        onDescriptionChange={handleDescriptionChange}
+        onCriteriaChange={handleCriteriaChange}
+        onWeightChange={handleWeightChange}
+        onRuleTypeChange={handleRuleTypeChange}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };

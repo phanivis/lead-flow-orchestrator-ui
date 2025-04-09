@@ -8,7 +8,6 @@ import {
   Database, 
   Edit2, 
   List, 
-  Bell, 
   Search,
   BarChart2
 } from 'lucide-react';
@@ -31,7 +30,6 @@ const navigationItems = [
   { name: 'CDP Attributes', path: '/cdp-attributes', icon: Database },
   { name: 'Bulk Edit', path: '/bulk-edit', icon: Edit2 },
   { name: 'Ingestion History', path: '/ingestion-history', icon: List },
-  { name: 'Alerts', path: '/alerts', icon: Bell },
   { name: 'Lead Explorer', path: '/lead-explorer', icon: Search }
 ];
 

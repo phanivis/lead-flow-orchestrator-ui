@@ -26,18 +26,22 @@ const attributesList = [
   { id: 1, name: 'Customer Lifetime Value', type: 'Number', source: 'CDP', visible: true, editable: false },
   { id: 2, name: 'Purchase Frequency', type: 'Number', source: 'CDP', visible: true, editable: false },
   { id: 3, name: 'Product Interest', type: 'Text', source: 'LMS', visible: true, editable: true },
-  { id: 4, name: 'Engagement Score', type: 'Number', source: 'LMS', visible: true, editable: true },
-  { id: 5, name: 'Lead Age', type: 'Date', source: 'LMS', visible: false, editable: true },
+  { id: 4, name: 'Engagement Score', type: 'Number', source: 'LMS', visible: true, editable: true, 
+    formula: { firstAttribute: '1', operator: '+', secondAttribute: '2' }, description: 'Customer value plus purchase frequency' },
+  { id: 5, name: 'Lead Age', type: 'Date', source: 'LMS', visible: false, editable: true, 
+    formula: { firstAttribute: '11', operator: 'year_diff', secondAttribute: '12' }, description: 'Years since birth date' },
   { id: 6, name: 'Email Opened', type: 'Boolean', source: 'Marketing', visible: true, editable: false },
   { id: 7, name: 'Last Website Visit', type: 'Date', source: 'Analytics', visible: false, editable: false },
   { id: 8, name: 'Social Media Mentions', type: 'Number', source: 'Social', visible: false, editable: false },
   { id: 9, name: 'Support Tickets', type: 'Number', source: 'Support', visible: true, editable: false },
-  { id: 10, name: 'Campaign Response', type: 'Boolean', source: 'LMS', visible: true, editable: true },
+  { id: 10, name: 'Campaign Response', type: 'Boolean', source: 'LMS', visible: true, editable: true, 
+    sqlExpression: 'CASE WHEN [Lead Source] = "Campaign" THEN 1 ELSE 0 END', description: 'Whether lead came from a campaign' },
 ];
 
 const CdpAttributesPage = () => {
   const [isAttributeDialogOpen, setIsAttributeDialogOpen] = useState(false);
   const [attributes, setAttributes] = useState(attributesList);
+  const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
   
   const toggleAttributeVisibility = (id: number) => {
     setAttributes(
@@ -62,6 +66,29 @@ const CdpAttributesPage = () => {
     }
   };
 
+  const handleEditAttribute = (id: number) => {
+    const attribute = attributes.find(attr => attr.id === id);
+    if (attribute && attribute.editable) {
+      setSelectedAttribute(attribute);
+      setIsAttributeDialogOpen(true);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsAttributeDialogOpen(false);
+    setSelectedAttribute(null);
+  };
+
+  const handleUpdateAttribute = (updatedAttr: any) => {
+    setAttributes(
+      attributes.map(attr => 
+        attr.id === updatedAttr.id ? { ...attr, ...updatedAttr } : attr
+      )
+    );
+    toast.success(`${updatedAttr.name} has been updated`);
+    setSelectedAttribute(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -70,7 +97,10 @@ const CdpAttributesPage = () => {
           <p className="text-muted-foreground">Manage your customer data and lead attributes</p>
         </div>
         <Button 
-          onClick={() => setIsAttributeDialogOpen(true)}
+          onClick={() => {
+            setSelectedAttribute(null);
+            setIsAttributeDialogOpen(true);
+          }}
         >
           <Plus size={16} className="mr-2" />
           New Attribute
@@ -145,7 +175,11 @@ const CdpAttributesPage = () => {
                       <TableCell>{attribute.source}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end space-x-2">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditAttribute(attribute.id)}
+                          >
                             <Edit size={16} />
                           </Button>
                           <Button 
@@ -167,7 +201,9 @@ const CdpAttributesPage = () => {
 
       <LeadAttributeDialog 
         open={isAttributeDialogOpen} 
-        onOpenChange={setIsAttributeDialogOpen} 
+        onOpenChange={handleCloseDialog}
+        attributeToEdit={selectedAttribute}
+        onUpdateAttribute={handleUpdateAttribute}
       />
     </div>
   );

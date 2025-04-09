@@ -14,12 +14,10 @@ import IngestionFilters from '@/components/ingestion-history/IngestionFilters';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { DateRange } from 'react-day-picker';
 
 const IngestionHistoryPage = () => {
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
@@ -94,7 +92,7 @@ const IngestionHistoryPage = () => {
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="h-10 pl-3 pr-3 flex items-center gap-1">
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange.from ? (
+                      {dateRange?.from ? (
                         dateRange.to ? (
                           <>
                             {format(dateRange.from, "LLL dd")} - {format(dateRange.to, "LLL dd")}
@@ -113,6 +111,7 @@ const IngestionHistoryPage = () => {
                       selected={dateRange}
                       onSelect={setDateRange}
                       numberOfMonths={2}
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>

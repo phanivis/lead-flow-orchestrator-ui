@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, X, Trash2, Save, Database, Calculator, Function } from 'lucide-react';
+import { Plus, X, Trash2, Save, Database, Calculator, Code } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -392,7 +392,7 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
                 
                 <div className="p-3 bg-muted rounded-md mt-4">
                   <div className="flex items-start">
-                    <Function className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <Code className="h-5 w-5 mr-2 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Example Transformations:</p>
                       <ul className="text-xs text-muted-foreground mt-1 space-y-1">

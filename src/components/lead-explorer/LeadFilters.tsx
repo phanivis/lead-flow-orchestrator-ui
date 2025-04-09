@@ -1,0 +1,56 @@
+
+import React from 'react';
+import { Search, Filter, RefreshCcw, Database } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+
+interface LeadFiltersProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  onRefreshData: () => void;
+  onOpenAttributeDialog: () => void;
+}
+
+export const LeadFilters = ({
+  searchTerm,
+  setSearchTerm,
+  onRefreshData,
+  onOpenAttributeDialog
+}: LeadFiltersProps) => {
+  return (
+    <div className="flex justify-between items-center">
+      <div className="relative w-1/3">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+        <Input 
+          placeholder="Search leads..." 
+          className="pl-10"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={onRefreshData}
+        >
+          <RefreshCcw size={16} className="mr-2" />
+          Refresh
+        </Button>
+        <Button variant="outline" size="sm">
+          <Filter size={16} className="mr-2" />
+          Filter
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onOpenAttributeDialog}
+        >
+          <Database size={16} className="mr-2" />
+          CDP Attributes
+        </Button>
+      </div>
+    </div>
+  );
+};

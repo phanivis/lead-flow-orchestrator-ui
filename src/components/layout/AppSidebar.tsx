@@ -7,8 +7,7 @@ import {
   Star, 
   Database, 
   Edit2, 
-  List, 
-  Search,
+  List,
   BarChart2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,7 +23,6 @@ import {
 } from '@/components/ui/sidebar';
 
 const navigationItems = [
-  { name: 'Lead Explorer', path: '/lead-explorer', icon: Search },
   { name: 'Upload Leads', path: '/upload', icon: Upload },
   { name: 'Field Mapping', path: '/field-mapping', icon: Shuffle },
   { name: 'Scoring Rules', path: '/scoring-rules', icon: Star },

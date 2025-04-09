@@ -8,7 +8,6 @@ import AppLayout from "./components/layout/AppLayout";
 import UploadLeadsPage from "./pages/UploadLeadsPage";
 import FieldMappingPage from "./pages/FieldMappingPage";
 import ScoringRulesPage from "./pages/ScoringRulesPage";
-import LeadExplorerPage from "./pages/LeadExplorerPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,11 +20,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Navigate to="/lead-explorer" replace />} />
+            <Route index element={<Navigate to="/upload" replace />} />
             <Route path="upload" element={<UploadLeadsPage />} />
             <Route path="field-mapping" element={<FieldMappingPage />} />
             <Route path="scoring-rules" element={<ScoringRulesPage />} />
-            <Route path="lead-explorer" element={<LeadExplorerPage />} />
+            {/* Lead Explorer page has been removed */}
             {/* Add routes for additional pages here */}
             <Route path="*" element={<NotFound />} />
           </Route>

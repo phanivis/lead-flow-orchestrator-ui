@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { AlertCircle } from 'lucide-react';
 import FileUploader from '@/components/upload/FileUploader';
 import DataPreview from '@/components/upload/DataPreview';
 
@@ -50,6 +51,13 @@ const UploadLeadsPage = () => {
     <div className="space-y-6 max-w-6xl mx-auto">
       <Card>
         <CardContent className="p-6">
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md flex items-start">
+            <AlertCircle className="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-blue-700">
+              This data will be uploaded to GBQ. Lead ingestion will happen after data deduplication, mapping and cleanup.
+            </p>
+          </div>
+          
           <FileUploader 
             onFileSelect={handleFileSelect}
             selectedFile={selectedFile}

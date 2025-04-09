@@ -4,7 +4,6 @@ import {
   Upload, 
   Star, 
   Database, 
-  Edit2, 
   List, 
   Search,
   BarChart2
@@ -26,7 +25,6 @@ const navigationItems = [
   { name: 'Upload Leads', path: '/upload', icon: Upload },
   { name: 'Scoring Rules', path: '/scoring-rules', icon: Star },
   { name: 'CDP Attributes', path: '/cdp-attributes', icon: Database },
-  { name: 'Bulk Edit', path: '/bulk-edit', icon: Edit2 },
   { name: 'Ingestion History', path: '/ingestion-history', icon: List }
 ];
 

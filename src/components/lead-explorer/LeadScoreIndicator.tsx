@@ -13,7 +13,7 @@ export const LeadScoreIndicator = ({ score }: LeadScoreIndicatorProps) => {
   };
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex items-center">
       <div className="h-2 w-12 bg-gray-200 rounded-full overflow-hidden">
         <div 
           className={getScoreColor(score)} 
@@ -25,3 +25,4 @@ export const LeadScoreIndicator = ({ score }: LeadScoreIndicatorProps) => {
     </div>
   );
 };
+

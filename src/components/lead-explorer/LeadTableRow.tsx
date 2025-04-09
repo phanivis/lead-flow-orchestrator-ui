@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit } from 'lucide-react';
+import { Edit, Tag } from 'lucide-react';
 import { 
   TableRow, 
   TableCell 
@@ -16,19 +16,33 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LeadScoreIndicator } from './LeadScoreIndicator';
 import { LeadStatusBadge } from './LeadStatusBadge';
-import { sampleCampaigns } from '@/data/assignmentData';
 import { Lead } from '@/data/dummyLeads';
 
 interface LeadTableRowProps {
   lead: Lead;
   isSelected: boolean;
   onSelectLead: (leadId: string, checked: boolean) => void;
+  columnWidths: Record<string, number>;
 }
+
+// Define business units
+const businessUnits = ['car', 'bike', 'life', 'health', 'travel'] as const;
+type BusinessUnit = typeof businessUnits[number];
+
+// Map business units to their display names
+const buDisplayNames: Record<BusinessUnit, string> = {
+  car: 'Car',
+  bike: 'Bike',
+  life: 'Life',
+  health: 'Health',
+  travel: 'Travel'
+};
 
 export const LeadTableRow = ({ 
   lead, 
   isSelected, 
-  onSelectLead 
+  onSelectLead,
+  columnWidths
 }: LeadTableRowProps) => {
   const formatLTV = (ltv: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -38,76 +52,133 @@ export const LeadTableRow = ({
     }).format(ltv);
   };
 
-  const assignedCampaign = lead.assignedCampaign 
-    ? sampleCampaigns.find(campaign => campaign.id === lead.assignedCampaign)
-    : null;
+  // Generate a display-friendly Lead ID with BU prefix
+  const getLeadIdWithBuPrefix = (leadId: string, bu: BusinessUnit) => {
+    return `${bu.toUpperCase()}-${leadId}`;
+  };
 
+  // Determine tags for the lead
+  const getTags = () => {
+    const tags = [];
+    
+    // Example logic for tag assignment
+    if (lead.lastActivity && new Date(lead.lastActivity) > new Date('2025-04-05')) {
+      tags.push('Calling');
+    }
+    
+    if (lead.status === 'Hot Lead' || lead.status === 'Qualified') {
+      tags.push('Comms');
+    }
+    
+    return tags;
+  };
+
+  const tags = getTags();
+
+  // Create individual row for each business unit with its score
   return (
-    <TableRow>
-      <TableCell>
-        <Checkbox 
-          checked={isSelected}
-          onCheckedChange={(checked) => onSelectLead(lead.id, checked as boolean)}
-        />
-      </TableCell>
-      <TableCell className="font-medium">{lead.name}</TableCell>
-      <TableCell>{lead.email}</TableCell>
-      <TableCell>{lead.city}</TableCell>
-      <TableCell>
-        <Badge className={lead.existingPolicyHolder === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-          {lead.existingPolicyHolder}
-        </Badge>
-      </TableCell>
-      <TableCell>{formatLTV(lead.ltv)}</TableCell>
-      
-      <TableCell className="p-2">
-        <LeadScoreIndicator score={lead.leadScores.car} />
-      </TableCell>
-      
-      <TableCell className="p-2">
-        <LeadScoreIndicator score={lead.leadScores.bike} />
-      </TableCell>
-      
-      <TableCell className="p-2">
-        <LeadScoreIndicator score={lead.leadScores.life} />
-      </TableCell>
-      
-      <TableCell className="p-2">
-        <LeadScoreIndicator score={lead.leadScores.health} />
-      </TableCell>
-      
-      <TableCell className="p-2">
-        <LeadScoreIndicator score={lead.leadScores.travel} />
-      </TableCell>
-      
-      <TableCell>
-        <LeadStatusBadge status={lead.status} />
-      </TableCell>
-      <TableCell>{lead.lastActivity}</TableCell>
-      <TableCell>
-        {assignedCampaign ? (
-          <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-800">
-            {assignedCampaign.name}
-          </Badge>
-        ) : (
-          <span className="text-gray-400 text-sm">Not assigned</span>
-        )}
-      </TableCell>
-      <TableCell>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Edit size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Edit Lead</DropdownMenuItem>
-            <DropdownMenuItem>Change Status</DropdownMenuItem>
-            <DropdownMenuItem>Assign Owner</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TableCell>
-    </TableRow>
+    <>
+      {businessUnits.map((bu, index) => (
+        <TableRow 
+          key={`${lead.id}-${bu}`} 
+          className="h-12"
+        >
+          {/* Show checkbox only in the first row */}
+          <TableCell className="p-2">
+            {index === 0 && (
+              <Checkbox 
+                checked={isSelected}
+                onCheckedChange={(checked) => onSelectLead(lead.id, checked as boolean)}
+              />
+            )}
+          </TableCell>
+          
+          {/* Lead ID with BU prefix */}
+          <TableCell className="font-medium truncate">
+            {getLeadIdWithBuPrefix(lead.id, bu)}
+          </TableCell>
+          
+          {/* Show name only in the first row */}
+          <TableCell className="truncate">
+            {index === 0 ? lead.name : ''}
+          </TableCell>
+          
+          {/* Show email only in the first row */}
+          <TableCell className="truncate">
+            {index === 0 ? lead.email : ''}
+          </TableCell>
+          
+          {/* Show city only in the first row */}
+          <TableCell className="truncate">
+            {index === 0 ? lead.city : ''}
+          </TableCell>
+          
+          {/* Show existing policy holder only in the first row */}
+          <TableCell>
+            {index === 0 ? (
+              <Badge className={lead.existingPolicyHolder === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                {lead.existingPolicyHolder}
+              </Badge>
+            ) : null}
+          </TableCell>
+          
+          {/* Show LTV only in the first row */}
+          <TableCell className="truncate">
+            {index === 0 ? formatLTV(lead.ltv) : ''}
+          </TableCell>
+          
+          {/* Lead score for the specific BU */}
+          <TableCell>
+            <div className="flex items-center">
+              <span className="font-medium mr-2">{buDisplayNames[bu]}:</span>
+              <LeadScoreIndicator score={lead.leadScores[bu]} />
+            </div>
+          </TableCell>
+          
+          {/* Show status only in the first row */}
+          <TableCell>
+            {index === 0 ? <LeadStatusBadge status={lead.status} /> : null}
+          </TableCell>
+          
+          {/* Show last activity only in the first row */}
+          <TableCell className="truncate">
+            {index === 0 ? lead.lastActivity : ''}
+          </TableCell>
+          
+          {/* Tags column */}
+          <TableCell>
+            {index === 0 && tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {tags.map(tag => (
+                  <Badge key={tag} variant="outline" className="bg-purple-50 border-purple-200 text-purple-800">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            ) : null}
+          </TableCell>
+          
+          {/* Actions column */}
+          <TableCell>
+            {index === 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Edit size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>View Details</DropdownMenuItem>
+                  <DropdownMenuItem>Edit Lead</DropdownMenuItem>
+                  <DropdownMenuItem>Change Status</DropdownMenuItem>
+                  <DropdownMenuItem>Assign Owner</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
   );
 };
+

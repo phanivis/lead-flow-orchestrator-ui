@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, Database, Calculator, Code } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { X, Save, Database } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -9,12 +10,10 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { toast } from 'sonner';
 import { CalculatedAttributeTab } from './attribute-dialog/CalculatedAttributeTab';
-import { AttributeBuilderForm } from './attribute-dialog/AttributeBuilderForm';
-import { SqlExpressionForm } from './attribute-dialog/SqlExpressionForm';
+import { EditAttributeForm } from './attribute-dialog/EditAttributeForm';
+import { useAttributeDialogState } from './attribute-dialog/useAttributeDialogState';
 
 // Dummy CDP attributes
 const initialCdpAttributes = [
@@ -57,63 +56,24 @@ export const LeadAttributeDialog = ({
     '1', '2', '3', '4', '5', '7', 'c1'
   ]);
   
-  // State for editing
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editorMode, setEditorMode] = useState<"builder" | "sql">("builder");
-  const [attributeName, setAttributeName] = useState('');
-  const [description, setDescription] = useState('');
-  const [resultType, setResultType] = useState('number');
-  const [calculatedAttr, setCalculatedAttr] = useState({
-    firstAttribute: '',
-    operator: '+',
-    secondAttribute: '',
-  });
-  const [sqlExpression, setSqlExpression] = useState('');
+  const {
+    isEditMode,
+    editorMode,
+    setEditorMode,
+    attributeName,
+    setAttributeName,
+    description,
+    setDescription,
+    resultType,
+    setResultType,
+    calculatedAttr,
+    setCalculatedAttr,
+    sqlExpression,
+    setSqlExpression,
+    resetForm
+  } = useAttributeDialogState(attributeToEdit);
 
   const allAttributes = [...cdpAttributes, ...customAttributes];
-
-  // Set up form for editing if attributeToEdit is provided
-  useEffect(() => {
-    if (attributeToEdit) {
-      setIsEditMode(true);
-      setAttributeName(attributeToEdit.name);
-      setResultType(attributeToEdit.type.toLowerCase());
-      setDescription(attributeToEdit.description || '');
-      
-      // Determine which editor mode to use based on attribute data
-      if (attributeToEdit.formula) {
-        setEditorMode('builder');
-        setCalculatedAttr({
-          firstAttribute: String(attributeToEdit.formula.firstAttribute),
-          operator: attributeToEdit.formula.operator,
-          secondAttribute: String(attributeToEdit.formula.secondAttribute)
-        });
-      } else if (attributeToEdit.sqlExpression) {
-        setEditorMode('sql');
-        setSqlExpression(attributeToEdit.sqlExpression);
-      } else {
-        // Default to builder mode if no formula info
-        setEditorMode('builder');
-      }
-    } else {
-      // Reset form when opening for new attribute
-      resetForm();
-    }
-  }, [attributeToEdit, open]);
-
-  const resetForm = () => {
-    setIsEditMode(false);
-    setAttributeName('');
-    setDescription('');
-    setResultType('number');
-    setCalculatedAttr({
-      firstAttribute: '',
-      operator: '+',
-      secondAttribute: '',
-    });
-    setSqlExpression('');
-    setEditorMode('builder');
-  };
 
   const handleCreateCalculatedAttribute = (calculatedAttr: {
     id: string,
@@ -174,69 +134,21 @@ export const LeadAttributeDialog = ({
         </DialogHeader>
         
         {isEditMode ? (
-          <div className="grid gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Attribute Name</label>
-                <Input 
-                  placeholder="e.g., Age" 
-                  value={attributeName}
-                  onChange={(e) => setAttributeName(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Description</label>
-                <Input 
-                  placeholder="What this attribute represents" 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Editor Mode</label>
-              <ToggleGroup 
-                type="single" 
-                value={editorMode}
-                onValueChange={(value) => value && setEditorMode(value as "builder" | "sql")}
-                className="justify-start mt-1"
-              >
-                <ToggleGroupItem value="builder">
-                  <Calculator className="h-4 w-4 mr-1" />
-                  Builder
-                </ToggleGroupItem>
-                <ToggleGroupItem value="sql">
-                  <Code className="h-4 w-4 mr-1" />
-                  SQL Expression
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-            
-            {editorMode === "builder" ? (
-              <AttributeBuilderForm
-                allAttributes={allAttributes}
-                newCalculatedAttr={calculatedAttr}
-                setNewCalculatedAttr={setCalculatedAttr}
-                availableOperators={[
-                  { value: '+', label: 'Add (+)' },
-                  { value: '-', label: 'Subtract (-)' },
-                  { value: '*', label: 'Multiply (*)' },
-                  { value: '/', label: 'Divide (/)' },
-                  { value: 'concat', label: 'Concatenate' },
-                  { value: 'year_diff', label: 'Year Difference' },
-                ]}
-              />
-            ) : (
-              <SqlExpressionForm
-                sqlExpression={sqlExpression}
-                setSqlExpression={setSqlExpression}
-                setResultType={setResultType}
-                resultType={resultType}
-              />
-            )}
-          </div>
+          <EditAttributeForm
+            attributeName={attributeName}
+            setAttributeName={setAttributeName}
+            description={description}
+            setDescription={setDescription}
+            editorMode={editorMode}
+            setEditorMode={setEditorMode}
+            calculatedAttr={calculatedAttr}
+            setCalculatedAttr={setCalculatedAttr}
+            sqlExpression={sqlExpression}
+            setSqlExpression={setSqlExpression}
+            resultType={resultType}
+            setResultType={setResultType}
+            allAttributes={allAttributes}
+          />
         ) : (
           <CalculatedAttributeTab 
             allAttributes={allAttributes}

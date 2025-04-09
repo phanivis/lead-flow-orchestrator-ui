@@ -12,12 +12,14 @@ import { Plus, Save } from 'lucide-react';
 import { RuleCondition } from './RuleCondition';
 import { AssignmentRule, generateUUID } from '@/types/assignmentTypes';
 import { businessUnits, sampleCampaigns } from '@/data/assignmentData';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export const assignmentRuleSchema = z.object({
   name: z.string().min(1, { message: "Rule name is required" }),
   businessUnit: z.string().min(1, { message: "Business unit is required" }),
   campaign: z.string().min(1, { message: "Campaign is required" }),
   priority: z.number().min(1, { message: "Priority must be at least 1" }),
+  operator: z.enum(['and', 'or']),
   conditions: z.array(
     z.object({
       id: z.string(),
@@ -45,12 +47,14 @@ export const AssignmentRuleForm = ({ editingRule, onClose, onSubmit }: Assignmen
       businessUnit: editingRule.businessUnit,
       campaign: editingRule.campaign,
       priority: editingRule.priority,
+      operator: editingRule.operator,
       conditions: editingRule.conditions
     } : {
       name: '',
       businessUnit: '',
       campaign: '',
       priority: 1,
+      operator: 'and',
       conditions: [{ id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }]
     }
   });
@@ -193,10 +197,37 @@ export const AssignmentRuleForm = ({ editingRule, onClose, onSubmit }: Assignmen
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium">Conditions</h3>
-            <Button type="button" variant="outline" size="sm" onClick={addCondition}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add Condition
-            </Button>
+            <div className="flex items-center gap-4">
+              <FormField
+                control={form.control}
+                name="operator"
+                render={({ field }) => (
+                  <FormItem className="space-y-0 flex items-center gap-2">
+                    <FormLabel className="text-sm">Match:</FormLabel>
+                    <div className="flex items-center space-x-4">
+                      <RadioGroup 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value} 
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="and" id="and" />
+                          <FormLabel htmlFor="and" className="font-normal cursor-pointer">All conditions (AND)</FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="or" id="or" />
+                          <FormLabel htmlFor="or" className="font-normal cursor-pointer">Any condition (OR)</FormLabel>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addCondition}>
+                <Plus className="h-4 w-4 mr-1" />
+                Add Condition
+              </Button>
+            </div>
           </div>
           
           {form.watch('conditions').map((condition, index) => (

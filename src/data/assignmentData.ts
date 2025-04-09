@@ -34,6 +34,7 @@ export const sampleAssignmentRules: AssignmentRule[] = [
     businessUnit: 'car',
     campaign: '1',
     priority: 1,
+    operator: 'and',
     conditions: [
       { id: generateUUID(), attribute: 'city', operator: 'equals', value: 'Mumbai' },
       { id: generateUUID(), attribute: 'ltv', operator: 'greaterThan', value: '5000' },
@@ -45,6 +46,7 @@ export const sampleAssignmentRules: AssignmentRule[] = [
     businessUnit: 'life',
     campaign: '3',
     priority: 2,
+    operator: 'and',
     conditions: [
       { id: generateUUID(), attribute: 'existingPolicyHolder', operator: 'equals', value: 'Yes' },
     ]
@@ -55,6 +57,7 @@ export const sampleAssignmentRules: AssignmentRule[] = [
     businessUnit: 'travel',
     campaign: '5',
     priority: 3,
+    operator: 'and',
     conditions: [
       { id: generateUUID(), attribute: 'status', operator: 'equals', value: 'Qualified' },
       { id: generateUUID(), attribute: 'leadScore', operator: 'greaterThan', value: '70' },

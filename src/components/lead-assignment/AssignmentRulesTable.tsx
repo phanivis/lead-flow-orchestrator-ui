@@ -5,6 +5,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Edit, Trash2 } from 'lucide-react';
 import { AssignmentRule } from '@/types/assignmentTypes';
 import { businessUnits, sampleCampaigns } from '@/data/assignmentData';
+import { Badge } from '@/components/ui/badge';
 
 interface AssignmentRulesTableProps {
   rules: AssignmentRule[];
@@ -21,6 +22,7 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
           <TableHead>Business Unit</TableHead>
           <TableHead>Campaign</TableHead>
           <TableHead>Priority</TableHead>
+          <TableHead>Logic</TableHead>
           <TableHead>Conditions</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -28,7 +30,7 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
       <TableBody>
         {rules.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
               No assignment rules found. Create your first rule to get started.
             </TableCell>
           </TableRow>
@@ -43,6 +45,11 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
                 {sampleCampaigns.find(c => c.id === rule.campaign)?.name}
               </TableCell>
               <TableCell>{rule.priority}</TableCell>
+              <TableCell>
+                <Badge variant={rule.operator === 'and' ? 'default' : 'secondary'}>
+                  {rule.operator === 'and' ? 'ALL' : 'ANY'}
+                </Badge>
+              </TableCell>
               <TableCell>{rule.conditions.length} condition(s)</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">

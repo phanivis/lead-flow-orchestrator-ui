@@ -5,6 +5,7 @@ export interface AssignmentRule {
   businessUnit: string;
   campaign: string;
   priority: number;
+  operator: 'and' | 'or';
   conditions: Array<{
     id: `${string}-${string}-${string}-${string}-${string}`;
     attribute: string;

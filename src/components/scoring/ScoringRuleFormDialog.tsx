@@ -152,11 +152,11 @@ export const ScoringRuleFormDialog: React.FC<ScoringRuleFormDialogProps> = ({
                   <div>
                     <p className="text-sm font-medium">SQL Expression Examples:</p>
                     <ul className="text-xs text-muted-foreground mt-1 space-y-1">
-                      <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">vehicle_type = "Two Wheeler" AND vehicle_value > 100000</code> - Two-Wheeler High Value</li>
+                      <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">vehicle_type = "Two Wheeler" AND vehicle_value {">"} 100000</code> - Two-Wheeler High Value</li>
                       <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">city IN ("Mumbai", "Delhi", "Bangalore", "Chennai")</code> - Metro Cities</li>
-                      <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">policy_type = "Family Floater" AND members >= 3</code> - Family Policy</li>
+                      <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">policy_type = "Family Floater" AND members {">="} 3</code> - Family Policy</li>
                       <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">annual_income BETWEEN 500000 AND 1500000</code> - Middle Income</li>
-                      <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">age > 60 OR pre_existing_condition = TRUE</code> - High Risk Health</li>
+                      <li>• <code className="bg-gray-200 px-1 py-0.5 rounded">age {">"} 60 OR pre_existing_condition = TRUE</code> - High Risk Health</li>
                     </ul>
                   </div>
                 </div>

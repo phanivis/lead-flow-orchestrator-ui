@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { FileUp, AlertCircle, Upload } from 'lucide-react';
+import { FileUp, AlertCircle, Upload, FileDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -53,6 +53,30 @@ const FileUploader = ({ onFileSelect, selectedFile }: FileUploaderProps) => {
     }
   };
   
+  const handleDownloadSample = () => {
+    // Create sample CSV content
+    const headers = "name,email,phone,product_interest\n";
+    const sampleData = [
+      "John Smith,john.smith@example.com,(555) 123-4567,Enterprise Plan",
+      "Sarah Johnson,sarah.j@acme.co,(555) 987-6543,Professional Plan",
+      "Michael Brown,mbrown@bigcorp.com,(555) 456-7890,Basic Plan"
+    ].join("\n");
+    
+    const csvContent = headers + sampleData;
+    
+    // Create a blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'sample_leads.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('Sample CSV file downloaded');
+  };
+  
   return (
     <div className="w-full">
       <div 
@@ -79,6 +103,15 @@ const FileUploader = ({ onFileSelect, selectedFile }: FileUploaderProps) => {
             <AlertCircle className="h-3 w-3 mr-1" />
             <span>100MB file size limit</span>
           </div>
+          <Button 
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={handleDownloadSample}
+          >
+            <FileDown className="h-4 w-4 mr-2" />
+            Download sample file
+          </Button>
           <input
             id="fileInput"
             type="file"

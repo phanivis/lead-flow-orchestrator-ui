@@ -57,14 +57,20 @@ const LeadAssignmentPage: React.FC = () => {
       );
       toast.success('Assignment rule updated successfully');
     } else {
-      // Fix: Ensure all required properties are provided for the new AssignmentRule
+      // Fix: Ensure all required properties are provided for the new AssignmentRule with proper types
       const newRule: AssignmentRule = {
         id: crypto.randomUUID() as `${string}-${string}-${string}-${string}-${string}`,
         name: data.name,
         businessUnit: data.businessUnit,
         campaign: data.campaign,
         priority: data.priority,
-        conditions: data.conditions
+        conditions: data.conditions.map(condition => ({
+          id: crypto.randomUUID() as `${string}-${string}-${string}-${string}-${string}`,
+          attribute: condition.attribute || '',
+          operator: condition.operator || '',
+          value: condition.value || '',
+          value2: condition.value2
+        }))
       };
       setAssignmentRules(prev => [...prev, newRule]);
       toast.success('New assignment rule created successfully');

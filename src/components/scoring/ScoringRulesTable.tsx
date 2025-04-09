@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Code, Calculator, ArrowDown, ArrowUp } from 'lucide-react';
+import { Edit, Trash2, ArrowDown, ArrowUp } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,20 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-
-type ScoringRule = {
-  id: string;
-  business_unit: string;
-  description: string;
-  criteria: string;
-  weight: number;
-  isSQL: boolean;
-};
-
-type BusinessUnit = {
-  id: string;
-  name: string;
-};
+import { ScoringRule, BusinessUnit } from '@/types/scoringTypes';
 
 interface ScoringRulesTableProps {
   rules: ScoringRule[];
@@ -61,7 +48,8 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       description: "Car High propensity lead",
       criteria: "vehicle_type = 'Car' AND visit_frequency > 3",
       weight: 85,
-      isSQL: true
+      isSQL: true,
+      version: "1.2"
     },
     {
       id: "bike-rule",
@@ -69,7 +57,8 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       description: "Bike High propensity lead",
       criteria: "vehicle_type = 'Bike' AND visit_frequency > 2",
       weight: 80,
-      isSQL: true
+      isSQL: true,
+      version: "1.0"
     },
     {
       id: "health-rule",
@@ -77,7 +66,8 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       description: "Health high propensity lead",
       criteria: "age BETWEEN 25 AND 45 AND has_dependents = true",
       weight: 90,
-      isSQL: true
+      isSQL: true,
+      version: "2.1"
     },
     {
       id: "life-rule",
@@ -85,7 +75,8 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       description: "Life high propensity lead",
       criteria: "income > 1000000 AND marital_status = 'Married'",
       weight: 95,
-      isSQL: false
+      isSQL: false,
+      version: "1.5"
     },
     {
       id: "travel-rule",
@@ -93,7 +84,8 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       description: "Travel high propensity lead",
       criteria: "travel_frequency > 3 AND passport_holder = true",
       weight: 75,
-      isSQL: true
+      isSQL: true,
+      version: "1.1"
     }
   ];
 
@@ -149,12 +141,6 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
           >
             Weight {getSortIcon('weight')}
           </TableHead>
-          <TableHead 
-            className="cursor-pointer" 
-            onClick={() => handleSort('isSQL')}
-          >
-            Type {getSortIcon('isSQL')}
-          </TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -164,15 +150,6 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
             <TableCell className="font-medium">{getBusinessUnitName(rule.business_unit)}</TableCell>
             <TableCell>{rule.description || "—"}</TableCell>
             <TableCell>{rule.weight}</TableCell>
-            <TableCell>
-              <Badge variant={rule.isSQL ? "secondary" : "outline"}>
-                {rule.isSQL ? (
-                  <><Code className="h-3 w-3 mr-1" /> SQL</>
-                ) : (
-                  <><Calculator className="h-3 w-3 mr-1" /> Builder</>
-                )}
-              </Badge>
-            </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
                 <Button 

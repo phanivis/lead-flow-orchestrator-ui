@@ -6,6 +6,7 @@ export interface ScoringRule {
   criteria: string;
   weight: number;
   isSQL: boolean;
+  version?: string;
 }
 
 export interface BusinessUnit {

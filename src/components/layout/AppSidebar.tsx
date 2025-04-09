@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { 
   Upload, 
   Star, 
-  Database, 
   List, 
   Search,
   BarChart2
@@ -24,7 +23,6 @@ const navigationItems = [
   { name: 'Lead Explorer', path: '/lead-explorer', icon: Search },
   { name: 'Upload Leads', path: '/upload', icon: Upload },
   { name: 'Scoring Rules', path: '/scoring-rules', icon: Star },
-  { name: 'CDP Attributes', path: '/cdp-attributes', icon: Database },
   { name: 'Ingestion History', path: '/ingestion-history', icon: List }
 ];
 

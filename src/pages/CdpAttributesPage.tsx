@@ -2,13 +2,7 @@
 import React, { useState } from 'react';
 import { LeadAttributeDialog } from '@/components/lead-explorer/LeadAttributeDialog';
 import { Button } from '@/components/ui/button';
-import { Database, Plus, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs';
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -17,7 +11,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import {
@@ -54,19 +47,6 @@ const CdpAttributesPage = () => {
   const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [attributeToDelete, setAttributeToDelete] = useState<number | null>(null);
-  
-  const toggleAttributeVisibility = (id: number) => {
-    setAttributes(
-      attributes.map(attr => 
-        attr.id === id ? { ...attr, visible: !attr.visible } : attr
-      )
-    );
-    
-    const attribute = attributes.find(attr => attr.id === id);
-    if (attribute) {
-      toast.success(`${attribute.name} is now ${attribute.visible ? 'hidden' : 'visible'}`);
-    }
-  };
   
   const openDeleteConfirmation = (id: number) => {
     const attribute = attributes.find(attr => attr.id === id);
@@ -136,97 +116,48 @@ const CdpAttributesPage = () => {
         </Button>
       </div>
       
-      <Tabs defaultValue="visibility" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="visibility">View / Hide Attributes</TabsTrigger>
-          <TabsTrigger value="manage">Manage Attributes</TabsTrigger>
-        </TabsList>
+      <Card className="p-4">
+        <h2 className="text-lg font-medium mb-4">LMS Attribute Management</h2>
+        <p className="text-sm text-muted-foreground mb-4">Edit or remove attributes that were created in the Lead Management System</p>
         
-        <TabsContent value="visibility" className="mt-4">
-          <Card className="p-4">
-            <h2 className="text-lg font-medium mb-4">Attribute Visibility Settings</h2>
-            <p className="text-sm text-muted-foreground mb-4">Toggle attributes to show or hide them in the leads view</p>
-            
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Attribute Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead className="text-right">Visibility</TableHead>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Attribute Name</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {attributes
+              .filter(attribute => attribute.editable)
+              .map((attribute) => (
+                <TableRow key={attribute.id}>
+                  <TableCell className="font-medium">{attribute.name}</TableCell>
+                  <TableCell>{attribute.type}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleEditAttribute(attribute.id)}
+                      >
+                        <Edit size={16} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => openDeleteConfirmation(attribute.id)}
+                      >
+                        <Trash2 size={16} className="text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {attributes.map((attribute) => (
-                  <TableRow key={attribute.id}>
-                    <TableCell className="font-medium">{attribute.name}</TableCell>
-                    <TableCell>{attribute.type}</TableCell>
-                    <TableCell>{attribute.source}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <span className="text-sm text-muted-foreground">
-                          {attribute.visible ? <Eye size={16} /> : <EyeOff size={16} />}
-                        </span>
-                        <Switch
-                          checked={attribute.visible}
-                          onCheckedChange={() => toggleAttributeVisibility(attribute.id)}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="manage" className="mt-4">
-          <Card className="p-4">
-            <h2 className="text-lg font-medium mb-4">LMS Attribute Management</h2>
-            <p className="text-sm text-muted-foreground mb-4">Edit or remove attributes that were created in the Lead Management System</p>
-            
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Attribute Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {attributes
-                  .filter(attribute => attribute.editable)
-                  .map((attribute) => (
-                    <TableRow key={attribute.id}>
-                      <TableCell className="font-medium">{attribute.name}</TableCell>
-                      <TableCell>{attribute.type}</TableCell>
-                      <TableCell>{attribute.source}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleEditAttribute(attribute.id)}
-                          >
-                            <Edit size={16} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => openDeleteConfirmation(attribute.id)}
-                          >
-                            <Trash2 size={16} className="text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              ))}
+          </TableBody>
+        </Table>
+      </Card>
 
       <LeadAttributeDialog 
         open={isAttributeDialogOpen} 

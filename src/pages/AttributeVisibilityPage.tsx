@@ -68,7 +68,6 @@ const AttributeVisibilityPage = () => {
             <TableRow>
               <TableHead>Attribute Name</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Source</TableHead>
               <TableHead className="text-right">Visibility</TableHead>
             </TableRow>
           </TableHeader>
@@ -77,7 +76,6 @@ const AttributeVisibilityPage = () => {
               <TableRow key={attribute.id}>
                 <TableCell className="font-medium">{attribute.name}</TableCell>
                 <TableCell>{attribute.type}</TableCell>
-                <TableCell>{attribute.source}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end space-x-2">
                     <span className="text-sm text-muted-foreground">

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Code, Calculator } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,12 +14,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 
 type ScoringRule = {
   id: string;
   business_unit: string;
+  description: string;
   criteria: string;
   weight: number;
+  isSQL: boolean;
 };
 
 type BusinessUnit = {
@@ -44,15 +47,17 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       <TableHeader>
         <TableRow>
           <TableHead>Business Unit</TableHead>
+          <TableHead>Description</TableHead>
           <TableHead>Criteria</TableHead>
           <TableHead>Weight</TableHead>
+          <TableHead>Type</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rules.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
               No scoring rules found. Create your first rule to get started.
             </TableCell>
           </TableRow>
@@ -60,8 +65,18 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
           rules.map(rule => (
             <TableRow key={rule.id}>
               <TableCell className="font-medium">{getBusinessUnitName(rule.business_unit)}</TableCell>
+              <TableCell>{rule.description || "—"}</TableCell>
               <TableCell>{rule.criteria}</TableCell>
               <TableCell>{rule.weight}</TableCell>
+              <TableCell>
+                <Badge variant={rule.isSQL ? "secondary" : "outline"}>
+                  {rule.isSQL ? (
+                    <><Code className="h-3 w-3 mr-1" /> SQL</>
+                  ) : (
+                    <><Calculator className="h-3 w-3 mr-1" /> Builder</>
+                  )}
+                </Badge>
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button variant="ghost" size="icon" onClick={() => onEdit(rule)}>

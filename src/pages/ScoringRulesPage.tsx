@@ -20,15 +20,19 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Edit, Plus, Save, Trash2 } from 'lucide-react';
+import { Code, Calculator, Edit, Plus, Save, Trash2 } from 'lucide-react';
 import { ScoringRulesTable } from '@/components/scoring/ScoringRulesTable';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 type ScoringRule = {
   id: string;
   business_unit: string;
+  description: string;
   criteria: string;
   weight: number;
+  isSQL: boolean;
 };
 
 type BusinessUnit = {
@@ -51,8 +55,10 @@ const ScoringRulesPage: React.FC = () => {
   
   // Form State
   const [formBusinessUnit, setFormBusinessUnit] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const [criteria, setCriteria] = useState<string>('');
   const [weight, setWeight] = useState<number | undefined>(undefined);
+  const [isSQL, setIsSQL] = useState<boolean>(false);
 
   useEffect(() => {
     const storedRules = localStorage.getItem('scoringRules');
@@ -68,16 +74,20 @@ const ScoringRulesPage: React.FC = () => {
   const openAddDialog = () => {
     setEditingRule(null);
     setFormBusinessUnit('');
+    setDescription('');
     setCriteria('');
     setWeight(undefined);
+    setIsSQL(false);
     setIsDialogOpen(true);
   };
   
   const openEditDialog = (rule: ScoringRule) => {
     setEditingRule(rule);
     setFormBusinessUnit(rule.business_unit);
+    setDescription(rule.description || '');
     setCriteria(rule.criteria);
     setWeight(rule.weight);
+    setIsSQL(rule.isSQL);
     setIsDialogOpen(true);
   };
 
@@ -89,6 +99,10 @@ const ScoringRulesPage: React.FC = () => {
     setFormBusinessUnit(value);
   };
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+  };
+
   const handleCriteriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCriteria(e.target.value);
   };
@@ -96,6 +110,12 @@ const ScoringRulesPage: React.FC = () => {
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
     setWeight(isNaN(value) ? undefined : value);
+  };
+
+  const handleRuleTypeChange = (value: string) => {
+    if (value) {
+      setIsSQL(value === 'sql');
+    }
   };
   
   const validateInput = (): boolean => {
@@ -127,8 +147,10 @@ const ScoringRulesPage: React.FC = () => {
           return {
             ...rule,
             business_unit: formBusinessUnit,
+            description,
             criteria,
             weight: weight!,
+            isSQL,
           };
         }
         return rule;
@@ -140,8 +162,10 @@ const ScoringRulesPage: React.FC = () => {
       const newRule: ScoringRule = {
         id: crypto.randomUUID(),
         business_unit: formBusinessUnit,
+        description,
         criteria,
         weight: weight!,
+        isSQL,
       };
       
       setScoringRules([...scoringRules, newRule]);
@@ -160,8 +184,10 @@ const ScoringRulesPage: React.FC = () => {
   
   const resetForm = () => {
     setFormBusinessUnit('');
+    setDescription('');
     setCriteria('');
     setWeight(undefined);
+    setIsSQL(false);
     setEditingRule(null);
   };
   
@@ -242,12 +268,47 @@ const ScoringRulesPage: React.FC = () => {
               </div>
               
               <div>
+                <Label htmlFor="description">
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder="Enter a description for this rule"
+                  value={description}
+                  onChange={handleDescriptionChange}
+                  className="resize-none"
+                  rows={3}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="rule-type" className="mb-2 block">
+                  Rule Type
+                </Label>
+                <ToggleGroup
+                  type="single"
+                  value={isSQL ? 'sql' : 'builder'}
+                  onValueChange={handleRuleTypeChange}
+                  className="justify-start"
+                >
+                  <ToggleGroupItem value="builder">
+                    <Calculator className="h-4 w-4 mr-2" />
+                    Builder
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="sql">
+                    <Code className="h-4 w-4 mr-2" />
+                    SQL
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+              
+              <div>
                 <Label htmlFor="criteria" className="flex items-center">
                   Criteria <span className="text-red-500 ml-1">*</span>
                 </Label>
                 <Input
                   id="criteria"
-                  placeholder="Enter criteria"
+                  placeholder={isSQL ? "Enter SQL expression" : "Enter criteria"}
                   value={criteria}
                   onChange={handleCriteriaChange}
                 />

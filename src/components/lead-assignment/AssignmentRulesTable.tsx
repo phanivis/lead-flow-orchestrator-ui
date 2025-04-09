@@ -84,7 +84,7 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
             className="cursor-pointer" 
             onClick={() => handleSort('campaign')}
           >
-            Campaign {getSortIcon('campaign')}
+            Calling Campaign {getSortIcon('campaign')}
           </TableHead>
           <TableHead 
             className="cursor-pointer" 

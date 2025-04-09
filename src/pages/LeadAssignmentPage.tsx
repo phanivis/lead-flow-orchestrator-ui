@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -26,7 +25,8 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { AssignmentRule } from '@/types/assignmentTypes';
 import { businessUnits, sampleAssignmentRules } from '@/data/assignmentData';
-import { AssignmentRuleForm, AssignmentRuleFormValues } from '@/components/lead-assignment/AssignmentRuleForm';
+import { AssignmentRuleForm } from '@/components/lead-assignment/AssignmentRuleForm';
+import { AssignmentRuleFormValues } from '@/components/lead-assignment/schema/assignmentRuleSchema';
 import { AssignmentRulesTable } from '@/components/lead-assignment/AssignmentRulesTable';
 
 const LeadAssignmentPage: React.FC = () => {

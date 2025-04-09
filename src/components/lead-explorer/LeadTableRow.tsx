@@ -70,15 +70,17 @@ export const LeadTableRow = ({
 
   const tags = getTags();
 
-  // Randomize the order of business units for display
-  const randomizedBusinessUnits = useMemo(() => {
-    return [...businessUnits].sort(() => Math.random() - 0.5);
-  }, [lead.id]);
+  // Sort business units by their lead scores in descending order
+  const sortedBusinessUnits = useMemo(() => {
+    return [...businessUnits].sort((a, b) => {
+      return lead.leadScores[b] - lead.leadScores[a];
+    });
+  }, [lead.id, lead.leadScores]);
 
   // Create individual row for each business unit with its score
   return (
     <>
-      {randomizedBusinessUnits.map((bu, index) => (
+      {sortedBusinessUnits.map((bu, index) => (
         <TableRow 
           key={`${lead.id}-${bu}`} 
           className="h-12"

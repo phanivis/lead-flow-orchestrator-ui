@@ -6,7 +6,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate("/upload");
+    navigate("/lead-explorer");
   }, [navigate]);
 
   return (

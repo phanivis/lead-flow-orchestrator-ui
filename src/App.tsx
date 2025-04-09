@@ -21,7 +21,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Navigate to="/upload" replace />} />
+            <Route index element={<Navigate to="/lead-explorer" replace />} />
             <Route path="upload" element={<UploadLeadsPage />} />
             <Route path="field-mapping" element={<FieldMappingPage />} />
             <Route path="scoring-rules" element={<ScoringRulesPage />} />

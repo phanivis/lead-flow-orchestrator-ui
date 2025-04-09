@@ -34,12 +34,28 @@ export const LeadTable = ({
     actions: 5
   });
 
+  // Sort state
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   return (
     <div className="border rounded-md overflow-hidden">
       <div className="w-full overflow-auto whitespace-nowrap">
         <Table>
           <LeadTableHeader 
             hasLeads={leads.length > 0}
+            onSort={handleSort}
+            sortField={sortField}
+            sortDirection={sortDirection}
           />
           <TableBody>
             {filteredLeads.length > 0 ? (

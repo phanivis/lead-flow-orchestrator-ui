@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Table, 
   TableHeader, 
@@ -9,7 +9,7 @@ import {
   TableCell 
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { FileText, AlertCircle, CheckCircle } from 'lucide-react';
+import { FileText, AlertCircle, CheckCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -97,6 +97,46 @@ const ingestionHistoryData: IngestionHistoryItem[] = [
 ];
 
 const IngestionHistoryTable = () => {
+  const [sortField, setSortField] = useState<keyof IngestionHistoryItem>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: keyof IngestionHistoryItem) => {
+    if (sortField === field) {
+      setSortDirection(prevDirection => prevDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: keyof IngestionHistoryItem) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? 
+      <ArrowUp className="ml-1 h-4 w-4 inline" /> : 
+      <ArrowDown className="ml-1 h-4 w-4 inline" />;
+  };
+
+  const sortedData = [...ingestionHistoryData].sort((a, b) => {
+    if (sortField === 'date') {
+      return sortDirection === 'asc' 
+        ? a.date.getTime() - b.date.getTime()
+        : b.date.getTime() - a.date.getTime();
+    }
+    
+    if (sortField === 'leads') {
+      return sortDirection === 'asc' 
+        ? a.leads - b.leads
+        : b.leads - a.leads;
+    }
+    
+    const aValue = String(a[sortField]);
+    const bValue = String(b[sortField]);
+    
+    return sortDirection === 'asc' 
+      ? aValue.localeCompare(bValue)
+      : bValue.localeCompare(aValue);
+  });
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'successful':
@@ -128,17 +168,47 @@ const IngestionHistoryTable = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[180px]">Date</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead>File</TableHead>
-            <TableHead className="text-center">Leads</TableHead>
-            <TableHead className="text-center">Status</TableHead>
-            <TableHead>Operator</TableHead>
+            <TableHead 
+              className="w-[180px] cursor-pointer" 
+              onClick={() => handleSort('date')}
+            >
+              Date {getSortIcon('date')}
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer" 
+              onClick={() => handleSort('source')}
+            >
+              Source {getSortIcon('source')}
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer" 
+              onClick={() => handleSort('filename')}
+            >
+              File {getSortIcon('filename')}
+            </TableHead>
+            <TableHead 
+              className="text-center cursor-pointer" 
+              onClick={() => handleSort('leads')}
+            >
+              Leads {getSortIcon('leads')}
+            </TableHead>
+            <TableHead 
+              className="text-center cursor-pointer" 
+              onClick={() => handleSort('status')}
+            >
+              Status {getSortIcon('status')}
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer" 
+              onClick={() => handleSort('operator')}
+            >
+              Operator {getSortIcon('operator')}
+            </TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ingestionHistoryData.map((item) => (
+          {sortedData.map((item) => (
             <TableRow key={item.id}>
               <TableCell className="font-medium">
                 {formatDistanceToNow(item.date, { addSuffix: true })}

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -74,7 +75,6 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
         <TableRow>
           <TableHead>Business Unit</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead>Criteria</TableHead>
           <TableHead>Weight</TableHead>
           <TableHead>Type</TableHead>
           <TableHead className="text-right">Actions</TableHead>
@@ -84,7 +84,7 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
         {rules.length === 0 ? (
           <>
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                 Here are some sample scoring rules to get you started. Click "Add Rule" to create your own.
               </TableCell>
             </TableRow>
@@ -92,7 +92,6 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
               <TableRow key={rule.id} className="opacity-60">
                 <TableCell className="font-medium">{getBusinessUnitName(rule.business_unit)}</TableCell>
                 <TableCell>{rule.description || "—"}</TableCell>
-                <TableCell>{rule.criteria}</TableCell>
                 <TableCell>{rule.weight}</TableCell>
                 <TableCell>
                   <Badge variant={rule.isSQL ? "secondary" : "outline"}>
@@ -121,7 +120,6 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
             <TableRow key={rule.id}>
               <TableCell className="font-medium">{getBusinessUnitName(rule.business_unit)}</TableCell>
               <TableCell>{rule.description || "—"}</TableCell>
-              <TableCell>{rule.criteria}</TableCell>
               <TableCell>{rule.weight}</TableCell>
               <TableCell>
                 <Badge variant={rule.isSQL ? "secondary" : "outline"}>

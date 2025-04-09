@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -47,8 +46,9 @@ import { Plus, Edit, Trash2, Filter, Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { dummyLeads, Lead } from '@/data/dummyLeads';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-// Business units
 const businessUnits = [
   { id: 'car', name: 'Car Insurance' },
   { id: 'bike', name: 'Bike Insurance' },
@@ -57,7 +57,6 @@ const businessUnits = [
   { id: 'travel', name: 'Travel Insurance' }
 ];
 
-// Sample campaign data
 const sampleCampaigns = [
   { id: '1', name: 'Spring Car Insurance Campaign', description: 'Promotional campaign for new car policies', businessUnit: 'car' },
   { id: '2', name: 'Young Riders Bike Campaign', description: 'Targeting young motorcycle enthusiasts', businessUnit: 'bike' },
@@ -68,7 +67,6 @@ const sampleCampaigns = [
   { id: '7', name: 'Student Life Insurance', description: 'Affordable coverage for students', businessUnit: 'life' },
 ];
 
-// Available lead attributes for assignment logic
 const leadAttributes = [
   { id: 'city', name: 'City', type: 'string' },
   { id: 'existingPolicyHolder', name: 'Existing Policy Holder', type: 'boolean' },
@@ -77,7 +75,6 @@ const leadAttributes = [
   { id: 'status', name: 'Status', type: 'string' },
 ];
 
-// Comparison operators based on attribute type
 const getOperatorsForType = (type: string) => {
   switch (type) {
     case 'string':
@@ -103,7 +100,6 @@ const getOperatorsForType = (type: string) => {
   }
 };
 
-// Helper to generate proper UUID
 const generateUUID = (): `${string}-${string}-${string}-${string}-${string}` => {
   return crypto.randomUUID() as `${string}-${string}-${string}-${string}-${string}`;
 };
@@ -123,7 +119,6 @@ interface AssignmentRule {
   }>;
 }
 
-// Sample assignment rules
 const sampleAssignmentRules: AssignmentRule[] = [
   {
     id: '1',
@@ -159,14 +154,32 @@ const sampleAssignmentRules: AssignmentRule[] = [
   }
 ];
 
+const assignmentRuleSchema = z.object({
+  name: z.string().min(1, { message: "Rule name is required" }),
+  businessUnit: z.string().min(1, { message: "Business unit is required" }),
+  campaign: z.string().min(1, { message: "Campaign is required" }),
+  priority: z.number().min(1, { message: "Priority must be at least 1" }),
+  conditions: z.array(
+    z.object({
+      id: z.string(),
+      attribute: z.string().optional(),
+      operator: z.string().optional(),
+      value: z.string().optional(),
+      value2: z.string().optional()
+    })
+  )
+});
+
+type AssignmentRuleFormValues = z.infer<typeof assignmentRuleSchema>;
+
 const LeadAssignmentPage: React.FC = () => {
   const [assignmentRules, setAssignmentRules] = useState<AssignmentRule[]>(sampleAssignmentRules);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AssignmentRule | null>(null);
   const [selectedBusinessUnit, setSelectedBusinessUnit] = useState<string>('all');
   
-  // Form for assignment rule
-  const form = useForm({
+  const form = useForm<AssignmentRuleFormValues>({
+    resolver: zodResolver(assignmentRuleSchema),
     defaultValues: {
       name: '',
       businessUnit: '',
@@ -175,6 +188,11 @@ const LeadAssignmentPage: React.FC = () => {
       conditions: [{ id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }]
     }
   });
+  
+  const ruleName = form.watch('name');
+  const businessUnit = form.watch('businessUnit');
+  const campaign = form.watch('campaign');
+  const isFormValid = ruleName && businessUnit && campaign;
   
   const openAddDialog = () => {
     form.reset({
@@ -222,13 +240,11 @@ const LeadAssignmentPage: React.FC = () => {
   
   const handleSubmit = form.handleSubmit((data) => {
     if (editingRule) {
-      // Update existing rule
       setAssignmentRules(prev => 
         prev.map(rule => rule.id === editingRule.id ? { ...data, id: editingRule.id } as AssignmentRule : rule)
       );
       toast.success('Assignment rule updated successfully');
     } else {
-      // Add new rule
       const newRule: AssignmentRule = {
         ...data,
         id: crypto.randomUUID()
@@ -239,12 +255,10 @@ const LeadAssignmentPage: React.FC = () => {
     setIsAddDialogOpen(false);
   });
   
-  // Filter rules by selected business unit
   const filteredRules = selectedBusinessUnit === 'all' 
     ? assignmentRules 
     : assignmentRules.filter(rule => rule.businessUnit === selectedBusinessUnit);
   
-  // Get campaigns for selected business unit in form
   const campaignsForSelectedBU = form.watch('businessUnit') 
     ? sampleCampaigns.filter(campaign => campaign.businessUnit === form.watch('businessUnit'))
     : [];
@@ -349,7 +363,9 @@ const LeadAssignmentPage: React.FC = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Rule Name</FormLabel>
+                      <FormLabel className="flex items-center">
+                        Rule Name <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="High Value Leads" {...field} />
                       </FormControl>
@@ -383,7 +399,9 @@ const LeadAssignmentPage: React.FC = () => {
                   name="businessUnit"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Business Unit</FormLabel>
+                      <FormLabel className="flex items-center">
+                        Business Unit <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <Select 
                         value={field.value} 
                         onValueChange={(value) => {
@@ -415,7 +433,9 @@ const LeadAssignmentPage: React.FC = () => {
                   name="campaign"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Campaign</FormLabel>
+                      <FormLabel className="flex items-center">
+                        Campaign <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <Select 
                         value={field.value} 
                         onValueChange={field.onChange}
@@ -580,7 +600,7 @@ const LeadAssignmentPage: React.FC = () => {
                 <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" disabled={!isFormValid}>
                   <Save className="mr-2 h-4 w-4" />
                   {editingRule ? 'Update Rule' : 'Create Rule'}
                 </Button>

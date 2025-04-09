@@ -99,10 +99,18 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" disabled>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onEdit(rule)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" disabled>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onDelete(rule.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -127,7 +135,11 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(rule)}>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => onEdit(rule)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <AlertDialog>

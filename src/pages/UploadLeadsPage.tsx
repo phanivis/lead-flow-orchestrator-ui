@@ -55,10 +55,11 @@ const UploadLeadsPage = () => {
             selectedFile={selectedFile}
           />
           
-          <div className="mt-8">
+          <div className="mt-8 flex justify-center">
             <Button 
               size="lg" 
               onClick={handlePreviewData}
+              disabled={!selectedFile}
               className="w-full md:w-auto"
             >
               Preview Data

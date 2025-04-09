@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -42,6 +41,33 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
     return businessUnits.find(bu => bu.id === id)?.name || id;
   };
 
+  const dummyRules = [
+    {
+      id: "dummy-1",
+      business_unit: "motor",
+      description: "High-value car insurance leads",
+      criteria: "vehicle_value > 1500000 AND age BETWEEN 25 AND 45",
+      weight: 85,
+      isSQL: true
+    },
+    {
+      id: "dummy-2",
+      business_unit: "health",
+      description: "Family health plan prospects",
+      criteria: "family_members >= 4 AND income_bracket = 'High'",
+      weight: 75,
+      isSQL: true
+    },
+    {
+      id: "dummy-3",
+      business_unit: "life",
+      description: "Term life insurance for young adults",
+      criteria: "age < 35 AND employment_status = 'Employed'",
+      weight: 80,
+      isSQL: false
+    }
+  ];
+
   return (
     <Table>
       <TableHeader>
@@ -56,11 +82,40 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       </TableHeader>
       <TableBody>
         {rules.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-              No scoring rules found. Create your first rule to get started.
-            </TableCell>
-          </TableRow>
+          <>
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                Here are some sample scoring rules to get you started. Click "Add Rule" to create your own.
+              </TableCell>
+            </TableRow>
+            {dummyRules.map(rule => (
+              <TableRow key={rule.id} className="opacity-60">
+                <TableCell className="font-medium">{getBusinessUnitName(rule.business_unit)}</TableCell>
+                <TableCell>{rule.description || "—"}</TableCell>
+                <TableCell>{rule.criteria}</TableCell>
+                <TableCell>{rule.weight}</TableCell>
+                <TableCell>
+                  <Badge variant={rule.isSQL ? "secondary" : "outline"}>
+                    {rule.isSQL ? (
+                      <><Code className="h-3 w-3 mr-1" /> SQL</>
+                    ) : (
+                      <><Calculator className="h-3 w-3 mr-1" /> Builder</>
+                    )}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" disabled>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" disabled>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </>
         ) : (
           rules.map(rule => (
             <TableRow key={rule.id}>

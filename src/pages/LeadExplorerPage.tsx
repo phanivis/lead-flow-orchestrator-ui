@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Search, Filter, Edit, PlusCircle, UserPlus, Database } from 'lucide-react';
+import { Search, Filter, Edit, RefreshCcw, UserPlus, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -21,8 +20,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { LeadAttributeDialog } from '@/components/lead-explorer/LeadAttributeDialog';
 import { AssignLeadDialog } from '@/components/lead-explorer/AssignLeadDialog';
+import { toast } from 'sonner';
 
-// Dummy data with Indian names
 const dummyLeads = [
   {
     id: '1',
@@ -127,10 +126,11 @@ const LeadExplorerPage = () => {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [isAttributeDialogOpen, setIsAttributeDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [leads, setLeads] = useState(dummyLeads);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedLeads(dummyLeads.map(lead => lead.id));
+      setSelectedLeads(leads.map(lead => lead.id));
     } else {
       setSelectedLeads([]);
     }
@@ -144,7 +144,14 @@ const LeadExplorerPage = () => {
     }
   };
 
-  const filteredLeads = dummyLeads.filter(lead => 
+  const handleRefreshData = () => {
+    toast.success('Lead data refreshed successfully');
+    setTimeout(() => {
+      setLeads([...dummyLeads].sort(() => Math.random() - 0.5));
+    }, 300);
+  };
+
+  const filteredLeads = leads.filter(lead => 
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     lead.city.toLowerCase().includes(searchTerm.toLowerCase())
@@ -160,7 +167,6 @@ const LeadExplorerPage = () => {
     }
   };
 
-  // Format the LTV value to INR currency format
   const formatLTV = (ltv: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -182,6 +188,14 @@ const LeadExplorerPage = () => {
           />
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefreshData}
+          >
+            <RefreshCcw size={16} className="mr-2" />
+            Refresh
+          </Button>
           <Button variant="outline" size="sm">
             <Filter size={16} className="mr-2" />
             Filter
@@ -212,7 +226,7 @@ const LeadExplorerPage = () => {
             <TableRow>
               <TableHead className="w-12">
                 <Checkbox 
-                  checked={selectedLeads.length === dummyLeads.length && dummyLeads.length > 0}
+                  checked={selectedLeads.length === leads.length && leads.length > 0}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>

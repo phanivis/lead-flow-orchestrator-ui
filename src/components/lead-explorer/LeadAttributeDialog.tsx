@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, X, Trash2, Save, Database } from 'lucide-react';
+import { Plus, X, Trash2, Save, Database, Calculator, Function } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -19,6 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/ui/tabs';
+import { toast } from 'sonner';
 
 interface LeadAttributeDialogProps {
   open: boolean;
@@ -37,12 +44,24 @@ const initialCdpAttributes = [
   { id: '8', name: 'Employee Count', type: 'number', source: 'CDP' },
   { id: '9', name: 'Lead Source', type: 'text', source: 'CDP' },
   { id: '10', name: 'Last Website Visit', type: 'date', source: 'CDP' },
+  { id: '11', name: 'Date of Birth', type: 'date', source: 'CDP' },
+  { id: '12', name: 'Current Date', type: 'date', source: 'CDP' },
 ];
 
 // Custom attributes added by the user
 const initialCustomAttributes = [
   { id: 'c1', name: 'Campaign Response', type: 'boolean', source: 'Custom' },
   { id: 'c2', name: 'Product Interest', type: 'text', source: 'Custom' },
+];
+
+// Operators available for transformations
+const operators = [
+  { value: '+', label: 'Add (+)' },
+  { value: '-', label: 'Subtract (-)' },
+  { value: '*', label: 'Multiply (*)' },
+  { value: '/', label: 'Divide (/)' },
+  { value: 'concat', label: 'Concatenate' },
+  { value: 'year_diff', label: 'Year Difference' },
 ];
 
 export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogProps) => {
@@ -53,6 +72,15 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
   ]);
   const [newAttribute, setNewAttribute] = useState({ name: '', type: 'text' });
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // New state for calculated attributes
+  const [newCalculatedAttr, setNewCalculatedAttr] = useState({
+    name: '',
+    firstAttribute: '',
+    operator: '+',
+    secondAttribute: '',
+    description: ''
+  });
 
   const handleSelectAttribute = (attributeId: string) => {
     if (selectedAttributes.includes(attributeId)) {
@@ -84,6 +112,61 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
     setSelectedAttributes(selectedAttributes.filter(id => id !== attributeId));
   };
 
+  const handleCreateCalculatedAttribute = () => {
+    if (!newCalculatedAttr.name.trim() || !newCalculatedAttr.firstAttribute || !newCalculatedAttr.secondAttribute) {
+      toast.error('Please fill all required fields for the calculated attribute');
+      return;
+    }
+
+    // Find the attribute names based on their IDs
+    const firstAttrName = [...cdpAttributes, ...customAttributes].find(
+      attr => attr.id === newCalculatedAttr.firstAttribute
+    )?.name || '';
+    
+    const secondAttrName = [...cdpAttributes, ...customAttributes].find(
+      attr => attr.id === newCalculatedAttr.secondAttribute
+    )?.name || '';
+
+    // Generate expression based on the operator
+    let expression = '';
+    let resultType = 'text';
+    
+    if (newCalculatedAttr.operator === 'year_diff') {
+      expression = `Year difference between ${firstAttrName} and ${secondAttrName}`;
+      resultType = 'number';
+    } else if (newCalculatedAttr.operator === 'concat') {
+      expression = `${firstAttrName} + ${secondAttrName}`;
+      resultType = 'text';
+    } else {
+      expression = `${firstAttrName} ${newCalculatedAttr.operator} ${secondAttrName}`;
+      resultType = 'number';
+    }
+
+    // Create the new calculated attribute
+    const newId = `c${customAttributes.length + 3}`;
+    const calculatedAttr = {
+      id: newId,
+      name: newCalculatedAttr.name,
+      type: resultType,
+      source: 'Calculated',
+      description: newCalculatedAttr.description || expression
+    };
+
+    setCustomAttributes([...customAttributes, calculatedAttr]);
+    setSelectedAttributes([...selectedAttributes, newId]);
+    
+    // Reset the form
+    setNewCalculatedAttr({
+      name: '',
+      firstAttribute: '',
+      operator: '+',
+      secondAttribute: '',
+      description: ''
+    });
+
+    toast.success(`Calculated attribute "${newCalculatedAttr.name}" created successfully`);
+  };
+
   const allAttributes = [...cdpAttributes, ...customAttributes];
   
   const filteredAttributes = allAttributes.filter(attr => 
@@ -92,104 +175,246 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
             CDP & Custom Attributes
           </DialogTitle>
           <DialogDescription>
-            Select attributes to display or add custom attributes to your leads.
+            Select attributes to display or create custom attributes for your leads.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">Add New Custom Attribute</h3>
-            <div className="flex items-center gap-2">
-              <Input 
-                placeholder="Attribute name" 
-                value={newAttribute.name}
-                onChange={(e) => setNewAttribute({ ...newAttribute, name: e.target.value })}
-              />
-              <Select 
-                value={newAttribute.type} 
-                onValueChange={(value) => setNewAttribute({ ...newAttribute, type: value })}
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="number">Number</SelectItem>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="boolean">Boolean</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="phone">Phone</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={handleAddNewAttribute} size="sm">
-                <Plus className="h-4 w-4 mr-1" />
-                Add
-              </Button>
-            </div>
-          </div>
+        <Tabs defaultValue="existing">
+          <TabsList className="w-full">
+            <TabsTrigger value="existing" className="flex-1">Existing Attributes</TabsTrigger>
+            <TabsTrigger value="create" className="flex-1">Create Calculated Attribute</TabsTrigger>
+          </TabsList>
           
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium">Available Attributes</h3>
-              <Input 
-                placeholder="Search attributes..." 
-                className="w-[200px] h-8 text-xs" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="border rounded-md p-4 max-h-[300px] overflow-y-auto space-y-2">
-              {filteredAttributes.map((attribute) => (
-                <div 
-                  key={attribute.id} 
-                  className="flex justify-between items-center p-2 hover:bg-muted rounded-md"
-                >
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedAttributes.includes(attribute.id)} 
-                      onChange={() => handleSelectAttribute(attribute.id)}
-                      className="rounded border-gray-300"
-                    />
-                    <span>{attribute.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {attribute.type}
-                    </Badge>
-                    <Badge 
-                      variant={attribute.source === 'CDP' ? 'secondary' : 'default'}
-                      className="text-xs"
+          <TabsContent value="existing" className="mt-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Add New Custom Attribute</h3>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    placeholder="Attribute name" 
+                    value={newAttribute.name}
+                    onChange={(e) => setNewAttribute({ ...newAttribute, name: e.target.value })}
+                  />
+                  <Select 
+                    value={newAttribute.type} 
+                    onValueChange={(value) => setNewAttribute({ ...newAttribute, type: value })}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="text">Text</SelectItem>
+                      <SelectItem value="number">Number</SelectItem>
+                      <SelectItem value="date">Date</SelectItem>
+                      <SelectItem value="boolean">Boolean</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="phone">Phone</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={handleAddNewAttribute} size="sm">
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add
+                  </Button>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-medium">Available Attributes</h3>
+                  <Input 
+                    placeholder="Search attributes..." 
+                    className="w-[200px] h-8 text-xs" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className="border rounded-md p-4 max-h-[300px] overflow-y-auto space-y-2">
+                  {filteredAttributes.map((attribute) => (
+                    <div 
+                      key={attribute.id} 
+                      className="flex justify-between items-center p-2 hover:bg-muted rounded-md"
                     >
-                      {attribute.source}
-                    </Badge>
-                  </div>
-                  {attribute.source === 'Custom' && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7" 
-                      onClick={() => handleDeleteCustomAttribute(attribute.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedAttributes.includes(attribute.id)} 
+                          onChange={() => handleSelectAttribute(attribute.id)}
+                          className="rounded border-gray-300"
+                        />
+                        <span>{attribute.name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {attribute.type}
+                        </Badge>
+                        <Badge 
+                          variant={attribute.source === 'CDP' ? 'secondary' : (
+                            attribute.source === 'Calculated' ? 'default' : 'outline'
+                          )}
+                          className="text-xs"
+                        >
+                          {attribute.source}
+                        </Badge>
+                      </div>
+                      {(attribute.source === 'Custom' || attribute.source === 'Calculated') && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7" 
+                          onClick={() => handleDeleteCustomAttribute(attribute.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+
+                  {filteredAttributes.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      No attributes found matching your search.
+                    </div>
                   )}
                 </div>
-              ))}
-
-              {filteredAttributes.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No attributes found matching your search.
-                </div>
-              )}
+              </div>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="create" className="mt-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium flex items-center">
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Create Calculated Attribute
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Create new attributes by combining or transforming existing CDP attributes
+                </p>
+              </div>
+              
+              <div className="space-y-4 border rounded-md p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Attribute Name</label>
+                    <Input 
+                      placeholder="e.g., Age" 
+                      value={newCalculatedAttr.name}
+                      onChange={(e) => setNewCalculatedAttr({ 
+                        ...newCalculatedAttr, 
+                        name: e.target.value 
+                      })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium">Description (Optional)</label>
+                    <Input 
+                      placeholder="What this attribute represents" 
+                      value={newCalculatedAttr.description}
+                      onChange={(e) => setNewCalculatedAttr({ 
+                        ...newCalculatedAttr, 
+                        description: e.target.value 
+                      })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-7 gap-2 items-end">
+                  <div className="col-span-3">
+                    <label className="text-sm font-medium">First Attribute</label>
+                    <Select
+                      value={newCalculatedAttr.firstAttribute}
+                      onValueChange={(value) => setNewCalculatedAttr({
+                        ...newCalculatedAttr,
+                        firstAttribute: value
+                      })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select attribute" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allAttributes.map((attr) => (
+                          <SelectItem key={attr.id} value={attr.id}>
+                            {attr.name} ({attr.type})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Select
+                      value={newCalculatedAttr.operator}
+                      onValueChange={(value) => setNewCalculatedAttr({
+                        ...newCalculatedAttr,
+                        operator: value
+                      })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {operators.map((op) => (
+                          <SelectItem key={op.value} value={op.value}>
+                            {op.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="col-span-3">
+                    <label className="text-sm font-medium">Second Attribute</label>
+                    <Select
+                      value={newCalculatedAttr.secondAttribute}
+                      onValueChange={(value) => setNewCalculatedAttr({
+                        ...newCalculatedAttr,
+                        secondAttribute: value
+                      })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select attribute" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allAttributes.map((attr) => (
+                          <SelectItem key={attr.id} value={attr.id}>
+                            {attr.name} ({attr.type})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-muted rounded-md mt-4">
+                  <div className="flex items-start">
+                    <Function className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">Example Transformations:</p>
+                      <ul className="text-xs text-muted-foreground mt-1 space-y-1">
+                        <li>• Age = Current_date - Date of Birth (using Year Difference)</li>
+                        <li>• Full Name = First Name + Last Name (using Concatenate)</li>
+                        <li>• Average Order Value = Total Revenue / Order Count (using Divide)</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={handleCreateCalculatedAttribute}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Calculated Attribute
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
         
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

@@ -1,9 +1,7 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   Upload, 
-  Shuffle, 
   Star, 
   Database, 
   Edit2, 
@@ -26,7 +24,6 @@ import {
 const navigationItems = [
   { name: 'Lead Explorer', path: '/lead-explorer', icon: Search },
   { name: 'Upload Leads', path: '/upload', icon: Upload },
-  { name: 'Field Mapping', path: '/field-mapping', icon: Shuffle },
   { name: 'Scoring Rules', path: '/scoring-rules', icon: Star },
   { name: 'CDP Attributes', path: '/cdp-attributes', icon: Database },
   { name: 'Bulk Edit', path: '/bulk-edit', icon: Edit2 },

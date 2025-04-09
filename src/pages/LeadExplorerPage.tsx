@@ -64,6 +64,7 @@ const LeadExplorerPage = () => {
       
       // Policy holder filter
       const matchesPolicyHolder = !filters.existingPolicyHolder || 
+        filters.existingPolicyHolder === "any" || 
         lead.existingPolicyHolder === filters.existingPolicyHolder;
       
       return matchesSearch && matchesStatus && matchesCity && matchesPolicyHolder;

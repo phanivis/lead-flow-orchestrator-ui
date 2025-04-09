@@ -10,7 +10,6 @@ import { dummyLeads, Lead } from '@/data/dummyLeads';
 
 const LeadExplorerPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [isAttributeDialogOpen, setIsAttributeDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
@@ -20,22 +19,6 @@ const LeadExplorerPage = () => {
     city: [],
     existingPolicyHolder: ''
   });
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedLeads(filteredLeads.map(lead => lead.id));
-    } else {
-      setSelectedLeads([]);
-    }
-  };
-
-  const handleSelectLead = (leadId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedLeads([...selectedLeads, leadId]);
-    } else {
-      setSelectedLeads(selectedLeads.filter(id => id !== leadId));
-    }
-  };
 
   const handleRefreshData = () => {
     toast.success('Lead data refreshed successfully');
@@ -84,9 +67,6 @@ const LeadExplorerPage = () => {
       <LeadTable
         leads={leads}
         filteredLeads={filteredLeads}
-        selectedLeads={selectedLeads}
-        onSelectAll={handleSelectAll}
-        onSelectLead={handleSelectLead}
         onOpenAssignDialog={() => setIsAssignDialogOpen(true)}
       />
 
@@ -98,7 +78,7 @@ const LeadExplorerPage = () => {
       <AssignLeadDialog 
         open={isAssignDialogOpen} 
         onOpenChange={setIsAssignDialogOpen} 
-        selectedLeadCount={selectedLeads.length}
+        selectedLeadCount={0}
       />
 
       <FilterDialog

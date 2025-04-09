@@ -1,12 +1,11 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Edit, Tag } from 'lucide-react';
 import { 
   TableRow, 
   TableCell 
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -20,8 +19,6 @@ import { Lead } from '@/data/dummyLeads';
 
 interface LeadTableRowProps {
   lead: Lead;
-  isSelected: boolean;
-  onSelectLead: (leadId: string, checked: boolean) => void;
   columnWidths: Record<string, number>;
 }
 
@@ -40,8 +37,6 @@ const buDisplayNames: Record<BusinessUnit, string> = {
 
 export const LeadTableRow = ({ 
   lead, 
-  isSelected, 
-  onSelectLead,
   columnWidths
 }: LeadTableRowProps) => {
   const formatLTV = (ltv: number) => {
@@ -75,24 +70,19 @@ export const LeadTableRow = ({
 
   const tags = getTags();
 
+  // Randomize the order of business units for display
+  const randomizedBusinessUnits = useMemo(() => {
+    return [...businessUnits].sort(() => Math.random() - 0.5);
+  }, [lead.id]);
+
   // Create individual row for each business unit with its score
   return (
     <>
-      {businessUnits.map((bu, index) => (
+      {randomizedBusinessUnits.map((bu, index) => (
         <TableRow 
           key={`${lead.id}-${bu}`} 
           className="h-12"
         >
-          {/* Checkbox column - only show checkbox in first row */}
-          <TableCell className="p-2">
-            {index === 0 && (
-              <Checkbox 
-                checked={isSelected}
-                onCheckedChange={(checked) => onSelectLead(lead.id, checked as boolean)}
-              />
-            )}
-          </TableCell>
-          
           {/* Lead ID with BU prefix */}
           <TableCell className="font-medium truncate">
             {getLeadIdWithBuPrefix(lead.id, bu)}

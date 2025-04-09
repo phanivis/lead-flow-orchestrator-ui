@@ -7,32 +7,20 @@ import {
 import { LeadTableHeader } from './LeadTableHeader';
 import { LeadTableRow } from './LeadTableRow';
 import { Lead } from '@/data/dummyLeads';
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle
-} from '@/components/ui/resizable';
 
 interface LeadTableProps {
   leads: Lead[];
   filteredLeads: Lead[];
-  selectedLeads: string[];
-  onSelectAll: (checked: boolean) => void;
-  onSelectLead: (leadId: string, checked: boolean) => void;
   onOpenAssignDialog: () => void;
 }
 
 export const LeadTable = ({
   leads,
   filteredLeads,
-  selectedLeads,
-  onSelectAll,
-  onSelectLead,
   onOpenAssignDialog
 }: LeadTableProps) => {
   // Default widths for columns (percentages)
   const [columnWidths, setColumnWidths] = useState({
-    checkbox: 3,
     leadId: 10, 
     name: 12,
     email: 15,
@@ -58,8 +46,6 @@ export const LeadTable = ({
       <div className="w-full overflow-auto whitespace-nowrap">
         <Table>
           <LeadTableHeader 
-            onSelectAll={onSelectAll} 
-            allLeadsSelected={selectedLeads.length === leads.length}
             hasLeads={leads.length > 0}
           />
           <TableBody>
@@ -67,15 +53,13 @@ export const LeadTable = ({
               filteredLeads.map((lead) => (
                 <LeadTableRow 
                   key={lead.id} 
-                  lead={lead} 
-                  isSelected={selectedLeads.includes(lead.id)}
-                  onSelectLead={onSelectLead}
+                  lead={lead}
                   columnWidths={columnWidths}
                 />
               ))
             ) : (
               <tr>
-                <td colSpan={12} className="text-center py-6 text-gray-500">
+                <td colSpan={11} className="text-center py-6 text-gray-500">
                   No leads found matching your search.
                 </td>
               </tr>

@@ -1,33 +1,22 @@
 
 import React from 'react';
-import { Car, Bike, Heart, Ambulance, Briefcase, Tag, Megaphone } from 'lucide-react';
 import { 
   TableHead,
   TableRow,
   TableHeader
 } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Tag } from 'lucide-react';
 
 interface LeadTableHeaderProps {
-  onSelectAll: (checked: boolean) => void;
-  allLeadsSelected: boolean;
   hasLeads: boolean;
 }
 
 export const LeadTableHeader = ({ 
-  onSelectAll, 
-  allLeadsSelected,
   hasLeads
 }: LeadTableHeaderProps) => {
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-[3%]">
-          <Checkbox 
-            checked={allLeadsSelected && hasLeads}
-            onCheckedChange={onSelectAll}
-          />
-        </TableHead>
         <TableHead className="w-[10%]">Lead ID</TableHead>
         <TableHead className="w-[12%]">Name</TableHead>
         <TableHead className="w-[15%]">Email</TableHead>

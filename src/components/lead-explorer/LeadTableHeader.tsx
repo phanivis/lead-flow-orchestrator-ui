@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Car, Bike, Heart, Ambulance, Briefcase } from 'lucide-react';
+import { Car, Bike, Heart, Ambulance, Briefcase, Megaphone } from 'lucide-react';
 import { 
   TableHead,
   TableRow,
@@ -36,6 +36,7 @@ export const LeadTableHeader = ({
         <TableHead colSpan={5} className="text-center">Lead Scores by Product</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>Last Activity</TableHead>
+        <TableHead>Assigned to</TableHead>
         <TableHead className="w-16">Actions</TableHead>
       </TableRow>
       <TableRow>
@@ -77,6 +78,12 @@ export const LeadTableHeader = ({
         </TableHead>
         <TableHead></TableHead>
         <TableHead></TableHead>
+        <TableHead>
+          <div className="flex items-center">
+            <Megaphone className="h-4 w-4 mr-1" />
+            <span className="text-xs">Campaign</span>
+          </div>
+        </TableHead>
         <TableHead></TableHead>
       </TableRow>
     </TableHeader>

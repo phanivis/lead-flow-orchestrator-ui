@@ -6,25 +6,7 @@ import {
 } from '@/components/ui/table';
 import { LeadTableHeader } from './LeadTableHeader';
 import { LeadTableRow } from './LeadTableRow';
-
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  existingPolicyHolder: string;
-  ltv: number;
-  leadScores: {
-    car: number;
-    bike: number;
-    life: number;
-    health: number;
-    travel: number;
-  };
-  status: string;
-  lastActivity: string;
-}
+import { Lead } from '@/data/dummyLeads';
 
 interface LeadTableProps {
   leads: Lead[];
@@ -63,7 +45,7 @@ export const LeadTable = ({
             ))
           ) : (
             <tr>
-              <td colSpan={14} className="text-center py-6 text-gray-500">
+              <td colSpan={15} className="text-center py-6 text-gray-500">
                 No leads found matching your search.
               </td>
             </tr>

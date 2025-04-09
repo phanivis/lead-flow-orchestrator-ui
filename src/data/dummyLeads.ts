@@ -16,6 +16,7 @@ export interface Lead {
   };
   status: string;
   lastActivity: string;
+  assignedCampaign?: string; // Optional because not all leads will be assigned
 }
 
 export const dummyLeads: Lead[] = [
@@ -36,6 +37,7 @@ export const dummyLeads: Lead[] = [
     },
     status: 'Qualified',
     lastActivity: '2025-04-05',
+    assignedCampaign: '1', // Spring Car Insurance Campaign
   },
   {
     id: '2',
@@ -54,6 +56,7 @@ export const dummyLeads: Lead[] = [
     },
     status: 'New',
     lastActivity: '2025-04-07',
+    assignedCampaign: '5', // Holiday Travel Insurance
   },
   {
     id: '3',
@@ -72,6 +75,7 @@ export const dummyLeads: Lead[] = [
     },
     status: 'In Progress',
     lastActivity: '2025-04-02',
+    assignedCampaign: '3', // Family Life Insurance Campaign
   },
   {
     id: '4',
@@ -108,6 +112,7 @@ export const dummyLeads: Lead[] = [
     },
     status: 'Hot Lead',
     lastActivity: '2025-04-06',
+    assignedCampaign: '7', // Student Life Insurance
   },
   {
     id: '6',
@@ -126,6 +131,7 @@ export const dummyLeads: Lead[] = [
     },
     status: 'In Progress',
     lastActivity: '2025-04-04',
+    assignedCampaign: '4', // Summer Health Checkup
   },
   {
     id: '7',
@@ -144,6 +150,7 @@ export const dummyLeads: Lead[] = [
     },
     status: 'Qualified',
     lastActivity: '2025-04-09',
+    assignedCampaign: '2', // Young Riders Bike Campaign
   },
   {
     id: '8',

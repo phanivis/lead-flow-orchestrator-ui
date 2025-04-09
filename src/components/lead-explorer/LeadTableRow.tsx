@@ -16,25 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LeadScoreIndicator } from './LeadScoreIndicator';
 import { LeadStatusBadge } from './LeadStatusBadge';
-
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  existingPolicyHolder: string;
-  ltv: number;
-  leadScores: {
-    car: number;
-    bike: number;
-    life: number;
-    health: number;
-    travel: number;
-  };
-  status: string;
-  lastActivity: string;
-}
+import { sampleCampaigns } from '@/data/assignmentData';
+import { Lead } from '@/data/dummyLeads';
 
 interface LeadTableRowProps {
   lead: Lead;
@@ -54,6 +37,10 @@ export const LeadTableRow = ({
       maximumFractionDigits: 0
     }).format(ltv);
   };
+
+  const assignedCampaign = lead.assignedCampaign 
+    ? sampleCampaigns.find(campaign => campaign.id === lead.assignedCampaign)
+    : null;
 
   return (
     <TableRow>
@@ -97,6 +84,15 @@ export const LeadTableRow = ({
         <LeadStatusBadge status={lead.status} />
       </TableCell>
       <TableCell>{lead.lastActivity}</TableCell>
+      <TableCell>
+        {assignedCampaign ? (
+          <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-800">
+            {assignedCampaign.name}
+          </Badge>
+        ) : (
+          <span className="text-gray-400 text-sm">Not assigned</span>
+        )}
+      </TableCell>
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

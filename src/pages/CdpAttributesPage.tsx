@@ -2,10 +2,65 @@
 import React, { useState } from 'react';
 import { LeadAttributeDialog } from '@/components/lead-explorer/LeadAttributeDialog';
 import { Button } from '@/components/ui/button';
-import { Database, Plus } from 'lucide-react';
+import { Database, Plus, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
+
+// Sample attribute data
+const attributesList = [
+  { id: 1, name: 'Customer Lifetime Value', type: 'Number', source: 'CDP', visible: true, editable: false },
+  { id: 2, name: 'Purchase Frequency', type: 'Number', source: 'CDP', visible: true, editable: false },
+  { id: 3, name: 'Product Interest', type: 'Text', source: 'LMS', visible: true, editable: true },
+  { id: 4, name: 'Engagement Score', type: 'Number', source: 'LMS', visible: true, editable: true },
+  { id: 5, name: 'Lead Age', type: 'Date', source: 'LMS', visible: false, editable: true },
+  { id: 6, name: 'Email Opened', type: 'Boolean', source: 'Marketing', visible: true, editable: false },
+  { id: 7, name: 'Last Website Visit', type: 'Date', source: 'Analytics', visible: false, editable: false },
+  { id: 8, name: 'Social Media Mentions', type: 'Number', source: 'Social', visible: false, editable: false },
+  { id: 9, name: 'Support Tickets', type: 'Number', source: 'Support', visible: true, editable: false },
+  { id: 10, name: 'Campaign Response', type: 'Boolean', source: 'LMS', visible: true, editable: true },
+];
 
 const CdpAttributesPage = () => {
   const [isAttributeDialogOpen, setIsAttributeDialogOpen] = useState(false);
+  const [attributes, setAttributes] = useState(attributesList);
+  
+  const toggleAttributeVisibility = (id: number) => {
+    setAttributes(
+      attributes.map(attr => 
+        attr.id === id ? { ...attr, visible: !attr.visible } : attr
+      )
+    );
+    
+    const attribute = attributes.find(attr => attr.id === id);
+    if (attribute) {
+      toast.success(`${attribute.name} is now ${attribute.visible ? 'hidden' : 'visible'}`);
+    }
+  };
+  
+  const deleteAttribute = (id: number) => {
+    const attribute = attributes.find(attr => attr.id === id);
+    if (attribute && attribute.editable) {
+      setAttributes(attributes.filter(attr => attr.id !== id));
+      toast.success(`${attribute.name} has been deleted`);
+    } else {
+      toast.error("Cannot delete this attribute");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -21,24 +76,94 @@ const CdpAttributesPage = () => {
           New Attribute
         </Button>
       </div>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {/* Example attribute cards */}
-        {['Customer Lifetime Value', 'Purchase Frequency', 'Product Interest', 'Engagement Score', 'Lead Age'].map((attribute) => (
-          <div key={attribute} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-2 mb-2">
-              <Database size={16} className="text-primary" />
-              <h3 className="font-medium">{attribute}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">Customer data attribute for lead qualification</p>
-            <div className="flex justify-end">
-              <Button variant="outline" size="sm">
-                Edit
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+      
+      <Tabs defaultValue="visibility" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="visibility">View / Hide Attributes</TabsTrigger>
+          <TabsTrigger value="manage">Manage Attributes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="visibility" className="mt-4">
+          <Card className="p-4">
+            <h2 className="text-lg font-medium mb-4">Attribute Visibility Settings</h2>
+            <p className="text-sm text-muted-foreground mb-4">Toggle attributes to show or hide them in the leads view</p>
+            
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Attribute Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead className="text-right">Visibility</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {attributes.map((attribute) => (
+                  <TableRow key={attribute.id}>
+                    <TableCell className="font-medium">{attribute.name}</TableCell>
+                    <TableCell>{attribute.type}</TableCell>
+                    <TableCell>{attribute.source}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <span className="text-sm text-muted-foreground">
+                          {attribute.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+                        </span>
+                        <Switch
+                          checked={attribute.visible}
+                          onCheckedChange={() => toggleAttributeVisibility(attribute.id)}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="manage" className="mt-4">
+          <Card className="p-4">
+            <h2 className="text-lg font-medium mb-4">LMS Attribute Management</h2>
+            <p className="text-sm text-muted-foreground mb-4">Edit or remove attributes that were created in the Lead Management System</p>
+            
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Attribute Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {attributes
+                  .filter(attribute => attribute.editable)
+                  .map((attribute) => (
+                    <TableRow key={attribute.id}>
+                      <TableCell className="font-medium">{attribute.name}</TableCell>
+                      <TableCell>{attribute.type}</TableCell>
+                      <TableCell>{attribute.source}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <Button variant="ghost" size="sm">
+                            <Edit size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => deleteAttribute(attribute.id)}
+                          >
+                            <Trash2 size={16} className="text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <LeadAttributeDialog 
         open={isAttributeDialogOpen} 

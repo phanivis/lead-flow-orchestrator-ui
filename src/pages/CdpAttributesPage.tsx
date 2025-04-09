@@ -20,6 +20,16 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Sample attribute data
 const attributesList = [
@@ -42,6 +52,8 @@ const CdpAttributesPage = () => {
   const [isAttributeDialogOpen, setIsAttributeDialogOpen] = useState(false);
   const [attributes, setAttributes] = useState(attributesList);
   const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [attributeToDelete, setAttributeToDelete] = useState<number | null>(null);
   
   const toggleAttributeVisibility = (id: number) => {
     setAttributes(
@@ -56,14 +68,31 @@ const CdpAttributesPage = () => {
     }
   };
   
-  const deleteAttribute = (id: number) => {
+  const openDeleteConfirmation = (id: number) => {
     const attribute = attributes.find(attr => attr.id === id);
     if (attribute && attribute.editable) {
-      setAttributes(attributes.filter(attr => attr.id !== id));
-      toast.success(`${attribute.name} has been deleted`);
+      setAttributeToDelete(id);
+      setIsDeleteDialogOpen(true);
     } else {
       toast.error("Cannot delete this attribute");
     }
+  };
+
+  const confirmDelete = () => {
+    if (attributeToDelete !== null) {
+      const attribute = attributes.find(attr => attr.id === attributeToDelete);
+      if (attribute) {
+        setAttributes(attributes.filter(attr => attr.id !== attributeToDelete));
+        toast.success(`${attribute.name} has been deleted`);
+      }
+      setAttributeToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setAttributeToDelete(null);
+    setIsDeleteDialogOpen(false);
   };
 
   const handleEditAttribute = (id: number) => {
@@ -185,7 +214,7 @@ const CdpAttributesPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => deleteAttribute(attribute.id)}
+                            onClick={() => openDeleteConfirmation(attribute.id)}
                           >
                             <Trash2 size={16} className="text-destructive" />
                           </Button>
@@ -205,6 +234,23 @@ const CdpAttributesPage = () => {
         attributeToEdit={selectedAttribute}
         onUpdateAttribute={handleUpdateAttribute}
       />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this attribute from LMS?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

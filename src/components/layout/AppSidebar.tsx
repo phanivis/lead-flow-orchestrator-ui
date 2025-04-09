@@ -3,7 +3,17 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Upload, Star, List, Search, BarChart2, Activity, Users, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarFooter, 
+  SidebarHeader, 
+  SidebarMenu, 
+  SidebarMenuItem, 
+  SidebarMenuButton, 
+  SidebarTrigger,
+  useSidebar 
+} from '@/components/ui/sidebar';
 
 const navigationItems = [
   {
@@ -27,14 +37,14 @@ const navigationItems = [
     icon: Activity
   },
   {
-    name: 'Lead Assignment',
-    path: '/lead-assignment',
-    icon: Users
-  },
-  {
     name: 'Manage Lead Attributes',
     path: '/cdp-attributes',
     icon: Database
+  },
+  {
+    name: 'Lead Assignment',
+    path: '/lead-assignment',
+    icon: Users
   },
   {
     name: 'Ingestion History',
@@ -44,19 +54,22 @@ const navigationItems = [
 ];
 
 const AppSidebar = () => {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center space-x-2">
           <BarChart2 className="h-8 w-8 text-primary" />
-          <h1 className="text-lg font-bold">Acko Lead Hub</h1>
+          <h1 className={cn("text-lg font-bold transition-opacity", isCollapsed && "opacity-0")}>Acko Lead Hub</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
           {navigationItems.map(item => (
             <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild tooltip={item.name}>
                 <NavLink to={item.path} className={({isActive}) => cn("flex items-center gap-3 w-full", isActive && "bg-sidebar-accent")}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.name}</span>
@@ -69,7 +82,7 @@ const AppSidebar = () => {
       <SidebarFooter className="p-4">
         <div className="text-xs text-sidebar-foreground/70">
           <div className="flex items-center justify-between">
-            <span>Lead Management System v1.0</span>
+            <span className={cn("transition-opacity", isCollapsed && "opacity-0")}>Lead Management System v1.0</span>
             <SidebarTrigger />
           </div>
         </div>

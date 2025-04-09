@@ -8,8 +8,8 @@ import Header from './Header';
 
 const AppLayout = () => {
   return (
-    <SidebarProvider>
-      <TooltipProvider>
+    <SidebarProvider defaultOpen={true}>
+      <TooltipProvider delayDuration={0}>
         <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
           <div className="flex flex-col flex-1 overflow-hidden">

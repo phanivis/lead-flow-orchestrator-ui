@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -5,24 +6,13 @@ import {
   CardDescription, 
   CardHeader, 
   CardTitle,
-  CardFooter
 } from "@/components/ui/card";
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
   Dialog, 
-  DialogTrigger, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogDescription,
-  DialogFooter
 } from '@/components/ui/dialog';
 import { 
   Select, 
@@ -31,146 +21,13 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash2, Filter, Save } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { dummyLeads, Lead } from '@/data/dummyLeads';
-import * as z from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-
-const businessUnits = [
-  { id: 'car', name: 'Car Insurance' },
-  { id: 'bike', name: 'Bike Insurance' },
-  { id: 'life', name: 'Life Insurance' },
-  { id: 'health', name: 'Health Insurance' },
-  { id: 'travel', name: 'Travel Insurance' }
-];
-
-const sampleCampaigns = [
-  { id: '1', name: 'Spring Car Insurance Campaign', description: 'Promotional campaign for new car policies', businessUnit: 'car' },
-  { id: '2', name: 'Young Riders Bike Campaign', description: 'Targeting young motorcycle enthusiasts', businessUnit: 'bike' },
-  { id: '3', name: 'Family Life Insurance Campaign', description: 'Focused on families with young children', businessUnit: 'life' },
-  { id: '4', name: 'Summer Health Checkup', description: 'Seasonal health check promotion', businessUnit: 'health' },
-  { id: '5', name: 'Holiday Travel Insurance', description: 'Coverage for summer vacation travel', businessUnit: 'travel' },
-  { id: '6', name: 'Senior Safe Driving', description: 'Special rates for senior drivers', businessUnit: 'car' },
-  { id: '7', name: 'Student Life Insurance', description: 'Affordable coverage for students', businessUnit: 'life' },
-];
-
-const leadAttributes = [
-  { id: 'city', name: 'City', type: 'string' },
-  { id: 'existingPolicyHolder', name: 'Existing Policy Holder', type: 'boolean' },
-  { id: 'ltv', name: 'Lifetime Value', type: 'number' },
-  { id: 'leadScore', name: 'Lead Score', type: 'number' },
-  { id: 'status', name: 'Status', type: 'string' },
-];
-
-const getOperatorsForType = (type: string) => {
-  switch (type) {
-    case 'string':
-      return [
-        { id: 'equals', label: 'Equals' },
-        { id: 'contains', label: 'Contains' },
-        { id: 'startsWith', label: 'Starts With' },
-        { id: 'endsWith', label: 'Ends With' },
-      ];
-    case 'number':
-      return [
-        { id: 'equals', label: 'Equals' },
-        { id: 'greaterThan', label: 'Greater Than' },
-        { id: 'lessThan', label: 'Less Than' },
-        { id: 'between', label: 'Between' },
-      ];
-    case 'boolean':
-      return [
-        { id: 'equals', label: 'Equals' },
-      ];
-    default:
-      return [];
-  }
-};
-
-const generateUUID = (): `${string}-${string}-${string}-${string}-${string}` => {
-  return crypto.randomUUID() as `${string}-${string}-${string}-${string}-${string}`;
-};
-
-interface AssignmentRule {
-  id: string;
-  name: string;
-  businessUnit: string;
-  campaign: string;
-  priority: number;
-  conditions: Array<{
-    id: `${string}-${string}-${string}-${string}-${string}`;
-    attribute: string;
-    operator: string;
-    value: string;
-    value2?: string;
-  }>;
-}
-
-const sampleAssignmentRules: AssignmentRule[] = [
-  {
-    id: '1',
-    name: 'High Value Mumbai Leads',
-    businessUnit: 'car',
-    campaign: '1',
-    priority: 1,
-    conditions: [
-      { id: generateUUID(), attribute: 'city', operator: 'equals', value: 'Mumbai' },
-      { id: generateUUID(), attribute: 'ltv', operator: 'greaterThan', value: '5000' },
-    ]
-  },
-  {
-    id: '2',
-    name: 'Existing Customers - Life',
-    businessUnit: 'life',
-    campaign: '3',
-    priority: 2,
-    conditions: [
-      { id: generateUUID(), attribute: 'existingPolicyHolder', operator: 'equals', value: 'Yes' },
-    ]
-  },
-  {
-    id: '3',
-    name: 'Qualified Travel Leads',
-    businessUnit: 'travel',
-    campaign: '5',
-    priority: 3,
-    conditions: [
-      { id: generateUUID(), attribute: 'status', operator: 'equals', value: 'Qualified' },
-      { id: generateUUID(), attribute: 'leadScore', operator: 'greaterThan', value: '70' },
-    ]
-  }
-];
-
-const assignmentRuleSchema = z.object({
-  name: z.string().min(1, { message: "Rule name is required" }),
-  businessUnit: z.string().min(1, { message: "Business unit is required" }),
-  campaign: z.string().min(1, { message: "Campaign is required" }),
-  priority: z.number().min(1, { message: "Priority must be at least 1" }),
-  conditions: z.array(
-    z.object({
-      id: z.string(),
-      attribute: z.string().optional(),
-      operator: z.string().optional(),
-      value: z.string().optional(),
-      value2: z.string().optional()
-    })
-  )
-});
-
-type AssignmentRuleFormValues = z.infer<typeof assignmentRuleSchema>;
+import { AssignmentRule, generateUUID } from '@/types/assignmentTypes';
+import { businessUnits, sampleAssignmentRules } from '@/data/assignmentData';
+import { AssignmentRuleForm, AssignmentRuleFormValues } from '@/components/lead-assignment/AssignmentRuleForm';
+import { AssignmentRulesTable } from '@/components/lead-assignment/AssignmentRulesTable';
 
 const LeadAssignmentPage: React.FC = () => {
   const [assignmentRules, setAssignmentRules] = useState<AssignmentRule[]>(sampleAssignmentRules);
@@ -178,43 +35,13 @@ const LeadAssignmentPage: React.FC = () => {
   const [editingRule, setEditingRule] = useState<AssignmentRule | null>(null);
   const [selectedBusinessUnit, setSelectedBusinessUnit] = useState<string>('all');
   
-  const form = useForm<AssignmentRuleFormValues>({
-    resolver: zodResolver(assignmentRuleSchema),
-    defaultValues: {
-      name: '',
-      businessUnit: '',
-      campaign: '',
-      priority: 1,
-      conditions: [{ id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }]
-    }
-  });
-  
-  const ruleName = form.watch('name');
-  const businessUnit = form.watch('businessUnit');
-  const campaign = form.watch('campaign');
-  const isFormValid = ruleName && businessUnit && campaign;
-  
   const openAddDialog = () => {
-    form.reset({
-      name: '',
-      businessUnit: '',
-      campaign: '',
-      priority: 1,
-      conditions: [{ id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }]
-    });
     setEditingRule(null);
     setIsAddDialogOpen(true);
   };
   
   const openEditDialog = (rule: AssignmentRule) => {
     setEditingRule(rule);
-    form.reset({
-      name: rule.name,
-      businessUnit: rule.businessUnit,
-      campaign: rule.campaign,
-      priority: rule.priority,
-      conditions: rule.conditions
-    });
     setIsAddDialogOpen(true);
   };
   
@@ -223,22 +50,7 @@ const LeadAssignmentPage: React.FC = () => {
     toast.success('Assignment rule deleted successfully');
   };
   
-  const addCondition = () => {
-    const currentConditions = form.getValues('conditions');
-    form.setValue('conditions', [
-      ...currentConditions,
-      { id: generateUUID(), attribute: '', operator: '', value: '', value2: '' }
-    ]);
-  };
-  
-  const removeCondition = (index: number) => {
-    const currentConditions = form.getValues('conditions');
-    if (currentConditions.length > 1) {
-      form.setValue('conditions', currentConditions.filter((_, i) => i !== index));
-    }
-  };
-  
-  const handleSubmit = form.handleSubmit((data) => {
+  const handleSubmit = (data: AssignmentRuleFormValues) => {
     if (editingRule) {
       setAssignmentRules(prev => 
         prev.map(rule => rule.id === editingRule.id ? { ...data, id: editingRule.id } as AssignmentRule : rule)
@@ -253,15 +65,11 @@ const LeadAssignmentPage: React.FC = () => {
       toast.success('New assignment rule created successfully');
     }
     setIsAddDialogOpen(false);
-  });
+  };
   
   const filteredRules = selectedBusinessUnit === 'all' 
     ? assignmentRules 
     : assignmentRules.filter(rule => rule.businessUnit === selectedBusinessUnit);
-  
-  const campaignsForSelectedBU = form.watch('businessUnit') 
-    ? sampleCampaigns.filter(campaign => campaign.businessUnit === form.watch('businessUnit'))
-    : [];
   
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -286,63 +94,21 @@ const LeadAssignmentPage: React.FC = () => {
         </div>
       </div>
       
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Assignment Rules</CardTitle>
-            <CardDescription>
-              Define rules for assigning leads to specific campaigns
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Rule Name</TableHead>
-                  <TableHead>Business Unit</TableHead>
-                  <TableHead>Campaign</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Conditions</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRules.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                      No assignment rules found. Create your first rule to get started.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredRules.map(rule => (
-                    <TableRow key={rule.id}>
-                      <TableCell className="font-medium">{rule.name}</TableCell>
-                      <TableCell>
-                        {businessUnits.find(bu => bu.id === rule.businessUnit)?.name}
-                      </TableCell>
-                      <TableCell>
-                        {sampleCampaigns.find(c => c.id === rule.campaign)?.name}
-                      </TableCell>
-                      <TableCell>{rule.priority}</TableCell>
-                      <TableCell>{rule.conditions.length} condition(s)</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(rule)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => deleteRule(rule.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Assignment Rules</CardTitle>
+          <CardDescription>
+            Define rules for assigning leads to specific campaigns
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AssignmentRulesTable
+            rules={filteredRules}
+            onEdit={openEditDialog}
+            onDelete={deleteRule}
+          />
+        </CardContent>
+      </Card>
       
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[800px]">
@@ -355,258 +121,11 @@ const LeadAssignmentPage: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <Form {...form}>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        Rule Name <span className="text-red-500 ml-1">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="High Value Leads" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        A descriptive name for this assignment rule
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={1} {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
-                      </FormControl>
-                      <FormDescription>
-                        Lower numbers have higher priority
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="businessUnit"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        Business Unit <span className="text-red-500 ml-1">*</span>
-                      </FormLabel>
-                      <Select 
-                        value={field.value} 
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          form.setValue('campaign', '');
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Business Unit" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {businessUnits.map(bu => (
-                            <SelectItem key={bu.id} value={bu.id}>{bu.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        The business unit this rule applies to
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="campaign"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        Campaign <span className="text-red-500 ml-1">*</span>
-                      </FormLabel>
-                      <Select 
-                        value={field.value} 
-                        onValueChange={field.onChange}
-                        disabled={!form.watch('businessUnit')}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Campaign" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {campaignsForSelectedBU.map(campaign => (
-                            <SelectItem key={campaign.id} value={campaign.id}>{campaign.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        The campaign to assign leads to
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium">Conditions</h3>
-                  <Button type="button" variant="outline" size="sm" onClick={addCondition}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Condition
-                  </Button>
-                </div>
-                
-                {form.watch('conditions').map((condition, index) => {
-                  const attributeType = leadAttributes.find(attr => attr.id === condition.attribute)?.type || '';
-                  const operators = getOperatorsForType(attributeType);
-                  const showSecondValue = condition.operator === 'between';
-                  
-                  return (
-                    <div key={condition.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end border p-3 rounded-md">
-                      <div className="md:col-span-3">
-                        <FormField
-                          control={form.control}
-                          name={`conditions.${index}.attribute`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Attribute</FormLabel>
-                              <Select 
-                                value={field.value} 
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                  form.setValue(`conditions.${index}.operator`, '');
-                                  form.setValue(`conditions.${index}.value`, '');
-                                  form.setValue(`conditions.${index}.value2`, '');
-                                }}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {leadAttributes.map(attr => (
-                                    <SelectItem key={attr.id} value={attr.id}>{attr.name}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <div className="md:col-span-3">
-                        <FormField
-                          control={form.control}
-                          name={`conditions.${index}.operator`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Operator</FormLabel>
-                              <Select 
-                                value={field.value} 
-                                onValueChange={field.onChange}
-                                disabled={!form.watch(`conditions.${index}.attribute`)}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {operators.map(op => (
-                                    <SelectItem key={op.id} value={op.id}>{op.label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <div className={`md:col-span-${showSecondValue ? '2' : '4'}`}>
-                        <FormField
-                          control={form.control}
-                          name={`conditions.${index}.value`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{showSecondValue ? 'Min Value' : 'Value'}</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Value" 
-                                  {...field} 
-                                  disabled={!form.watch(`conditions.${index}.operator`)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      {showSecondValue && (
-                        <div className="md:col-span-2">
-                          <FormField
-                            control={form.control}
-                            name={`conditions.${index}.value2`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Max Value</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    placeholder="Max Value" 
-                                    {...field} 
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="md:col-span-2 flex justify-end">
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => removeCondition(index)}
-                          disabled={form.watch('conditions').length <= 1}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={!isFormValid}>
-                  <Save className="mr-2 h-4 w-4" />
-                  {editingRule ? 'Update Rule' : 'Create Rule'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          <AssignmentRuleForm
+            editingRule={editingRule}
+            onClose={() => setIsAddDialogOpen(false)}
+            onSubmit={handleSubmit}
+          />
         </DialogContent>
       </Dialog>
     </div>

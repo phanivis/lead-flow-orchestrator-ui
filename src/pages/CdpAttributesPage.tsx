@@ -11,8 +11,8 @@ const CdpAttributesPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">CDP Attributes</h1>
-          <p className="text-muted-foreground">Manage your customer data platform attributes</p>
+          <h1 className="text-2xl font-bold">Manage Lead Attributes</h1>
+          <p className="text-muted-foreground">Manage your customer data and lead attributes</p>
         </div>
         <Button 
           onClick={() => setIsAttributeDialogOpen(true)}

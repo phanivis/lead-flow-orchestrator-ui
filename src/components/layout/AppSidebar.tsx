@@ -32,7 +32,7 @@ const navigationItems = [
     icon: Users
   },
   {
-    name: 'CDP Attributes',
+    name: 'Manage Lead Attributes',
     path: '/cdp-attributes',
     icon: Database
   },

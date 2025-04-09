@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Filter, RefreshCcw, Database } from 'lucide-react';
+import { Search, RefreshCcw, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -39,14 +39,6 @@ export const LeadFilters = ({
         >
           <RefreshCcw size={16} className="mr-2" />
           Refresh
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onOpenFilterDialog}
-        >
-          <Filter size={16} className="mr-2" />
-          Filter
         </Button>
         <Button 
           variant="outline" 

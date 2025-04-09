@@ -83,7 +83,7 @@ export const LeadTableRow = ({
           key={`${lead.id}-${bu}`} 
           className="h-12"
         >
-          {/* Show checkbox only in the first row */}
+          {/* Checkbox column - only show checkbox in first row */}
           <TableCell className="p-2">
             {index === 0 && (
               <Checkbox 
@@ -98,33 +98,31 @@ export const LeadTableRow = ({
             {getLeadIdWithBuPrefix(lead.id, bu)}
           </TableCell>
           
-          {/* Show name only in the first row */}
+          {/* Show name in all rows */}
           <TableCell className="truncate">
-            {index === 0 ? lead.name : ''}
+            {lead.name}
           </TableCell>
           
-          {/* Show email only in the first row */}
+          {/* Show email in all rows */}
           <TableCell className="truncate">
-            {index === 0 ? lead.email : ''}
+            {lead.email}
           </TableCell>
           
-          {/* Show city only in the first row */}
+          {/* Show city in all rows */}
           <TableCell className="truncate">
-            {index === 0 ? lead.city : ''}
+            {lead.city}
           </TableCell>
           
-          {/* Show existing policy holder only in the first row */}
+          {/* Show existing policy holder in all rows */}
           <TableCell>
-            {index === 0 ? (
-              <Badge className={lead.existingPolicyHolder === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                {lead.existingPolicyHolder}
-              </Badge>
-            ) : null}
+            <Badge className={lead.existingPolicyHolder === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+              {lead.existingPolicyHolder}
+            </Badge>
           </TableCell>
           
-          {/* Show LTV only in the first row */}
+          {/* Show LTV in all rows */}
           <TableCell className="truncate">
-            {index === 0 ? formatLTV(lead.ltv) : ''}
+            {formatLTV(lead.ltv)}
           </TableCell>
           
           {/* Lead score for the specific BU */}
@@ -135,19 +133,19 @@ export const LeadTableRow = ({
             </div>
           </TableCell>
           
-          {/* Show status only in the first row */}
+          {/* Show status in all rows */}
           <TableCell>
-            {index === 0 ? <LeadStatusBadge status={lead.status} /> : null}
+            <LeadStatusBadge status={lead.status} />
           </TableCell>
           
-          {/* Show last activity only in the first row */}
+          {/* Show last activity in all rows */}
           <TableCell className="truncate">
-            {index === 0 ? lead.lastActivity : ''}
+            {lead.lastActivity}
           </TableCell>
           
           {/* Tags column */}
           <TableCell>
-            {index === 0 && tags.length > 0 ? (
+            {tags.length > 0 ? (
               <div className="flex flex-wrap gap-1">
                 {tags.map(tag => (
                   <Badge key={tag} variant="outline" className="bg-purple-50 border-purple-200 text-purple-800">
@@ -160,25 +158,22 @@ export const LeadTableRow = ({
           
           {/* Actions column */}
           <TableCell>
-            {index === 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Edit size={16} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>View Details</DropdownMenuItem>
-                  <DropdownMenuItem>Edit Lead</DropdownMenuItem>
-                  <DropdownMenuItem>Change Status</DropdownMenuItem>
-                  <DropdownMenuItem>Assign Owner</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Edit size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>View Details</DropdownMenuItem>
+                <DropdownMenuItem>Edit Lead</DropdownMenuItem>
+                <DropdownMenuItem>Change Status</DropdownMenuItem>
+                <DropdownMenuItem>Assign Owner</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </TableCell>
         </TableRow>
       ))}
     </>
   );
 };
-

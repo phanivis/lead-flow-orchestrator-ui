@@ -24,7 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { AssignmentRule, generateUUID } from '@/types/assignmentTypes';
+import { AssignmentRule } from '@/types/assignmentTypes';
 import { businessUnits, sampleAssignmentRules } from '@/data/assignmentData';
 import { AssignmentRuleForm, AssignmentRuleFormValues } from '@/components/lead-assignment/AssignmentRuleForm';
 import { AssignmentRulesTable } from '@/components/lead-assignment/AssignmentRulesTable';
@@ -57,9 +57,14 @@ const LeadAssignmentPage: React.FC = () => {
       );
       toast.success('Assignment rule updated successfully');
     } else {
+      // Fix: Ensure all required properties are provided for the new AssignmentRule
       const newRule: AssignmentRule = {
-        ...data,
-        id: crypto.randomUUID()
+        id: crypto.randomUUID() as `${string}-${string}-${string}-${string}-${string}`,
+        name: data.name,
+        businessUnit: data.businessUnit,
+        campaign: data.campaign,
+        priority: data.priority,
+        conditions: data.conditions
       };
       setAssignmentRules(prev => [...prev, newRule]);
       toast.success('New assignment rule created successfully');

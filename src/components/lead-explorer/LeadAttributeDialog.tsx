@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, X, Trash2, Save, Database, Calculator, Code } from 'lucide-react';
 import { 
   Dialog, 
@@ -54,15 +53,21 @@ const initialCustomAttributes = [
   { id: 'c2', name: 'Product Interest', type: 'text', source: 'Custom' },
 ];
 
-// Operators available for transformations
-const operators = [
-  { value: '+', label: 'Add (+)' },
-  { value: '-', label: 'Subtract (-)' },
-  { value: '*', label: 'Multiply (*)' },
-  { value: '/', label: 'Divide (/)' },
-  { value: 'concat', label: 'Concatenate' },
-  { value: 'year_diff', label: 'Year Difference' },
-];
+// Operators grouped by type
+const operatorsByType = {
+  numerical: [
+    { value: '+', label: 'Add (+)' },
+    { value: '-', label: 'Subtract (-)' },
+    { value: '*', label: 'Multiply (*)' },
+    { value: '/', label: 'Divide (/)' },
+  ],
+  text: [
+    { value: 'concat', label: 'Concatenate' },
+  ],
+  date: [
+    { value: 'year_diff', label: 'Year Difference' },
+  ]
+};
 
 export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogProps) => {
   const [cdpAttributes, setCdpAttributes] = useState(initialCdpAttributes);
@@ -81,6 +86,44 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
     secondAttribute: '',
     description: ''
   });
+
+  // State for available operators based on selected attributes
+  const [availableOperators, setAvailableOperators] = useState(operatorsByType.numerical);
+
+  const allAttributes = [...cdpAttributes, ...customAttributes];
+
+  // Function to get attribute type by ID
+  const getAttributeTypeById = (attributeId: string) => {
+    const attribute = allAttributes.find(attr => attr.id === attributeId);
+    return attribute?.type || '';
+  };
+
+  // Update available operators when attributes are selected
+  useEffect(() => {
+    if (!newCalculatedAttr.firstAttribute) return;
+    
+    const firstAttrType = getAttributeTypeById(newCalculatedAttr.firstAttribute);
+    
+    if (firstAttrType === 'number') {
+      setAvailableOperators(operatorsByType.numerical);
+      if (!operatorsByType.numerical.some(op => op.value === newCalculatedAttr.operator)) {
+        setNewCalculatedAttr(prev => ({ ...prev, operator: '+' }));
+      }
+    } else if (firstAttrType === 'text' || firstAttrType === 'email' || firstAttrType === 'phone') {
+      setAvailableOperators(operatorsByType.text);
+      if (newCalculatedAttr.operator !== 'concat') {
+        setNewCalculatedAttr(prev => ({ ...prev, operator: 'concat' }));
+      }
+    } else if (firstAttrType === 'date') {
+      setAvailableOperators(operatorsByType.date);
+      if (newCalculatedAttr.operator !== 'year_diff') {
+        setNewCalculatedAttr(prev => ({ ...prev, operator: 'year_diff' }));
+      }
+    } else {
+      // Default to numerical operators
+      setAvailableOperators(operatorsByType.numerical);
+    }
+  }, [newCalculatedAttr.firstAttribute]);
 
   const handleSelectAttribute = (attributeId: string) => {
     if (selectedAttributes.includes(attributeId)) {
@@ -167,8 +210,6 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
     toast.success(`Calculated attribute "${newCalculatedAttr.name}" created successfully`);
   };
 
-  const allAttributes = [...cdpAttributes, ...customAttributes];
-  
   const filteredAttributes = allAttributes.filter(attr => 
     attr.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -358,7 +399,7 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {operators.map((op) => (
+                        {availableOperators.map((op) => (
                           <SelectItem key={op.value} value={op.value}>
                             {op.label}
                           </SelectItem>

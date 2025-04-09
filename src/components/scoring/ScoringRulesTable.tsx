@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -82,11 +83,6 @@ export const ScoringRulesTable = ({ rules, businessUnits, onEdit, onDelete }: Sc
       <TableBody>
         {rules.length === 0 ? (
           <>
-            <TableRow>
-              <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                Here are some sample scoring rules to get you started. Click "Add Rule" to create your own.
-              </TableCell>
-            </TableRow>
             {dummyRules.map(rule => (
               <TableRow key={rule.id} className="opacity-60">
                 <TableCell className="font-medium">{getBusinessUnitName(rule.business_unit)}</TableCell>

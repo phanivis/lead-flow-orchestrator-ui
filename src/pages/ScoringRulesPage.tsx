@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -18,11 +17,11 @@ import { ScoringRule, BusinessUnit, validateScoringRule } from '@/types/scoringT
 const ScoringRulesPage: React.FC = () => {
   const [scoringRules, setScoringRules] = useState<ScoringRule[]>([]);
   const [businessUnits, setBusinessUnits] = useState<BusinessUnit[]>([
-    { id: 'car', name: 'Car Insurance' },
-    { id: 'bike', name: 'Bike Insurance' },
-    { id: 'life', name: 'Life Insurance' },
+    { id: 'motor', name: 'Motor Insurance' },
     { id: 'health', name: 'Health Insurance' },
-    { id: 'travel', name: 'Travel Insurance' }
+    { id: 'life', name: 'Term Life Insurance' },
+    { id: 'travel', name: 'Travel Insurance' },
+    { id: 'home', name: 'Home Insurance' }
   ]);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [selectedBusinessUnit, setSelectedBusinessUnit] = useState<string>('all');
@@ -36,9 +35,72 @@ const ScoringRulesPage: React.FC = () => {
   const [isSQL, setIsSQL] = useState<boolean>(false);
 
   useEffect(() => {
+    // Load scoring rules from localStorage or initialize with dummy data if none exists
     const storedRules = localStorage.getItem('scoringRules');
     if (storedRules) {
       setScoringRules(JSON.parse(storedRules));
+    } else {
+      // Initialize with dummy data for Indian D2C insurance provider
+      const dummyRules: ScoringRule[] = [
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'motor',
+          description: 'Two-Wheeler High Value Lead',
+          criteria: 'vehicle_type = "Two Wheeler" AND vehicle_value > 100000',
+          weight: 80,
+          isSQL: true,
+        },
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'motor',
+          description: 'Car in Metro City',
+          criteria: 'city IN ("Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", "Kolkata")',
+          weight: 75,
+          isSQL: true,
+        },
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'health',
+          description: 'Family Floater Policy',
+          criteria: 'policy_type = "Family Floater" AND members >= 3',
+          weight: 85,
+          isSQL: true,
+        },
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'health',
+          description: 'Senior Citizen Lead',
+          criteria: 'age > 60',
+          weight: 90,
+          isSQL: false,
+        },
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'life',
+          description: 'High Sum Assured',
+          criteria: 'sum_assured >= 10000000',
+          weight: 95,
+          isSQL: false,
+        },
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'travel',
+          description: 'International Travel',
+          criteria: 'destination_type = "International" AND duration > 15',
+          weight: 70,
+          isSQL: true,
+        },
+        {
+          id: crypto.randomUUID(),
+          business_unit: 'home',
+          description: 'Premium Property',
+          criteria: 'property_value > 10000000 AND property_type = "Villa"',
+          weight: 85,
+          isSQL: true,
+        }
+      ];
+      setScoringRules(dummyRules);
+      localStorage.setItem('scoringRules', JSON.stringify(dummyRules));
     }
   }, []);
 

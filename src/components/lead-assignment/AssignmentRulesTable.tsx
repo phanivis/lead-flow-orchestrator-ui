@@ -92,12 +92,6 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
           >
             Priority {getSortIcon('priority')}
           </TableHead>
-          <TableHead 
-            className="cursor-pointer"
-            onClick={() => handleSort('operator')}
-          >
-            Logic {getSortIcon('operator')}
-          </TableHead>
           <TableHead>Conditions</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -105,7 +99,7 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
       <TableBody>
         {rules.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
               No assignment rules found. Create your first rule to get started.
             </TableCell>
           </TableRow>
@@ -120,11 +114,6 @@ export const AssignmentRulesTable = ({ rules, onEdit, onDelete }: AssignmentRule
                 {sampleCampaigns.find(c => c.id === rule.campaign)?.name}
               </TableCell>
               <TableCell>{rule.priority}</TableCell>
-              <TableCell>
-                <Badge variant={rule.operator === 'and' ? 'default' : 'secondary'}>
-                  {rule.operator === 'and' ? 'ALL' : 'ANY'}
-                </Badge>
-              </TableCell>
               <TableCell>{rule.conditions.length} condition(s)</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">

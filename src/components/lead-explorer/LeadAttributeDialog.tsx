@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Trash2, Save, Database, Calculator, Code } from 'lucide-react';
 import { 
@@ -236,34 +235,6 @@ export const LeadAttributeDialog = ({ open, onOpenChange }: LeadAttributeDialogP
           
           <TabsContent value="existing" className="mt-4">
             <div className="grid gap-4">
-              <div className="flex items-center gap-2">
-                <Input 
-                  placeholder="Attribute name" 
-                  value={newAttribute.name}
-                  onChange={(e) => setNewAttribute({ ...newAttribute, name: e.target.value })}
-                />
-                <Select 
-                  value={newAttribute.type} 
-                  onValueChange={(value) => setNewAttribute({ ...newAttribute, type: value })}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="text">Text</SelectItem>
-                    <SelectItem value="number">Number</SelectItem>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="boolean">Boolean</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="phone">Phone</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleAddNewAttribute} size="sm">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-              
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="text-sm font-medium">Available Attributes</h3>

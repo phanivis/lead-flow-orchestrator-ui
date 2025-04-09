@@ -88,9 +88,9 @@ export const LeadTableRow = ({
             {getLeadIdWithBuPrefix(lead.id, bu)}
           </TableCell>
           
-          {/* Show name in all rows */}
+          {/* Show modified name with business unit indicator to avoid consecutive duplicates */}
           <TableCell className="truncate">
-            {lead.name}
+            {`${lead.name} (${buDisplayNames[bu]})`}
           </TableCell>
           
           {/* Show email in all rows */}

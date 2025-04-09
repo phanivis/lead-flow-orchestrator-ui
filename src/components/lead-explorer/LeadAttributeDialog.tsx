@@ -10,15 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger
-} from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { toast } from 'sonner';
-import { ExistingAttributesTab } from './attribute-dialog/ExistingAttributesTab';
 import { CalculatedAttributeTab } from './attribute-dialog/CalculatedAttributeTab';
 import { AttributeBuilderForm } from './attribute-dialog/AttributeBuilderForm';
 import { SqlExpressionForm } from './attribute-dialog/SqlExpressionForm';
@@ -63,8 +56,6 @@ export const LeadAttributeDialog = ({
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([
     '1', '2', '3', '4', '5', '7', 'c1'
   ]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [newAttribute, setNewAttribute] = useState({ name: '', type: 'text' });
   
   // State for editing
   const [isEditMode, setIsEditMode] = useState(false);
@@ -124,36 +115,6 @@ export const LeadAttributeDialog = ({
     setEditorMode('builder');
   };
 
-  const handleSelectAttribute = (attributeId: string) => {
-    if (selectedAttributes.includes(attributeId)) {
-      setSelectedAttributes(selectedAttributes.filter(id => id !== attributeId));
-    } else {
-      setSelectedAttributes([...selectedAttributes, attributeId]);
-    }
-  };
-
-  const handleAddNewAttribute = () => {
-    if (newAttribute.name.trim()) {
-      const newId = `c${customAttributes.length + 3}`;
-      setCustomAttributes([
-        ...customAttributes,
-        { 
-          id: newId, 
-          name: newAttribute.name, 
-          type: newAttribute.type, 
-          source: 'Custom' 
-        }
-      ]);
-      setSelectedAttributes([...selectedAttributes, newId]);
-      setNewAttribute({ name: '', type: 'text' });
-    }
-  };
-
-  const handleDeleteCustomAttribute = (attributeId: string) => {
-    setCustomAttributes(customAttributes.filter(attr => attr.id !== attributeId));
-    setSelectedAttributes(selectedAttributes.filter(id => id !== attributeId));
-  };
-
   const handleCreateCalculatedAttribute = (calculatedAttr: {
     id: string,
     name: string,
@@ -202,12 +163,12 @@ export const LeadAttributeDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            {isEditMode ? 'Edit Attribute' : 'CDP & Custom Attributes'}
+            {isEditMode ? 'Edit Attribute' : 'Create Calculated Attribute'}
           </DialogTitle>
           <DialogDescription>
             {isEditMode 
               ? 'Edit the selected attribute properties and formula.'
-              : 'Select attributes to display or create custom attributes for your leads.'
+              : 'Create new attributes by combining or transforming existing CDP attributes.'
             }
           </DialogDescription>
         </DialogHeader>
@@ -277,31 +238,11 @@ export const LeadAttributeDialog = ({
             )}
           </div>
         ) : (
-          <Tabs defaultValue="existing">
-            <TabsList className="w-full">
-              <TabsTrigger value="existing" className="flex-1">Existing Attributes</TabsTrigger>
-              <TabsTrigger value="create" className="flex-1">Create Calculated Attribute</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="existing" className="mt-4">
-              <ExistingAttributesTab
-                allAttributes={allAttributes}
-                selectedAttributes={selectedAttributes}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                handleSelectAttribute={handleSelectAttribute}
-                handleDeleteCustomAttribute={handleDeleteCustomAttribute}
-              />
-            </TabsContent>
-            
-            <TabsContent value="create" className="mt-4">
-              <CalculatedAttributeTab 
-                allAttributes={allAttributes}
-                onCreateCalculatedAttribute={handleCreateCalculatedAttribute}
-                customAttributesLength={customAttributes.length}
-              />
-            </TabsContent>
-          </Tabs>
+          <CalculatedAttributeTab 
+            allAttributes={allAttributes}
+            onCreateCalculatedAttribute={handleCreateCalculatedAttribute}
+            customAttributesLength={customAttributes.length}
+          />
         )}
         
         <DialogFooter>

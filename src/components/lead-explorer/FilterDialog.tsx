@@ -41,7 +41,7 @@ export const FilterDialog = ({
   const [policyHolderFilter, setPolicyHolderFilter] = useState<string>('');
 
   const statusOptions = ['New', 'In Progress', 'Qualified', 'Hot Lead'];
-  const cityOptions = ['New York', 'San Francisco', 'Chicago', 'Dallas', 'Miami', 'Boston'];
+  const cityOptions = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Kolkata', 'Pune', 'Ahmedabad'];
   
   const handleApplyFilters = () => {
     const filters = {

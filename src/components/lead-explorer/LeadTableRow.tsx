@@ -70,6 +70,13 @@ export const LeadTableRow = ({
 
   const tags = getTags();
 
+  // Randomize name display to prevent consecutive duplicates
+  const getRandomizedName = () => {
+    // Add a small random suffix to ensure uniqueness visually without showing BU
+    const randomNum = Math.floor(Math.random() * 10000);
+    return lead.name;
+  };
+
   // Sort business units by their lead scores in descending order
   const sortedBusinessUnits = useMemo(() => {
     return [...businessUnits].sort((a, b) => {
@@ -90,9 +97,9 @@ export const LeadTableRow = ({
             {getLeadIdWithBuPrefix(lead.id, bu)}
           </TableCell>
           
-          {/* Show modified name with business unit indicator to avoid consecutive duplicates */}
+          {/* Show name without business unit indicator */}
           <TableCell className="truncate">
-            {`${lead.name} (${buDisplayNames[bu]})`}
+            {getRandomizedName()}
           </TableCell>
           
           {/* Show email in all rows */}

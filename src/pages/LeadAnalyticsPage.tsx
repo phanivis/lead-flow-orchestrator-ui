@@ -25,6 +25,12 @@ import {
   Cell
 } from 'recharts';
 import { dummyLeads } from '@/data/dummyLeads';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { format, subMonths } from "date-fns";
+import { cn } from "@/lib/utils";
 
 // Business units
 const businessUnits = [
@@ -36,7 +42,7 @@ const businessUnits = [
 ];
 
 // Lead stage data for each BU
-const generateLeadStageData = (buId: string) => {
+const generateLeadStageData = (buId: string, fromDate?: Date, toDate?: Date) => {
   // Calculate totals based on dummy leads
   const totalLeads = dummyLeads.length;
   const multiplier = buId === 'car' ? 1 : 
@@ -44,58 +50,167 @@ const generateLeadStageData = (buId: string) => {
                      buId === 'life' ? 1.2 : 
                      buId === 'health' ? 0.9 : 0.7;
   
+  // Apply date filter multiplier if dates are selected
+  let dateMultiplier = 1;
+  if (fromDate && toDate) {
+    // Simple date-based multiplier for demo purposes
+    const daysDiff = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
+    dateMultiplier = Math.min(1, Math.max(0.3, daysDiff / 180)); // Scale based on date range
+  }
+  
   return [
-    { name: 'New', value: Math.round(totalLeads * 0.4 * multiplier) },
-    { name: 'Qualified', value: Math.round(totalLeads * 0.3 * multiplier) },
-    { name: 'In Progress', value: Math.round(totalLeads * 0.15 * multiplier) },
-    { name: 'Converted', value: Math.round(totalLeads * 0.1 * multiplier) },
-    { name: 'Lost', value: Math.round(totalLeads * 0.05 * multiplier) }
+    { name: 'New', value: Math.round(totalLeads * 0.4 * multiplier * dateMultiplier) },
+    { name: 'Qualified', value: Math.round(totalLeads * 0.3 * multiplier * dateMultiplier) },
+    { name: 'In Progress', value: Math.round(totalLeads * 0.15 * multiplier * dateMultiplier) },
+    { name: 'Converted', value: Math.round(totalLeads * 0.1 * multiplier * dateMultiplier) },
+    { name: 'Lost', value: Math.round(totalLeads * 0.05 * multiplier * dateMultiplier) }
   ];
 };
 
 // Lead inflow data - last 6 months
-const generateInflowData = (buId: string) => {
+const generateInflowData = (buId: string, fromDate?: Date, toDate?: Date) => {
   const baseValue = buId === 'car' ? 120 : 
                    buId === 'bike' ? 90 : 
                    buId === 'life' ? 150 : 
                    buId === 'health' ? 110 : 80;
   
-  const currentDate = new Date();
-  return Array.from({ length: 6 }, (_, i) => {
-    const month = new Date(currentDate);
-    month.setMonth(currentDate.getMonth() - 5 + i);
+  // Determine date range
+  const startDate = fromDate || subMonths(new Date(), 5);
+  const endDate = toDate || new Date();
+  
+  // Calculate number of months to display
+  const monthsDiff = (endDate.getMonth() - startDate.getMonth()) + 
+                     (12 * (endDate.getFullYear() - startDate.getFullYear()));
+  const numMonths = Math.max(1, Math.min(12, monthsDiff + 1));
+  
+  return Array.from({ length: numMonths }, (_, i) => {
+    const month = new Date(startDate);
+    month.setMonth(startDate.getMonth() + i);
+    // Ensure we don't go past the end date
+    if (month > endDate) return null;
+    
     return { 
       month: month.toLocaleString('default', { month: 'short' }),
       inflow: Math.round(baseValue + (Math.random() * 40 - 20))
     };
-  });
+  }).filter(Boolean);
 };
 
 // Conversion rate data
-const generateConversionData = (buId: string) => {
+const generateConversionData = (buId: string, fromDate?: Date, toDate?: Date) => {
   const baseValue = buId === 'car' ? 18 : 
                     buId === 'bike' ? 15 : 
                     buId === 'life' ? 22 : 
                     buId === 'health' ? 20 : 12;
   
-  const currentDate = new Date();
-  return Array.from({ length: 6 }, (_, i) => {
-    const month = new Date(currentDate);
-    month.setMonth(currentDate.getMonth() - 5 + i);
+  // Determine date range
+  const startDate = fromDate || subMonths(new Date(), 5);
+  const endDate = toDate || new Date();
+  
+  // Calculate number of months to display
+  const monthsDiff = (endDate.getMonth() - startDate.getMonth()) + 
+                     (12 * (endDate.getFullYear() - startDate.getFullYear()));
+  const numMonths = Math.max(1, Math.min(12, monthsDiff + 1));
+  
+  return Array.from({ length: numMonths }, (_, i) => {
+    const month = new Date(startDate);
+    month.setMonth(startDate.getMonth() + i);
+    // Ensure we don't go past the end date
+    if (month > endDate) return null;
+    
     return { 
       month: month.toLocaleString('default', { month: 'short' }),
       conversion: Math.round(baseValue + (Math.random() * 8 - 4))
     };
-  });
+  }).filter(Boolean);
 };
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
+// DateRangeSelector component
+const DateRangeSelector = ({ fromDate, toDate, onFromDateChange, onToDateChange }) => {
+  return (
+    <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">From Date</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-[240px] justify-start text-left font-normal",
+                !fromDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {fromDate ? format(fromDate, "PPP") : <span>Select start date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={fromDate}
+              onSelect={onFromDateChange}
+              initialFocus
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">To Date</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-[240px] justify-start text-left font-normal",
+                !toDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {toDate ? format(toDate, "PPP") : <span>Select end date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={toDate}
+              onSelect={onToDateChange}
+              disabled={(date) => fromDate ? date < fromDate : false}
+              initialFocus
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      
+      {(fromDate || toDate) && (
+        <div className="flex items-end">
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              onFromDateChange(undefined);
+              onToDateChange(undefined);
+            }}
+          >
+            Clear
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LeadAnalyticsPage: React.FC = () => {
   const [selectedBU, setSelectedBU] = useState('car');
-  const leadStageData = generateLeadStageData(selectedBU);
-  const inflowData = generateInflowData(selectedBU);
-  const conversionData = generateConversionData(selectedBU);
+  const [fromDate, setFromDate] = useState<Date | undefined>(subMonths(new Date(), 6));
+  const [toDate, setToDate] = useState<Date | undefined>(new Date());
+  
+  const leadStageData = generateLeadStageData(selectedBU, fromDate, toDate);
+  const inflowData = generateInflowData(selectedBU, fromDate, toDate);
+  const conversionData = generateConversionData(selectedBU, fromDate, toDate);
   
   // Calculate summary stats
   const totalLeads = leadStageData.reduce((sum, item) => sum + item.value, 0);
@@ -108,8 +223,14 @@ const LeadAnalyticsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold">Lead Analytics</h1>
+        <DateRangeSelector 
+          fromDate={fromDate}
+          toDate={toDate}
+          onFromDateChange={setFromDate}
+          onToDateChange={setToDate}
+        />
       </div>
       
       <Tabs defaultValue="car" onValueChange={setSelectedBU}>
@@ -202,7 +323,11 @@ const LeadAnalyticsPage: React.FC = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Lead Inflow</CardTitle>
-                  <CardDescription>Last 6 months</CardDescription>
+                  <CardDescription>
+                    {fromDate && toDate 
+                      ? `${format(fromDate, "MMM yyyy")} - ${format(toDate, "MMM yyyy")}`
+                      : "Last 6 months"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ChartContainer
@@ -224,7 +349,11 @@ const LeadAnalyticsPage: React.FC = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Conversion Rate Trend</CardTitle>
-                  <CardDescription>Last 6 months (%)</CardDescription>
+                  <CardDescription>
+                    {fromDate && toDate 
+                      ? `${format(fromDate, "MMM yyyy")} - ${format(toDate, "MMM yyyy")}`
+                      : "Last 6 months"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ChartContainer

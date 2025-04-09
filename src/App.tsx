@@ -11,6 +11,7 @@ import LeadExplorerPage from "./pages/LeadExplorerPage";
 import IngestionHistoryPage from "./pages/IngestionHistoryPage";
 import LeadAnalyticsPage from "./pages/LeadAnalyticsPage";
 import LeadAssignmentPage from "./pages/LeadAssignmentPage";
+import CdpAttributesPage from "./pages/CdpAttributesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="ingestion-history" element={<IngestionHistoryPage />} />
             <Route path="lead-analytics" element={<LeadAnalyticsPage />} />
             <Route path="lead-assignment" element={<LeadAssignmentPage />} />
+            <Route path="cdp-attributes" element={<CdpAttributesPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

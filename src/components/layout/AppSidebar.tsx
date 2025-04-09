@@ -1,35 +1,51 @@
+
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Upload, Star, List, Search, BarChart2, Activity, Users } from 'lucide-react';
+import { Upload, Star, List, Search, BarChart2, Activity, Users, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
-const navigationItems = [{
-  name: 'Lead Explorer',
-  path: '/lead-explorer',
-  icon: Search
-}, {
-  name: 'Upload Leads',
-  path: '/upload',
-  icon: Upload
-}, {
-  name: 'Scoring Rules',
-  path: '/scoring-rules',
-  icon: Star
-}, {
-  name: 'Lead Analytics',
-  path: '/lead-analytics',
-  icon: Activity
-}, {
-  name: 'Lead Assignment',
-  path: '/lead-assignment',
-  icon: Users
-}, {
-  name: 'Ingestion History',
-  path: '/ingestion-history',
-  icon: List
-}];
+
+const navigationItems = [
+  {
+    name: 'Lead Explorer',
+    path: '/lead-explorer',
+    icon: Search
+  },
+  {
+    name: 'Upload Leads',
+    path: '/upload',
+    icon: Upload
+  },
+  {
+    name: 'Scoring Rules',
+    path: '/scoring-rules',
+    icon: Star
+  },
+  {
+    name: 'Lead Analytics',
+    path: '/lead-analytics',
+    icon: Activity
+  },
+  {
+    name: 'Lead Assignment',
+    path: '/lead-assignment',
+    icon: Users
+  },
+  {
+    name: 'CDP Attributes',
+    path: '/cdp-attributes',
+    icon: Database
+  },
+  {
+    name: 'Ingestion History',
+    path: '/ingestion-history',
+    icon: List
+  }
+];
+
 const AppSidebar = () => {
-  return <Sidebar>
+  return (
+    <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center space-x-2">
           <BarChart2 className="h-8 w-8 text-primary" />
@@ -38,16 +54,16 @@ const AppSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navigationItems.map(item => <SidebarMenuItem key={item.path}>
+          {navigationItems.map(item => (
+            <SidebarMenuItem key={item.path}>
               <SidebarMenuButton asChild>
-                <NavLink to={item.path} className={({
-              isActive
-            }) => cn("flex items-center gap-3 w-full", isActive && "bg-sidebar-accent")}>
+                <NavLink to={item.path} className={({isActive}) => cn("flex items-center gap-3 w-full", isActive && "bg-sidebar-accent")}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.name}</span>
                 </NavLink>
               </SidebarMenuButton>
-            </SidebarMenuItem>)}
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4">
@@ -58,6 +74,8 @@ const AppSidebar = () => {
           </div>
         </div>
       </SidebarFooter>
-    </Sidebar>;
+    </Sidebar>
+  );
 };
+
 export default AppSidebar;

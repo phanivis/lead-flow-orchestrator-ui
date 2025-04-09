@@ -29,8 +29,9 @@ const dummyLeads = [
     name: 'Aarav Sharma',
     email: 'aarav.sharma@example.com',
     phone: '+91 9876543210',
-    company: 'TechVista Solutions',
-    position: 'Software Engineer',
+    city: 'Mumbai',
+    existingPolicyHolder: 'Yes',
+    ltv: 5000,
     leadScore: 85,
     status: 'Qualified',
     lastActivity: '2025-04-05',
@@ -40,8 +41,9 @@ const dummyLeads = [
     name: 'Priya Patel',
     email: 'priya.patel@example.com',
     phone: '+91 9876543211',
-    company: 'GlobalServe India',
-    position: 'Marketing Manager',
+    city: 'Delhi',
+    existingPolicyHolder: 'No',
+    ltv: 4200,
     leadScore: 72,
     status: 'New',
     lastActivity: '2025-04-07',
@@ -51,8 +53,9 @@ const dummyLeads = [
     name: 'Vikram Mehta',
     email: 'vikram.mehta@example.com',
     phone: '+91 9876543212',
-    company: 'Infoway Technologies',
-    position: 'Product Manager',
+    city: 'Bangalore',
+    existingPolicyHolder: 'Yes',
+    ltv: 7800,
     leadScore: 68,
     status: 'In Progress',
     lastActivity: '2025-04-02',
@@ -62,8 +65,9 @@ const dummyLeads = [
     name: 'Ananya Singh',
     email: 'ananya.singh@example.com',
     phone: '+91 9876543213',
-    company: 'Quantum Enterprises',
-    position: 'Sales Director',
+    city: 'Chennai',
+    existingPolicyHolder: 'No',
+    ltv: 9500,
     leadScore: 91,
     status: 'Qualified',
     lastActivity: '2025-04-08',
@@ -73,8 +77,9 @@ const dummyLeads = [
     name: 'Rahul Verma',
     email: 'rahul.verma@example.com',
     phone: '+91 9876543214',
-    company: 'Digital Solutions Ltd',
-    position: 'CEO',
+    city: 'Hyderabad',
+    existingPolicyHolder: 'Yes',
+    ltv: 12000,
     leadScore: 93,
     status: 'Hot Lead',
     lastActivity: '2025-04-06',
@@ -84,8 +89,9 @@ const dummyLeads = [
     name: 'Meera Iyer',
     email: 'meera.iyer@example.com',
     phone: '+91 9876543215',
-    company: 'Innovative Systems',
-    position: 'CTO',
+    city: 'Pune',
+    existingPolicyHolder: 'No',
+    ltv: 3800,
     leadScore: 79,
     status: 'In Progress',
     lastActivity: '2025-04-04',
@@ -95,8 +101,9 @@ const dummyLeads = [
     name: 'Arjun Nair',
     email: 'arjun.nair@example.com',
     phone: '+91 9876543216',
-    company: 'CloudTech Solutions',
-    position: 'Technical Lead',
+    city: 'Kolkata',
+    existingPolicyHolder: 'Yes',
+    ltv: 8200,
     leadScore: 81,
     status: 'Qualified',
     lastActivity: '2025-04-09',
@@ -106,8 +113,9 @@ const dummyLeads = [
     name: 'Kavita Reddy',
     email: 'kavita.reddy@example.com',
     phone: '+91 9876543217',
-    company: 'SmartData Analytics',
-    position: 'Data Scientist',
+    city: 'Ahmedabad',
+    existingPolicyHolder: 'No',
+    ltv: 6500,
     leadScore: 88,
     status: 'New',
     lastActivity: '2025-04-01',
@@ -139,7 +147,7 @@ const LeadExplorerPage = () => {
   const filteredLeads = dummyLeads.filter(lead => 
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.company.toLowerCase().includes(searchTerm.toLowerCase())
+    lead.city.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
@@ -150,6 +158,15 @@ const LeadExplorerPage = () => {
       case 'Hot Lead': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // Format the LTV value to INR currency format
+  const formatLTV = (ltv: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(ltv);
   };
 
   return (
@@ -201,8 +218,9 @@ const LeadExplorerPage = () => {
               </TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Position</TableHead>
+              <TableHead>City</TableHead>
+              <TableHead>Existing Policy Holder</TableHead>
+              <TableHead>LTV</TableHead>
               <TableHead>Lead Score</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Last Activity</TableHead>
@@ -221,8 +239,13 @@ const LeadExplorerPage = () => {
                   </TableCell>
                   <TableCell className="font-medium">{lead.name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
-                  <TableCell>{lead.company}</TableCell>
-                  <TableCell>{lead.position}</TableCell>
+                  <TableCell>{lead.city}</TableCell>
+                  <TableCell>
+                    <Badge className={lead.existingPolicyHolder === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                      {lead.existingPolicyHolder}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{formatLTV(lead.ltv)}</TableCell>
                   <TableCell>
                     <div className="flex items-center">
                       <div className="h-2 w-16 bg-gray-200 rounded-full overflow-hidden">

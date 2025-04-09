@@ -46,6 +46,13 @@ export const LeadTable = ({
     actions: 5
   });
 
+  const handleResizeEnd = (columnName: string, newSize: number) => {
+    setColumnWidths(prev => ({
+      ...prev,
+      [columnName]: newSize
+    }));
+  };
+
   return (
     <div className="border rounded-md overflow-hidden">
       <div className="w-full overflow-auto whitespace-nowrap">
@@ -79,4 +86,3 @@ export const LeadTable = ({
     </div>
   );
 };
-

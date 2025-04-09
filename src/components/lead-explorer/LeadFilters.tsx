@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Search, RefreshCcw } from 'lucide-react';
+import { Search, RefreshCcw, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface LeadFiltersProps {
   searchTerm: string;
@@ -20,6 +20,8 @@ export const LeadFilters = ({
   onOpenAttributeDialog,
   onOpenFilterDialog
 }: LeadFiltersProps) => {
+  const navigate = useNavigate();
+  
   return (
     <div className="flex justify-between items-center">
       <div className="relative w-1/3">
@@ -32,6 +34,14 @@ export const LeadFilters = ({
         />
       </div>
       <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => navigate('/attribute-visibility')}
+        >
+          <EyeOff size={16} className="mr-2" />
+          View/Hide Attributes
+        </Button>
         <Button 
           variant="outline" 
           size="sm"

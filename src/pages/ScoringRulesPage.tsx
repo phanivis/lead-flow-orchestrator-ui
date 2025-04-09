@@ -15,7 +15,9 @@ import {
   Clock,
   Info,
   Edit,
-  Calendar
+  Calendar,
+  RepeatIcon,
+  Timer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +50,19 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+
+interface RuleFrequency {
+  enabled: boolean;
+  type: 'once' | 'daily' | 'weekly' | 'monthly' | 'custom';
+  maxCount?: number;
+  period?: number; // in days (for custom type)
+}
+
+interface RuleExpiry {
+  enabled: boolean;
+  date?: string;
+}
 
 interface ScoringRule {
   id: string;
@@ -59,6 +74,8 @@ interface ScoringRule {
   priority: number;
   version: number;
   createdAt: string;
+  frequency: RuleFrequency;
+  expiry: RuleExpiry;
 }
 
 interface RuleCondition {
@@ -86,7 +103,9 @@ const ScoringRulesPage = () => {
       status: 'active',
       priority: 1,
       version: 1,
-      createdAt: '2025-03-15'
+      createdAt: '2025-03-15',
+      frequency: { enabled: false, type: 'once' },
+      expiry: { enabled: false }
     },
     {
       id: '2',
@@ -100,7 +119,9 @@ const ScoringRulesPage = () => {
       status: 'active',
       priority: 2,
       version: 3,
-      createdAt: '2025-03-10'
+      createdAt: '2025-03-10',
+      frequency: { enabled: true, type: 'once' },
+      expiry: { enabled: false }
     },
     {
       id: '3',
@@ -113,7 +134,9 @@ const ScoringRulesPage = () => {
       status: 'inactive',
       priority: 3,
       version: 1,
-      createdAt: '2025-03-05'
+      createdAt: '2025-03-05',
+      frequency: { enabled: true, type: 'daily', maxCount: 1 },
+      expiry: { enabled: true, date: '2025-06-30' }
     }
   ]);
   
@@ -162,7 +185,9 @@ const ScoringRulesPage = () => {
       status: 'draft',
       priority: rules.length + 1,
       version: 1,
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString().split('T')[0],
+      frequency: { enabled: false, type: 'once' },
+      expiry: { enabled: false }
     };
     
     setEditingRule(newRule);
@@ -185,6 +210,25 @@ const ScoringRulesPage = () => {
     
     if (editingRule.conditions.some(c => !c.attribute || !c.operator || !c.value)) {
       toast.error('All conditions must be complete');
+      return;
+    }
+    
+    // Frequency validation
+    if (editingRule.frequency.enabled) {
+      if (editingRule.frequency.type === 'custom' && (!editingRule.frequency.maxCount || !editingRule.frequency.period)) {
+        toast.error('Custom frequency requires max count and period values');
+        return;
+      }
+      
+      if (['daily', 'weekly', 'monthly'].includes(editingRule.frequency.type) && !editingRule.frequency.maxCount) {
+        toast.error(`Please specify max count for ${editingRule.frequency.type} frequency`);
+        return;
+      }
+    }
+    
+    // Expiry validation
+    if (editingRule.expiry.enabled && !editingRule.expiry.date) {
+      toast.error('Please specify an expiry date');
       return;
     }
     
@@ -283,6 +327,54 @@ const ScoringRulesPage = () => {
     });
   };
   
+  const handleToggleFrequency = (enabled: boolean) => {
+    if (!editingRule) return;
+    
+    setEditingRule({
+      ...editingRule,
+      frequency: {
+        ...editingRule.frequency,
+        enabled
+      }
+    });
+  };
+  
+  const handleUpdateFrequency = (field: keyof RuleFrequency, value: any) => {
+    if (!editingRule) return;
+    
+    setEditingRule({
+      ...editingRule,
+      frequency: {
+        ...editingRule.frequency,
+        [field]: value
+      }
+    });
+  };
+  
+  const handleToggleExpiry = (enabled: boolean) => {
+    if (!editingRule) return;
+    
+    setEditingRule({
+      ...editingRule,
+      expiry: {
+        ...editingRule.expiry,
+        enabled
+      }
+    });
+  };
+  
+  const handleUpdateExpiry = (date: string) => {
+    if (!editingRule) return;
+    
+    setEditingRule({
+      ...editingRule,
+      expiry: {
+        ...editingRule.expiry,
+        date
+      }
+    });
+  };
+  
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -294,6 +386,74 @@ const ScoringRulesPage = () => {
       default:
         return <Badge>{status}</Badge>;
     }
+  };
+  
+  const getFrequencyBadge = (rule: ScoringRule) => {
+    if (!rule.frequency.enabled) return null;
+    
+    let frequencyText = '';
+    switch (rule.frequency.type) {
+      case 'once':
+        frequencyText = 'Once per lead';
+        break;
+      case 'daily':
+        frequencyText = `${rule.frequency.maxCount}x daily`;
+        break;
+      case 'weekly':
+        frequencyText = `${rule.frequency.maxCount}x weekly`;
+        break;
+      case 'monthly':
+        frequencyText = `${rule.frequency.maxCount}x monthly`;
+        break;
+      case 'custom':
+        frequencyText = `${rule.frequency.maxCount}x per ${rule.frequency.period} days`;
+        break;
+    }
+    
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
+              <RepeatIcon className="h-3 w-3 mr-1" /> {frequencyText}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            Frequency limit: {frequencyText}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+  
+  const getExpiryBadge = (rule: ScoringRule) => {
+    if (!rule.expiry.enabled || !rule.expiry.date) return null;
+    
+    // Check if rule is expired
+    const isExpired = new Date(rule.expiry.date) < new Date();
+    
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge 
+              variant="outline" 
+              className={`ml-2 ${isExpired 
+                ? 'bg-red-50 text-red-700 border-red-200' 
+                : 'bg-amber-50 text-amber-700 border-amber-200'}`}
+            >
+              <Timer className="h-3 w-3 mr-1" /> 
+              {isExpired ? 'Expired' : format(new Date(rule.expiry.date), 'MMM d, yyyy')}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            {isExpired 
+              ? `Expired on ${format(new Date(rule.expiry.date), 'MMMM d, yyyy')}`
+              : `Expires on ${format(new Date(rule.expiry.date), 'MMMM d, yyyy')}`}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
   };
   
   const evaluateCondition = (condition: RuleCondition, lead: any): boolean => {
@@ -319,6 +479,13 @@ const ScoringRulesPage = () => {
   };
   
   const evaluateRule = (rule: ScoringRule, lead: any): boolean => {
+    // Check if rule is expired
+    if (rule.expiry.enabled && rule.expiry.date) {
+      if (new Date(rule.expiry.date) < new Date()) {
+        return false; // Rule is expired
+      }
+    }
+    
     return rule.conditions.every((condition, index) => {
       // First condition doesn't have a conjunction
       if (index === 0) return evaluateCondition(condition, lead);
@@ -357,7 +524,7 @@ const ScoringRulesPage = () => {
                   <TableHead>Description</TableHead>
                   <TableHead className="w-[100px]">Score</TableHead>
                   <TableHead className="w-[100px]">Status</TableHead>
-                  <TableHead className="w-[80px]">Version</TableHead>
+                  <TableHead className="w-[150px]">Limits</TableHead>
                   <TableHead className="w-[180px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -368,8 +535,17 @@ const ScoringRulesPage = () => {
                     <TableCell>{rule.name}</TableCell>
                     <TableCell className="text-muted-foreground">{rule.description}</TableCell>
                     <TableCell>{rule.action.value > 0 ? `+${rule.action.value}` : rule.action.value}</TableCell>
-                    <TableCell>{getStatusBadge(rule.status)}</TableCell>
-                    <TableCell>v{rule.version}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {getStatusBadge(rule.status)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {getFrequencyBadge(rule)}
+                        {getExpiryBadge(rule)}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex space-x-1">
                         <TooltipProvider>
@@ -622,6 +798,125 @@ const ScoringRulesPage = () => {
                   <span className="text-sm">points</span>
                 </div>
               </div>
+              
+              {/* Frequency Limits */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium flex items-center">
+                      <RepeatIcon className="h-4 w-4 mr-2" /> Frequency Limits
+                    </CardTitle>
+                    <div className="flex items-center">
+                      <span className="text-xs text-muted-foreground mr-2">Enable</span>
+                      <Checkbox 
+                        checked={editingRule.frequency.enabled}
+                        onCheckedChange={(checked) => handleToggleFrequency(checked as boolean)}
+                      />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                  {editingRule.frequency.enabled && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium">Frequency Type</label>
+                          <Select
+                            value={editingRule.frequency.type}
+                            onValueChange={(value) => handleUpdateFrequency('type', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="once">Once per lead</SelectItem>
+                              <SelectItem value="daily">Daily limit</SelectItem>
+                              <SelectItem value="weekly">Weekly limit</SelectItem>
+                              <SelectItem value="monthly">Monthly limit</SelectItem>
+                              <SelectItem value="custom">Custom period</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {editingRule.frequency.type !== 'once' && (
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium">Max Count</label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={editingRule.frequency.maxCount || ''}
+                              onChange={(e) => handleUpdateFrequency('maxCount', parseInt(e.target.value) || '')}
+                              placeholder="Max applications"
+                            />
+                          </div>
+                        )}
+                        
+                        {editingRule.frequency.type === 'custom' && (
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium">Period (days)</label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={editingRule.frequency.period || ''}
+                              onChange={(e) => handleUpdateFrequency('period', parseInt(e.target.value) || '')}
+                              placeholder="Days"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="text-xs text-muted-foreground mt-2">
+                        <Info className="h-3 w-3 inline-block mr-1" />
+                        {editingRule.frequency.type === 'once' ? (
+                          <span>This rule will only apply once per lead</span>
+                        ) : editingRule.frequency.type === 'custom' ? (
+                          <span>This rule will apply max {editingRule.frequency.maxCount || '?'} times over {editingRule.frequency.period || '?'} days</span>
+                        ) : (
+                          <span>This rule will apply max {editingRule.frequency.maxCount || '?'} times per {editingRule.frequency.type} period</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              {/* Expiry Settings */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" /> Rule Expiry
+                    </CardTitle>
+                    <div className="flex items-center">
+                      <span className="text-xs text-muted-foreground mr-2">Enable</span>
+                      <Checkbox 
+                        checked={editingRule.expiry.enabled}
+                        onCheckedChange={(checked) => handleToggleExpiry(checked as boolean)}
+                      />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4">
+                  {editingRule.expiry.enabled && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium">Expiry Date</label>
+                        <Input
+                          type="date"
+                          value={editingRule.expiry.date || ''}
+                          onChange={(e) => handleUpdateExpiry(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                        />
+                      </div>
+                      
+                      <div className="text-xs text-muted-foreground mt-2">
+                        <Info className="h-3 w-3 inline-block mr-1" />
+                        <span>This rule will automatically stop working after the expiry date</span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           )}
           
@@ -685,6 +980,36 @@ const ScoringRulesPage = () => {
                             </span>
                           </div>
                         </div>
+                        
+                        {/* Show frequency and expiry in test modal */}
+                        {(editingRule.frequency.enabled || editingRule.expiry.enabled) && (
+                          <div className="border-t pt-2 mt-2">
+                            <span className="text-muted-foreground">Limits</span>
+                            <div className="ml-4 mt-1">
+                              {editingRule.frequency.enabled && (
+                                <div className="flex items-center">
+                                  <RepeatIcon className="h-3 w-3 mr-1 text-blue-600" />
+                                  <span className="text-xs">
+                                    {editingRule.frequency.type === 'once'
+                                      ? 'Applied once per lead'
+                                      : editingRule.frequency.type === 'custom'
+                                        ? `Max ${editingRule.frequency.maxCount}x per ${editingRule.frequency.period} days`
+                                        : `Max ${editingRule.frequency.maxCount}x ${editingRule.frequency.type}`}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {editingRule.expiry.enabled && editingRule.expiry.date && (
+                                <div className="flex items-center mt-1">
+                                  <Calendar className="h-3 w-3 mr-1 text-amber-600" />
+                                  <span className="text-xs">
+                                    Expires on {format(new Date(editingRule.expiry.date), 'MMMM d, yyyy')}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -728,7 +1053,9 @@ const ScoringRulesPage = () => {
                       <>
                         <XCircle className="h-5 w-5 text-muted-foreground mr-2" />
                         <span className="font-medium text-muted-foreground">
-                          Rule did not match. No change to score.
+                          {editingRule.expiry.enabled && editingRule.expiry.date && new Date(editingRule.expiry.date) < new Date() 
+                            ? "Rule is expired. No change to score." 
+                            : "Rule did not match. No change to score."}
                         </span>
                       </>
                     )}

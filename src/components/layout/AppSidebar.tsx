@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
@@ -5,7 +6,9 @@ import {
   Star, 
   List, 
   Search,
-  BarChart2
+  BarChart2,
+  Activity,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
@@ -23,6 +26,8 @@ const navigationItems = [
   { name: 'Lead Explorer', path: '/lead-explorer', icon: Search },
   { name: 'Upload Leads', path: '/upload', icon: Upload },
   { name: 'Scoring Rules', path: '/scoring-rules', icon: Star },
+  { name: 'Lead Analytics', path: '/lead-analytics', icon: Activity },
+  { name: 'Lead Assignment', path: '/lead-assignment', icon: Users },
   { name: 'Ingestion History', path: '/ingestion-history', icon: List }
 ];
 

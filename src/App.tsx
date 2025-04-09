@@ -9,6 +9,8 @@ import UploadLeadsPage from "./pages/UploadLeadsPage";
 import ScoringRulesPage from "./pages/ScoringRulesPage";
 import LeadExplorerPage from "./pages/LeadExplorerPage";
 import IngestionHistoryPage from "./pages/IngestionHistoryPage";
+import LeadAnalyticsPage from "./pages/LeadAnalyticsPage";
+import LeadAssignmentPage from "./pages/LeadAssignmentPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="scoring-rules" element={<ScoringRulesPage />} />
             <Route path="lead-explorer" element={<LeadExplorerPage />} />
             <Route path="ingestion-history" element={<IngestionHistoryPage />} />
+            <Route path="lead-analytics" element={<LeadAnalyticsPage />} />
+            <Route path="lead-assignment" element={<LeadAssignmentPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

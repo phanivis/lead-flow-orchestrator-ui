@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LeadIngestionHeader } from '@/components/lead-ingestion/LeadIngestionHeader';
@@ -28,19 +27,15 @@ const LeadIngestionPage = () => {
     tags: []
   });
   
-  // Rule builder state
   const [isRuleBuilderOpen, setIsRuleBuilderOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<QualificationRule | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventDefinition | null>(null);
   
-  // Preview state
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   
-  // Apply search and filters
   useEffect(() => {
     let result = [...rules];
     
-    // Apply search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(rule => 
@@ -50,21 +45,18 @@ const LeadIngestionPage = () => {
       );
     }
     
-    // Apply status filter
     if (filters.status.active && !filters.status.paused) {
       result = result.filter(rule => rule.status === 'active');
     } else if (!filters.status.active && filters.status.paused) {
       result = result.filter(rule => rule.status === 'paused');
     }
     
-    // Apply updatedBy filter
     if (filters.updatedBy) {
       result = result.filter(rule => 
         rule.createdBy.toLowerCase().includes(filters.updatedBy.toLowerCase())
       );
     }
     
-    // Apply tags filter
     if (filters.tags.length > 0) {
       result = result.filter(rule => 
         filters.tags.some(tag => rule.tags.includes(tag))
@@ -108,7 +100,6 @@ const LeadIngestionPage = () => {
     const now = new Date().toISOString();
     
     if (selectedRule) {
-      // Update existing rule
       const updatedRule: QualificationRule = {
         ...selectedRule,
         name: ruleData.name,
@@ -128,7 +119,6 @@ const LeadIngestionPage = () => {
         description: `"${ruleData.name}" has been updated.`,
       });
     } else {
-      // Create new rule
       const newRule: QualificationRule = {
         id: `rule-${Date.now()}`,
         name: ruleData.name,
@@ -138,7 +128,7 @@ const LeadIngestionPage = () => {
         conditions: ruleData.conditions,
         conditionGroups: [],
         rootOperator: 'AND',
-        createdBy: 'current.user@acko.com', // Would normally come from auth
+        createdBy: 'current.user@acko.com',
         createdAt: now,
         updatedAt: now,
         matchCount: 0,
@@ -170,7 +160,6 @@ const LeadIngestionPage = () => {
     toast({
       title: "Rule activated",
       description: `"${selectedRule.name}" is now active and qualifying leads.`,
-      variant: "success"
     });
   };
   

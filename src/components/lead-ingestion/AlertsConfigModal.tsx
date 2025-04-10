@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog,
@@ -262,5 +261,3 @@ export const AlertsConfigModal = ({
     </Dialog>
   );
 };
-
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';

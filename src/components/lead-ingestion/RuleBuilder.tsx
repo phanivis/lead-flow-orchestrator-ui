@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -319,9 +318,12 @@ export const RuleBuilder = ({ events, initialConditions = [], onSave }: RuleBuil
                                 type="number"
                                 min="1"
                                 value={condition.timeFilter?.days || ''}
-                                onChange={(e) => handleUpdateCondition(condition.id, { 
-                                  timeFilter: e.target.value ? { days: parseInt(e.target.value) } : undefined
-                                })}
+                                onChange={(e) => {
+                                  const value = e.target.value ? parseInt(e.target.value) : undefined;
+                                  handleUpdateCondition(condition.id, { 
+                                    timeFilter: value ? { days: value } : undefined
+                                  });
+                                }}
                                 placeholder="e.g., 7"
                               />
                             </div>

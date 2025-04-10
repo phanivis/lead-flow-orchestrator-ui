@@ -30,6 +30,18 @@ export const ScoringTableRow: React.FC<ScoringTableRowProps> = ({
   onDelete,
 }) => {
   const getBusinessUnitName = (id: string) => {
+    // For motor insurance, check if it's car or bike based on the description
+    if (id === 'motor') {
+      const lowerDesc = rule.description?.toLowerCase() || '';
+      if (lowerDesc.includes('car')) {
+        return 'Car Insurance';
+      } else if (lowerDesc.includes('bike')) {
+        return 'Bike Insurance';
+      } else {
+        return 'Motor Insurance'; // fallback
+      }
+    }
+    
     return businessUnits.find(bu => bu.id === id)?.name || id;
   };
 

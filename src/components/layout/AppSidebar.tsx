@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Upload, Star, List, Search, BarChart2, Activity, Users, Database } from 'lucide-react';
+import { Upload, Star, List, Search, BarChart2, Activity, Users, Database, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   Sidebar, 
@@ -30,6 +30,11 @@ const navigationItems = [
     name: 'Scoring Rules',
     path: '/scoring-rules',
     icon: Star
+  },
+  {
+    name: 'Lead Ingestion',
+    path: '/lead-ingestion',
+    icon: Filter
   },
   {
     name: 'Manage Lead Attributes',

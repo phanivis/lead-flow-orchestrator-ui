@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -254,7 +255,7 @@ export const RuleBuilder = ({ events, initialConditions = [], onSave }: RuleBuil
                             <div>
                               <Label htmlFor={`property-${condition.id}`}>Property (optional)</Label>
                               <Select
-                                value={condition.propertyName}
+                                value={condition.propertyName || undefined}
                                 onValueChange={(value) => handleUpdateCondition(condition.id, { 
                                   propertyName: value || undefined,
                                   operator: 'exists'
@@ -264,7 +265,7 @@ export const RuleBuilder = ({ events, initialConditions = [], onSave }: RuleBuil
                                   <SelectValue placeholder="Select property" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="">No property (event exists)</SelectItem>
+                                  <SelectItem value="no_property">No property (event exists)</SelectItem>
                                   {eventProperties.map(property => (
                                     <SelectItem key={property.id} value={property.name}>
                                       {property.name} ({property.type})

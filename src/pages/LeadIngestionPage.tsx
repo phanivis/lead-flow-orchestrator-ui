@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LeadIngestionHeader } from '@/components/lead-ingestion/LeadIngestionHeader';
@@ -160,6 +161,7 @@ const LeadIngestionPage = () => {
     toast({
       title: "Rule activated",
       description: `"${selectedRule.name}" is now active and qualifying leads.`,
+      variant: "default"
     });
   };
   

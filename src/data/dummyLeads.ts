@@ -1,173 +1,170 @@
-
+// Keep the existing Lead interface at the top
 export interface Lead {
   id: string;
   name: string;
   email: string;
   phone: string;
   city: string;
-  existingPolicyHolder: string;
-  ltv: number;
-  leadScores: {
-    car: number;
-    bike: number;
-    life: number;
-    health: number;
-    travel: number;
-  };
+  leadScore: number;
   status: string;
   lastActivity: string;
-  assignedCampaign?: string; // Optional because not all leads will be assigned
+  existingPolicyHolder: string;
+  tags: string[];
+  businessUnit: string;
+  source: string;
+  updatedAt: string;
 }
 
+// Replace or extend the dummyLeads data with our enhanced version that includes the new properties
 export const dummyLeads: Lead[] = [
   {
-    id: '1',
-    name: 'Aarav Sharma',
-    email: 'aarav.sharma@example.com',
-    phone: '+91 9876543210',
-    city: 'Mumbai',
-    existingPolicyHolder: 'Yes',
-    ltv: 5000,
-    leadScores: {
-      car: 85,
-      bike: 72,
-      life: 65,
-      health: 78,
-      travel: 50
-    },
-    status: 'Qualified',
-    lastActivity: '2025-04-05',
-    assignedCampaign: '1', // Spring Car Insurance Campaign
+    id: "LD-001",
+    name: "Rahul Sharma",
+    email: "rahul.sharma@example.com",
+    phone: "+91 98765 43210",
+    city: "Mumbai",
+    leadScore: 85,
+    status: "Hot Lead",
+    lastActivity: "2023-04-10T14:30:00",
+    existingPolicyHolder: "Yes",
+    tags: ["High Value", "Follow Up"],
+    businessUnit: "Auto Insurance",
+    source: "Website",
+    updatedAt: "2023-04-10T14:30:00"
   },
   {
-    id: '2',
-    name: 'Priya Patel',
-    email: 'priya.patel@example.com',
-    phone: '+91 9876543211',
-    city: 'Delhi',
-    existingPolicyHolder: 'No',
-    ltv: 4200,
-    leadScores: {
-      car: 65,
-      bike: 89,
-      life: 72,
-      health: 45,
-      travel: 81
-    },
-    status: 'New',
-    lastActivity: '2025-04-07',
-    assignedCampaign: '5', // Holiday Travel Insurance
+    id: "LD-002",
+    name: "Priya Patel",
+    email: "priya.patel@example.com",
+    phone: "+91 87654 32109",
+    city: "Delhi",
+    leadScore: 65,
+    status: "Qualified",
+    lastActivity: "2023-04-09T10:15:00",
+    existingPolicyHolder: "No",
+    tags: ["New Lead", "Price Sensitive"],
+    businessUnit: "Health Insurance",
+    source: "Mobile App",
+    updatedAt: "2023-04-09T10:15:00"
   },
   {
-    id: '3',
-    name: 'Vikram Mehta',
-    email: 'vikram.mehta@example.com',
-    phone: '+91 9876543212',
-    city: 'Bangalore',
-    existingPolicyHolder: 'Yes',
-    ltv: 7800,
-    leadScores: {
-      car: 58,
-      bike: 45,
-      life: 90,
-      health: 82,
-      travel: 67
-    },
-    status: 'In Progress',
-    lastActivity: '2025-04-02',
-    assignedCampaign: '3', // Family Life Insurance Campaign
+    id: "LD-003",
+    name: "Aditya Kumar",
+    email: "aditya.kumar@example.com",
+    phone: "+91 76543 21098",
+    city: "Bangalore",
+    leadScore: 40,
+    status: "New",
+    lastActivity: "2023-04-08T09:45:00",
+    existingPolicyHolder: "No",
+    tags: ["First Time Buyer"],
+    businessUnit: "Life Insurance",
+    source: "Partner Referral",
+    updatedAt: "2023-04-08T09:45:00"
   },
   {
-    id: '4',
-    name: 'Ananya Singh',
-    email: 'ananya.singh@example.com',
-    phone: '+91 9876543213',
-    city: 'Chennai',
-    existingPolicyHolder: 'No',
-    ltv: 9500,
-    leadScores: {
-      car: 91,
-      bike: 60,
-      life: 55,
-      health: 79,
-      travel: 83
-    },
-    status: 'Qualified',
-    lastActivity: '2025-04-08',
+    id: "LD-004",
+    name: "Sunita Reddy",
+    email: "sunita.reddy@example.com",
+    phone: "+91 65432 10987",
+    city: "Hyderabad",
+    leadScore: 78,
+    status: "In Progress",
+    lastActivity: "2023-04-07T16:20:00",
+    existingPolicyHolder: "Yes",
+    tags: ["Upsell Opportunity", "Loyal Customer"],
+    businessUnit: "Health Insurance",
+    source: "Email Campaign",
+    updatedAt: "2023-04-07T16:20:00"
   },
   {
-    id: '5',
-    name: 'Rahul Verma',
-    email: 'rahul.verma@example.com',
-    phone: '+91 9876543214',
-    city: 'Hyderabad',
-    existingPolicyHolder: 'Yes',
-    ltv: 12000,
-    leadScores: {
-      car: 62,
-      bike: 70,
-      life: 93,
-      health: 85,
-      travel: 50
-    },
-    status: 'Hot Lead',
-    lastActivity: '2025-04-06',
-    assignedCampaign: '7', // Student Life Insurance
+    id: "LD-005",
+    name: "Vikram Singh",
+    email: "vikram.singh@example.com",
+    phone: "+91 54321 09876",
+    city: "Chennai",
+    leadScore: 90,
+    status: "Hot Lead",
+    lastActivity: "2023-04-06T11:30:00",
+    existingPolicyHolder: "No",
+    tags: ["Premium Segment", "Follow Up"],
+    businessUnit: "Auto Insurance",
+    source: "Website",
+    updatedAt: "2023-04-06T11:30:00"
   },
   {
-    id: '6',
-    name: 'Meera Iyer',
-    email: 'meera.iyer@example.com',
-    phone: '+91 9876543215',
-    city: 'Pune',
-    existingPolicyHolder: 'No',
-    ltv: 3800,
-    leadScores: {
-      car: 79,
-      bike: 58,
-      life: 63,
-      health: 95,
-      travel: 40
-    },
-    status: 'In Progress',
-    lastActivity: '2025-04-04',
-    assignedCampaign: '4', // Summer Health Checkup
+    id: "LD-006",
+    name: "Anjali Gupta",
+    email: "anjali.gupta@example.com",
+    phone: "+91 43210 98765",
+    city: "Pune",
+    leadScore: 30,
+    status: "Cold Lead",
+    lastActivity: "2023-04-05T14:50:00",
+    existingPolicyHolder: "Yes",
+    tags: ["Price Sensitive"],
+    businessUnit: "Travel Insurance",
+    source: "Social Media",
+    updatedAt: "2023-04-05T14:50:00"
   },
   {
-    id: '7',
-    name: 'Arjun Nair',
-    email: 'arjun.nair@example.com',
-    phone: '+91 9876543216',
-    city: 'Kolkata',
-    existingPolicyHolder: 'Yes',
-    ltv: 8200,
-    leadScores: {
-      car: 81,
-      bike: 77,
-      life: 50,
-      health: 61,
-      travel: 90
-    },
-    status: 'Qualified',
-    lastActivity: '2025-04-09',
-    assignedCampaign: '2', // Young Riders Bike Campaign
+    id: "LD-007",
+    name: "Raj Malhotra",
+    email: "raj.malhotra@example.com",
+    phone: "+91 32109 87654",
+    city: "Kolkata",
+    leadScore: 72,
+    status: "Qualified",
+    lastActivity: "2023-04-04T09:15:00",
+    existingPolicyHolder: "No",
+    tags: ["Needs Follow Up"],
+    businessUnit: "Home Insurance",
+    source: "Call Center",
+    updatedAt: "2023-04-04T09:15:00"
   },
   {
-    id: '8',
-    name: 'Kavita Reddy',
-    email: 'kavita.reddy@example.com',
-    phone: '+91 9876543217',
-    city: 'Ahmedabad',
-    existingPolicyHolder: 'No',
-    ltv: 6500,
-    leadScores: {
-      car: 88,
-      bike: 69,
-      life: 73,
-      health: 47,
-      travel: 85
-    },
-    status: 'New',
-    lastActivity: '2025-04-01',
+    id: "LD-008",
+    name: "Meera Verma",
+    email: "meera.verma@example.com",
+    phone: "+91 21098 76543",
+    city: "Ahmedabad",
+    leadScore: 55,
+    status: "In Progress",
+    lastActivity: "2023-04-03T15:40:00",
+    existingPolicyHolder: "Yes",
+    tags: ["Policy Renewal"],
+    businessUnit: "Health Insurance",
+    source: "Website",
+    updatedAt: "2023-04-03T15:40:00"
+  },
+  {
+    id: "LD-009",
+    name: "Arjun Nair",
+    email: "arjun.nair@example.com",
+    phone: "+91 10987 65432",
+    city: "Mumbai",
+    leadScore: 45,
+    status: "New",
+    lastActivity: "2023-04-02T10:30:00",
+    existingPolicyHolder: "No",
+    tags: ["First Time Buyer", "Price Sensitive"],
+    businessUnit: "Travel Insurance",
+    source: "Mobile App",
+    updatedAt: "2023-04-02T10:30:00"
+  },
+  {
+    id: "LD-010",
+    name: "Kavita Iyer",
+    email: "kavita.iyer@example.com",
+    phone: "+91 09876 54321",
+    city: "Bangalore",
+    leadScore: 88,
+    status: "Hot Lead",
+    lastActivity: "2023-04-01T13:20:00",
+    existingPolicyHolder: "Yes",
+    tags: ["High Value", "Policy Upgrade"],
+    businessUnit: "Life Insurance",
+    source: "Partner Referral",
+    updatedAt: "2023-04-01T13:20:00"
   }
 ];

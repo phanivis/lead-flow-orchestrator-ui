@@ -7,17 +7,22 @@ import {
 import { LeadTableHeader } from './LeadTableHeader';
 import { LeadTableRow } from './LeadTableRow';
 import { Lead } from '@/data/dummyLeads';
+import { Badge } from '@/components/ui/badge';
+import { FilterX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface LeadTableProps {
   leads: Lead[];
   filteredLeads: Lead[];
   onOpenAssignDialog: () => void;
+  onOpenFilterDialog?: () => void;
 }
 
 export const LeadTable = ({
   leads,
   filteredLeads,
-  onOpenAssignDialog
+  onOpenAssignDialog,
+  onOpenFilterDialog
 }: LeadTableProps) => {
   // Default widths for columns (percentages)
   const [columnWidths, setColumnWidths] = useState({
@@ -47,8 +52,31 @@ export const LeadTable = ({
     }
   };
 
+  const isFiltered = filteredLeads.length !== leads.length;
+
   return (
     <div className="border rounded-md overflow-hidden">
+      {isFiltered && (
+        <div className="bg-muted/30 p-2 flex items-center justify-between border-b">
+          <div className="flex items-center">
+            <Badge variant="secondary" className="mr-2">Filtered</Badge>
+            <span className="text-sm text-muted-foreground">
+              Showing {filteredLeads.length} of {leads.length} leads
+            </span>
+          </div>
+          {onOpenFilterDialog && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onOpenFilterDialog}
+              className="h-8"
+            >
+              <FilterX className="h-4 w-4 mr-1" />
+              Modify Filters
+            </Button>
+          )}
+        </div>
+      )}
       <div className="w-full overflow-auto whitespace-nowrap">
         <Table>
           <LeadTableHeader 

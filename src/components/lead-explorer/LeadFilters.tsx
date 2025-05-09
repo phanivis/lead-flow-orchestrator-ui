@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, RefreshCcw, EyeOff } from 'lucide-react';
+import { Search, RefreshCcw, EyeOff, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +34,14 @@ export const LeadFilters = ({
         />
       </div>
       <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={onOpenFilterDialog}
+        >
+          <Filter size={16} className="mr-2" />
+          Filters
+        </Button>
         <Button 
           variant="outline" 
           size="sm"

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { toast } from 'sonner';
 import { LeadFilters } from '@/components/lead-explorer/LeadFilters';
@@ -17,7 +16,12 @@ const LeadExplorerPage = () => {
   const [filters, setFilters] = useState<Filters>({
     status: [],
     city: [],
-    existingPolicyHolder: ''
+    existingPolicyHolder: '',
+    businessUnit: [],
+    leadScoreRange: [0, 100],
+    tags: [],
+    source: [],
+    updateDateRange: { from: undefined, to: undefined }
   });
 
   const handleRefreshData = () => {
@@ -29,6 +33,10 @@ const LeadExplorerPage = () => {
 
   const handleApplyFilters = (newFilters: Filters) => {
     setFilters(newFilters);
+  };
+
+  const openFilterDialog = () => {
+    setIsFilterDialogOpen(true);
   };
 
   const filteredLeads = useMemo(() => {
@@ -50,7 +58,44 @@ const LeadExplorerPage = () => {
         filters.existingPolicyHolder === "any" || 
         lead.existingPolicyHolder === filters.existingPolicyHolder;
       
-      return matchesSearch && matchesStatus && matchesCity && matchesPolicyHolder;
+      // Business Unit filter (using a default property if it doesn't exist yet)
+      const businessUnit = lead.businessUnit || '';
+      const matchesBusinessUnit = filters.businessUnit.length === 0 || 
+        filters.businessUnit.includes(businessUnit);
+      
+      // Lead score filter
+      const leadScore = lead.leadScore || 0;
+      const matchesLeadScore = leadScore >= filters.leadScoreRange[0] && 
+        leadScore <= filters.leadScoreRange[1];
+      
+      // Tags filter (using a default property if it doesn't exist yet)
+      const tags = lead.tags || [];
+      const matchesTags = filters.tags.length === 0 || 
+        filters.tags.some(tag => tags.includes(tag));
+      
+      // Source filter (using a default property if it doesn't exist yet)
+      const source = lead.source || '';
+      const matchesSource = filters.source.length === 0 || 
+        filters.source.includes(source);
+      
+      // Date range filter (using updatedAt property if it exists)
+      let matchesDateRange = true;
+      if (filters.updateDateRange.from || filters.updateDateRange.to) {
+        const updatedAt = lead.updatedAt ? new Date(lead.updatedAt) : new Date();
+        
+        if (filters.updateDateRange.from && filters.updateDateRange.to) {
+          matchesDateRange = updatedAt >= filters.updateDateRange.from && 
+            updatedAt <= filters.updateDateRange.to;
+        } else if (filters.updateDateRange.from) {
+          matchesDateRange = updatedAt >= filters.updateDateRange.from;
+        } else if (filters.updateDateRange.to) {
+          matchesDateRange = updatedAt <= filters.updateDateRange.to;
+        }
+      }
+      
+      return matchesSearch && matchesStatus && matchesCity && 
+        matchesPolicyHolder && matchesBusinessUnit && 
+        matchesLeadScore && matchesTags && matchesSource && matchesDateRange;
     });
   }, [leads, searchTerm, filters]);
 
@@ -61,13 +106,14 @@ const LeadExplorerPage = () => {
         setSearchTerm={setSearchTerm}
         onRefreshData={handleRefreshData}
         onOpenAttributeDialog={() => setIsAttributeDialogOpen(true)}
-        onOpenFilterDialog={() => setIsFilterDialogOpen(true)}
+        onOpenFilterDialog={openFilterDialog}
       />
 
       <LeadTable
         leads={leads}
         filteredLeads={filteredLeads}
         onOpenAssignDialog={() => setIsAssignDialogOpen(true)}
+        onOpenFilterDialog={openFilterDialog}
       />
 
       <LeadAttributeDialog 

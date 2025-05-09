@@ -79,6 +79,12 @@ export const LeadTableRow = ({
 
   // Sort business units by their lead scores in descending order
   const sortedBusinessUnits = useMemo(() => {
+    // Make sure leadScores exists before trying to access it
+    if (!lead.leadScores) {
+      // If leadScores doesn't exist, return a default order
+      return ['car', 'bike', 'life', 'health', 'travel'] as BusinessUnit[];
+    }
+    
     return [...businessUnits].sort((a, b) => {
       return lead.leadScores[b] - lead.leadScores[a];
     });
@@ -121,14 +127,14 @@ export const LeadTableRow = ({
           
           {/* Show LTV in all rows */}
           <TableCell className="truncate">
-            {formatLTV(lead.ltv)}
+            {formatLTV(lead.ltv || 0)}
           </TableCell>
           
           {/* Lead score for the specific BU */}
           <TableCell>
             <div className="flex items-center">
               <span className="font-medium mr-2">{buDisplayNames[bu]}:</span>
-              <LeadScoreIndicator score={lead.leadScores[bu]} />
+              <LeadScoreIndicator score={lead.leadScores ? lead.leadScores[bu] : 0} />
             </div>
           </TableCell>
           

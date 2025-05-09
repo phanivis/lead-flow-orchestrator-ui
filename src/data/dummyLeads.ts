@@ -13,6 +13,14 @@ export interface Lead {
   businessUnit: string;
   source: string;
   updatedAt: string;
+  ltv: number;
+  leadScores: {
+    car: number;
+    bike: number;
+    life: number;
+    health: number;
+    travel: number;
+  };
 }
 
 // Replace or extend the dummyLeads data with our enhanced version that includes the new properties
@@ -30,7 +38,15 @@ export const dummyLeads: Lead[] = [
     tags: ["High Value", "Follow Up"],
     businessUnit: "Auto Insurance",
     source: "Website",
-    updatedAt: "2023-04-10T14:30:00"
+    updatedAt: "2023-04-10T14:30:00",
+    ltv: 120000,
+    leadScores: {
+      car: 85,
+      bike: 65,
+      life: 40,
+      health: 75,
+      travel: 50
+    }
   },
   {
     id: "LD-002",
@@ -45,7 +61,15 @@ export const dummyLeads: Lead[] = [
     tags: ["New Lead", "Price Sensitive"],
     businessUnit: "Health Insurance",
     source: "Mobile App",
-    updatedAt: "2023-04-09T10:15:00"
+    updatedAt: "2023-04-09T10:15:00",
+    ltv: 85000,
+    leadScores: {
+      car: 45,
+      bike: 30,
+      life: 60,
+      health: 80,
+      travel: 55
+    }
   },
   {
     id: "LD-003",
@@ -60,7 +84,15 @@ export const dummyLeads: Lead[] = [
     tags: ["First Time Buyer"],
     businessUnit: "Life Insurance",
     source: "Partner Referral",
-    updatedAt: "2023-04-08T09:45:00"
+    updatedAt: "2023-04-08T09:45:00",
+    ltv: 50000,
+    leadScores: {
+      car: 30,
+      bike: 25,
+      life: 75,
+      health: 40,
+      travel: 20
+    }
   },
   {
     id: "LD-004",
@@ -75,7 +107,15 @@ export const dummyLeads: Lead[] = [
     tags: ["Upsell Opportunity", "Loyal Customer"],
     businessUnit: "Health Insurance",
     source: "Email Campaign",
-    updatedAt: "2023-04-07T16:20:00"
+    updatedAt: "2023-04-07T16:20:00",
+    ltv: 110000,
+    leadScores: {
+      car: 50,
+      bike: 45,
+      life: 60,
+      health: 85,
+      travel: 70
+    }
   },
   {
     id: "LD-005",
@@ -90,7 +130,15 @@ export const dummyLeads: Lead[] = [
     tags: ["Premium Segment", "Follow Up"],
     businessUnit: "Auto Insurance",
     source: "Website",
-    updatedAt: "2023-04-06T11:30:00"
+    updatedAt: "2023-04-06T11:30:00",
+    ltv: 150000,
+    leadScores: {
+      car: 90,
+      bike: 85,
+      life: 60,
+      health: 50,
+      travel: 40
+    }
   },
   {
     id: "LD-006",
@@ -105,7 +153,15 @@ export const dummyLeads: Lead[] = [
     tags: ["Price Sensitive"],
     businessUnit: "Travel Insurance",
     source: "Social Media",
-    updatedAt: "2023-04-05T14:50:00"
+    updatedAt: "2023-04-05T14:50:00",
+    ltv: 40000,
+    leadScores: {
+      car: 25,
+      bike: 30,
+      life: 20,
+      health: 35,
+      travel: 55
+    }
   },
   {
     id: "LD-007",
@@ -120,7 +176,15 @@ export const dummyLeads: Lead[] = [
     tags: ["Needs Follow Up"],
     businessUnit: "Home Insurance",
     source: "Call Center",
-    updatedAt: "2023-04-04T09:15:00"
+    updatedAt: "2023-04-04T09:15:00",
+    ltv: 95000,
+    leadScores: {
+      car: 65,
+      bike: 60,
+      life: 75,
+      health: 70,
+      travel: 50
+    }
   },
   {
     id: "LD-008",
@@ -135,7 +199,15 @@ export const dummyLeads: Lead[] = [
     tags: ["Policy Renewal"],
     businessUnit: "Health Insurance",
     source: "Website",
-    updatedAt: "2023-04-03T15:40:00"
+    updatedAt: "2023-04-03T15:40:00",
+    ltv: 70000,
+    leadScores: {
+      car: 40,
+      bike: 35,
+      life: 50,
+      health: 65,
+      travel: 45
+    }
   },
   {
     id: "LD-009",
@@ -150,7 +222,15 @@ export const dummyLeads: Lead[] = [
     tags: ["First Time Buyer", "Price Sensitive"],
     businessUnit: "Travel Insurance",
     source: "Mobile App",
-    updatedAt: "2023-04-02T10:30:00"
+    updatedAt: "2023-04-02T10:30:00",
+    ltv: 55000,
+    leadScores: {
+      car: 35,
+      bike: 30,
+      life: 40,
+      health: 45,
+      travel: 70
+    }
   },
   {
     id: "LD-010",
@@ -165,6 +245,14 @@ export const dummyLeads: Lead[] = [
     tags: ["High Value", "Policy Upgrade"],
     businessUnit: "Life Insurance",
     source: "Partner Referral",
-    updatedAt: "2023-04-01T13:20:00"
+    updatedAt: "2023-04-01T13:20:00",
+    ltv: 130000,
+    leadScores: {
+      car: 70,
+      bike: 65,
+      life: 90,
+      health: 80,
+      travel: 60
+    }
   }
 ];

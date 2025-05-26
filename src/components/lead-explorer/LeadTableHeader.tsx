@@ -71,7 +71,6 @@ export const LeadTableHeader = ({
             <span>Tags</span>
           </div>
         </TableHead>
-        <TableHead className="w-[5%]">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

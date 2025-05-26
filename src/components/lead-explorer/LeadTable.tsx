@@ -35,8 +35,7 @@ export const LeadTable = ({
     leadScore: 10,
     status: 8,
     lastActivity: 8,
-    tags: 7,
-    actions: 5
+    tags: 7
   });
 
   // Sort state
@@ -96,7 +95,7 @@ export const LeadTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan={11} className="text-center py-6 text-gray-500">
+                <td colSpan={10} className="text-center py-6 text-gray-500">
                   No leads found matching your search.
                 </td>
               </tr>

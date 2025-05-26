@@ -1,18 +1,11 @@
 
 import React, { useMemo } from 'react';
-import { Edit, Tag } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import { 
   TableRow, 
   TableCell 
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { LeadScoreIndicator } from './LeadScoreIndicator';
 import { LeadStatusBadge } from './LeadStatusBadge';
 import { Lead } from '@/data/dummyLeads';
@@ -159,23 +152,6 @@ export const LeadTableRow = ({
                 ))}
               </div>
             ) : null}
-          </TableCell>
-          
-          {/* Actions column */}
-          <TableCell>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Edit size={16} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>View Details</DropdownMenuItem>
-                <DropdownMenuItem>Edit Lead</DropdownMenuItem>
-                <DropdownMenuItem>Change Status</DropdownMenuItem>
-                <DropdownMenuItem>Assign Owner</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </TableCell>
         </TableRow>
       ))}

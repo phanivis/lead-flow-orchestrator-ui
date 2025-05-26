@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { LeadAttributeDialog } from '@/components/lead-explorer/LeadAttributeDialog';
+import { CreateAttributeDialog } from '@/components/cdp-attributes/CreateAttributeDialog';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
@@ -43,6 +44,7 @@ const attributesList = [
 
 const CdpAttributesPage = () => {
   const [isAttributeDialogOpen, setIsAttributeDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [attributes, setAttributes] = useState(attributesList);
   const [selectedAttribute, setSelectedAttribute] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -98,6 +100,14 @@ const CdpAttributesPage = () => {
     setSelectedAttribute(null);
   };
 
+  const handleCreateAttribute = (newAttribute: any) => {
+    setAttributes([...attributes, newAttribute]);
+  };
+
+  const handleNewAttributeClick = () => {
+    setIsCreateDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -105,12 +115,7 @@ const CdpAttributesPage = () => {
           <h1 className="text-2xl font-bold">Manage Lead Attributes</h1>
           <p className="text-muted-foreground">Manage your customer data and lead attributes</p>
         </div>
-        <Button 
-          onClick={() => {
-            setSelectedAttribute(null);
-            setIsAttributeDialogOpen(true);
-          }}
-        >
+        <Button onClick={handleNewAttributeClick}>
           <Plus size={16} className="mr-2" />
           New Attribute
         </Button>
@@ -158,6 +163,12 @@ const CdpAttributesPage = () => {
           </TableBody>
         </Table>
       </Card>
+
+      <CreateAttributeDialog 
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onCreateAttribute={handleCreateAttribute}
+      />
 
       <LeadAttributeDialog 
         open={isAttributeDialogOpen} 

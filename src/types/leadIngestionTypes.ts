@@ -1,3 +1,4 @@
+
 export interface EventDefinition {
   id: string;
   name: string;
@@ -10,6 +11,15 @@ export interface EventProperty {
   name: string;
   type: 'string' | 'number' | 'boolean' | 'date' | 'object' | 'array';
   description?: string;
+}
+
+export interface AttributeDefinition {
+  id: string;
+  name: string;
+  displayName: string;
+  type: 'string' | 'number' | 'boolean' | 'date';
+  description?: string;
+  category: 'demographic' | 'behavioral' | 'engagement' | 'transaction';
 }
 
 export type ConditionOperator = 
@@ -29,8 +39,7 @@ export type LogicalOperator = 'AND' | 'OR';
 
 export interface RuleCondition {
   id: string;
-  eventName: string;
-  propertyName?: string;
+  attributeName: string;
   operator: ConditionOperator;
   value?: string | number | boolean;
   timeFilter?: {

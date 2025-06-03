@@ -2,12 +2,12 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { EventDefinition, RuleCondition } from '@/types/leadIngestionTypes';
+import { AttributeDefinition, RuleCondition } from '@/types/leadIngestionTypes';
 import { RuleConditionItem } from './RuleConditionItem';
 
 interface RuleConditionsSectionProps {
   conditions: RuleCondition[];
-  events: EventDefinition[];
+  attributes: AttributeDefinition[];
   onAddCondition: () => void;
   onRemoveCondition: (id: string) => void;
   onUpdateCondition: (id: string, updates: Partial<RuleCondition>) => void;
@@ -15,7 +15,7 @@ interface RuleConditionsSectionProps {
 
 export const RuleConditionsSection = ({
   conditions,
-  events,
+  attributes,
   onAddCondition,
   onRemoveCondition,
   onUpdateCondition,
@@ -40,7 +40,7 @@ export const RuleConditionsSection = ({
               key={condition.id}
               condition={condition}
               index={index}
-              events={events}
+              attributes={attributes}
               onRemove={onRemoveCondition}
               onUpdate={onUpdateCondition}
             />

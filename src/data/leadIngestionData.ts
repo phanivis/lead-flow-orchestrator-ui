@@ -1,98 +1,27 @@
-
-import { EventDefinition, QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
+import { QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
 import { formatDistance } from 'date-fns';
 
-// Sample event definitions
-export const eventDefinitions: EventDefinition[] = [
-  {
-    id: '1',
-    name: 'page_view',
-    description: 'User viewed a page',
-    properties: [
-      { id: '1-1', name: 'url', type: 'string' },
-      { id: '1-2', name: 'referrer', type: 'string' },
-      { id: '1-3', name: 'duration', type: 'number' }
-    ]
-  },
-  {
-    id: '2',
-    name: 'product_view',
-    description: 'User viewed a product page',
-    properties: [
-      { id: '2-1', name: 'product_id', type: 'string' },
-      { id: '2-2', name: 'product_name', type: 'string' },
-      { id: '2-3', name: 'product_price', type: 'number' },
-      { id: '2-4', name: 'category', type: 'string' }
-    ]
-  },
-  {
-    id: '3',
-    name: 'add_to_cart',
-    description: 'User added a product to cart',
-    properties: [
-      { id: '3-1', name: 'product_id', type: 'string' },
-      { id: '3-2', name: 'product_name', type: 'string' },
-      { id: '3-3', name: 'product_price', type: 'number' },
-      { id: '3-4', name: 'quantity', type: 'number' }
-    ]
-  },
-  {
-    id: '4',
-    name: 'checkout_start',
-    description: 'User started checkout process',
-    properties: [
-      { id: '4-1', name: 'cart_value', type: 'number' },
-      { id: '4-2', name: 'item_count', type: 'number' }
-    ]
-  },
-  {
-    id: '5',
-    name: 'checkout_complete',
-    description: 'User completed checkout',
-    properties: [
-      { id: '5-1', name: 'order_id', type: 'string' },
-      { id: '5-2', name: 'total_value', type: 'number' },
-      { id: '5-3', name: 'payment_method', type: 'string' }
-    ]
-  },
-  {
-    id: '6',
-    name: 'form_submit',
-    description: 'User submitted a form',
-    properties: [
-      { id: '6-1', name: 'form_id', type: 'string' },
-      { id: '6-2', name: 'form_name', type: 'string' },
-      { id: '6-3', name: 'form_type', type: 'string' },
-      { id: '6-4', name: 'form_data', type: 'object' }
-    ]
-  },
-  {
-    id: '7',
-    name: 'search',
-    description: 'User performed a search',
-    properties: [
-      { id: '7-1', name: 'query', type: 'string' },
-      { id: '7-2', name: 'results_count', type: 'number' }
-    ]
-  }
-];
-
-// Sample qualification rules with journey field
+// Sample qualification rules with attribute-based conditions
 export const qualificationRules: QualificationRule[] = [
   {
     id: '1',
     name: 'High-Intent Visitors',
-    description: 'Users who view 3+ product pages in a week',
+    description: 'Users with high page views and engagement',
     journey: 'Car-Fresh',
     status: 'active',
-    tags: ['product', 'high-intent'],
+    tags: ['high-intent', 'engagement'],
     conditions: [
       {
         id: '1-1',
-        eventName: 'product_view',
-        timeFilter: { days: 7 },
-        countFilter: { operator: 'greater_than_or_equal', value: 3 },
-        operator: 'exists'
+        attributeName: 'total_page_views',
+        operator: 'greater_than_or_equal',
+        value: 10
+      },
+      {
+        id: '1-2',
+        attributeName: 'email_open_rate',
+        operator: 'greater_than',
+        value: 25
       }
     ],
     conditionGroups: [],
@@ -105,23 +34,23 @@ export const qualificationRules: QualificationRule[] = [
   },
   {
     id: '2',
-    name: 'Cart Abandoners',
-    description: 'Users who add items to cart but don\'t complete checkout',
+    name: 'Premium Prospects',
+    description: 'High-value users with recent activity',
     journey: 'Bike-New',
     status: 'active',
-    tags: ['cart', 'abandonment'],
+    tags: ['premium', 'high-value'],
     conditions: [
       {
         id: '2-1',
-        eventName: 'add_to_cart',
-        timeFilter: { days: 3 },
-        operator: 'exists'
+        attributeName: 'total_purchase_value',
+        operator: 'greater_than',
+        value: 5000
       },
       {
         id: '2-2',
-        eventName: 'checkout_complete',
-        timeFilter: { days: 3 },
-        operator: 'not_exists'
+        attributeName: 'last_login_date',
+        operator: 'greater_than',
+        value: '2025-05-01'
       }
     ],
     conditionGroups: [],
@@ -134,17 +63,23 @@ export const qualificationRules: QualificationRule[] = [
   },
   {
     id: '3',
-    name: 'Form Submitters',
-    description: 'Users who submitted a form of any type',
+    name: 'Engaged Newsletter Subscribers',
+    description: 'Active newsletter subscribers from specific cities',
     journey: 'Health-Renewal',
     status: 'paused',
-    tags: ['form', 'lead-capture'],
+    tags: ['newsletter', 'engagement'],
     conditions: [
       {
         id: '3-1',
-        eventName: 'form_submit',
-        timeFilter: { days: 30 },
-        operator: 'exists'
+        attributeName: 'newsletter_subscriber',
+        operator: 'equals',
+        value: true
+      },
+      {
+        id: '3-2',
+        attributeName: 'city',
+        operator: 'contains',
+        value: 'Mumbai'
       }
     ],
     conditionGroups: [],

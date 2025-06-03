@@ -5,13 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Save, ChevronDown, ChevronUp } from 'lucide-react';
-import { RuleCondition, EventDefinition } from '@/types/leadIngestionTypes';
+import { RuleCondition, AttributeDefinition } from '@/types/leadIngestionTypes';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RuleTagsSection } from './RuleTagsSection';
 import { RuleConditionsSection } from './RuleConditionsSection';
 
 interface RuleBuilderProps {
-  events: EventDefinition[];
+  attributes: AttributeDefinition[];
   initialConditions?: RuleCondition[];
   onSave: (rule: {
     name: string;
@@ -21,7 +21,7 @@ interface RuleBuilderProps {
   }) => void;
 }
 
-export const RuleBuilder = ({ events, initialConditions = [], onSave }: RuleBuilderProps) => {
+export const RuleBuilder = ({ attributes, initialConditions = [], onSave }: RuleBuilderProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tagInput, setTagInput] = useState('');
@@ -41,11 +41,11 @@ export const RuleBuilder = ({ events, initialConditions = [], onSave }: RuleBuil
   };
 
   const handleAddCondition = () => {
-    if (events.length === 0) return;
+    if (attributes.length === 0) return;
     
     const newCondition: RuleCondition = {
       id: `condition-${Date.now()}`,
-      eventName: events[0].name,
+      attributeName: attributes[0].name,
       operator: 'exists',
     };
     
@@ -121,7 +121,7 @@ export const RuleBuilder = ({ events, initialConditions = [], onSave }: RuleBuil
             <div className="space-y-4 mt-4">
               <RuleConditionsSection
                 conditions={conditions}
-                events={events}
+                attributes={attributes}
                 onAddCondition={handleAddCondition}
                 onRemoveCondition={handleRemoveCondition}
                 onUpdateCondition={handleUpdateCondition}

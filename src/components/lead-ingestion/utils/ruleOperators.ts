@@ -1,18 +1,20 @@
 
-import { ConditionOperator, EventProperty } from '@/types/leadIngestionTypes';
+import { ConditionOperator } from '@/types/leadIngestionTypes';
 
-export const getOperatorOptions = (propertyType?: string): ConditionOperator[] => {
+export const getOperatorOptions = (attributeType?: string): ConditionOperator[] => {
   const baseOperators: ConditionOperator[] = ['exists', 'not_exists'];
   
-  if (!propertyType) return baseOperators;
+  if (!attributeType) return baseOperators;
   
-  switch (propertyType) {
+  switch (attributeType) {
     case 'string':
       return [...baseOperators, 'equals', 'not_equals', 'contains', 'not_contains', 'regex'];
     case 'number':
       return [...baseOperators, 'equals', 'not_equals', 'greater_than', 'less_than', 'greater_than_or_equal', 'less_than_or_equal'];
     case 'boolean':
       return [...baseOperators, 'equals', 'not_equals'];
+    case 'date':
+      return [...baseOperators, 'equals', 'not_equals', 'greater_than', 'less_than', 'greater_than_or_equal', 'less_than_or_equal'];
     default:
       return baseOperators;
   }

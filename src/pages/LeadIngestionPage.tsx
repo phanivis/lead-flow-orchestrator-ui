@@ -6,7 +6,7 @@ import { RuleFilterDialog } from '@/components/lead-ingestion/RuleFilterDialog';
 import { AlertsConfigModal } from '@/components/lead-ingestion/AlertsConfigModal';
 import { RuleBuilderSheet } from '@/components/lead-ingestion/RuleBuilderSheet';
 import { useLeadIngestion } from '@/hooks/useLeadIngestion';
-import { eventDefinitions } from '@/data/leadIngestionData';
+import { attributeDefinitions } from '@/data/attributeDefinitions';
 
 const LeadIngestionPage = () => {
   const {
@@ -60,9 +60,9 @@ const LeadIngestionPage = () => {
         open={isRuleBuilderOpen}
         onOpenChange={setIsRuleBuilderOpen}
         selectedRule={selectedRule}
-        selectedEvent={selectedEvent}
-        onSelectEvent={setSelectedEvent}
-        events={eventDefinitions}
+        selectedAttribute={selectedEvent}
+        onSelectAttribute={setSelectedEvent}
+        attributes={attributeDefinitions}
         matchingUsers={sampleUsers}
         onSaveRule={handleSaveRule}
         onActivateRule={handleActivateRule}

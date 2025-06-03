@@ -5,13 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2 } from 'lucide-react';
-import { RuleCondition, EventDefinition, ConditionOperator } from '@/types/leadIngestionTypes';
+import { RuleCondition, AttributeDefinition, ConditionOperator } from '@/types/leadIngestionTypes';
 import { getOperatorOptions, getOperatorLabel } from './utils/ruleOperators';
 
 interface RuleConditionItemProps {
   condition: RuleCondition;
   index: number;
-  events: EventDefinition[];
+  attributes: AttributeDefinition[];
   onRemove: (id: string) => void;
   onUpdate: (id: string, updates: Partial<RuleCondition>) => void;
 }
@@ -19,51 +19,26 @@ interface RuleConditionItemProps {
 export const RuleConditionItem = ({
   condition,
   index,
-  events,
+  attributes,
   onRemove,
   onUpdate,
 }: RuleConditionItemProps) => {
-  const [selectedEvent, setSelectedEvent] = useState<EventDefinition | undefined>(
-    events.find(e => e.name === condition.eventName)
+  const [selectedAttribute, setSelectedAttribute] = useState<AttributeDefinition | undefined>(
+    attributes.find(a => a.name === condition.attributeName)
   );
-  
-  const [selectedProperty, setSelectedProperty] = useState<string | undefined>(
-    condition.propertyName
-  );
-  
-  const [propertyType, setPropertyType] = useState<string | undefined>();
   
   useEffect(() => {
-    if (selectedEvent && selectedProperty) {
-      const property = selectedEvent.properties.find(p => p.name === selectedProperty);
-      if (property) {
-        setPropertyType(property.type);
-      }
-    }
-  }, [selectedEvent, selectedProperty]);
+    const attr = attributes.find(a => a.name === condition.attributeName);
+    setSelectedAttribute(attr);
+  }, [condition.attributeName, attributes]);
   
-  const handleEventChange = (eventName: string) => {
-    const event = events.find(e => e.name === eventName);
-    setSelectedEvent(event);
-    setSelectedProperty(undefined);
+  const handleAttributeChange = (attributeName: string) => {
+    const attribute = attributes.find(a => a.name === attributeName);
+    setSelectedAttribute(attribute);
     
     onUpdate(condition.id, { 
-      eventName,
-      propertyName: undefined,
+      attributeName,
       operator: 'exists',
-      value: undefined
-    });
-  };
-  
-  const handlePropertyChange = (propertyName: string) => {
-    setSelectedProperty(propertyName);
-    
-    const event = selectedEvent;
-    const property = event?.properties.find(p => p.name === propertyName);
-    
-    onUpdate(condition.id, { 
-      propertyName,
-      operator: 'equals',
       value: undefined
     });
   };
@@ -78,9 +53,9 @@ export const RuleConditionItem = ({
   const handleValueChange = (value: string) => {
     let parsedValue: string | number | boolean = value;
     
-    if (propertyType === 'number' && !isNaN(Number(value))) {
+    if (selectedAttribute?.type === 'number' && !isNaN(Number(value))) {
       parsedValue = Number(value);
-    } else if (propertyType === 'boolean') {
+    } else if (selectedAttribute?.type === 'boolean') {
       if (value.toLowerCase() === 'true') parsedValue = true;
       else if (value.toLowerCase() === 'false') parsedValue = false;
     }
@@ -88,7 +63,7 @@ export const RuleConditionItem = ({
     onUpdate(condition.id, { value: parsedValue });
   };
   
-  const operatorOptions = getOperatorOptions(propertyType);
+  const operatorOptions = getOperatorOptions(selectedAttribute?.type);
   
   return (
     <div className="border p-4 rounded-md">
@@ -105,45 +80,23 @@ export const RuleConditionItem = ({
       
       <div className="space-y-4">
         <div>
-          <Label htmlFor={`event-${condition.id}`}>Event</Label>
+          <Label htmlFor={`attribute-${condition.id}`}>Attribute</Label>
           <Select
-            value={condition.eventName}
-            onValueChange={handleEventChange}
+            value={condition.attributeName}
+            onValueChange={handleAttributeChange}
           >
-            <SelectTrigger id={`event-${condition.id}`}>
-              <SelectValue placeholder="Select event" />
+            <SelectTrigger id={`attribute-${condition.id}`}>
+              <SelectValue placeholder="Select attribute" />
             </SelectTrigger>
             <SelectContent>
-              {events.map(event => (
-                <SelectItem key={event.id} value={event.name}>
-                  {event.name}
+              {attributes.map(attr => (
+                <SelectItem key={attr.id} value={attr.name}>
+                  {attr.displayName} ({attr.type})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        
-        {selectedEvent && (
-          <div>
-            <Label htmlFor={`property-${condition.id}`}>Property</Label>
-            <Select
-              value={condition.propertyName || "no_property"}
-              onValueChange={handlePropertyChange}
-            >
-              <SelectTrigger id={`property-${condition.id}`}>
-                <SelectValue placeholder="Select property" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="no_property">Event itself</SelectItem>
-                {selectedEvent.properties.map(property => (
-                  <SelectItem key={property.id} value={property.name}>
-                    {property.name} ({property.type})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
         
         <div>
           <Label htmlFor={`operator-${condition.id}`}>Operator</Label>
@@ -167,12 +120,35 @@ export const RuleConditionItem = ({
         {condition.operator !== 'exists' && condition.operator !== 'not_exists' && (
           <div>
             <Label htmlFor={`value-${condition.id}`}>Value</Label>
-            <Input
-              id={`value-${condition.id}`}
-              value={condition.value !== undefined ? String(condition.value) : ''}
-              onChange={(e) => handleValueChange(e.target.value)}
-              placeholder={`Enter ${propertyType} value`}
-            />
+            {selectedAttribute?.type === 'boolean' ? (
+              <Select
+                value={condition.value !== undefined ? String(condition.value) : ''}
+                onValueChange={handleValueChange}
+              >
+                <SelectTrigger id={`value-${condition.id}`}>
+                  <SelectValue placeholder="Select value" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">True</SelectItem>
+                  <SelectItem value="false">False</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : selectedAttribute?.type === 'date' ? (
+              <Input
+                id={`value-${condition.id}`}
+                type="date"
+                value={condition.value !== undefined ? String(condition.value) : ''}
+                onChange={(e) => handleValueChange(e.target.value)}
+              />
+            ) : (
+              <Input
+                id={`value-${condition.id}`}
+                type={selectedAttribute?.type === 'number' ? 'number' : 'text'}
+                value={condition.value !== undefined ? String(condition.value) : ''}
+                onChange={(e) => handleValueChange(e.target.value)}
+                placeholder={`Enter ${selectedAttribute?.type || 'value'}`}
+              />
+            )}
           </div>
         )}
       </div>

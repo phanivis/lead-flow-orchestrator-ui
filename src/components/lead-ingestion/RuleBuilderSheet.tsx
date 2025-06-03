@@ -1,19 +1,19 @@
 
 import React from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { EventList } from '@/components/lead-ingestion/EventList';
+import { AttributeList } from '@/components/lead-ingestion/AttributeList';
 import { RuleBuilder } from '@/components/lead-ingestion/RuleBuilder';
 import { PreviewPanel } from '@/components/lead-ingestion/PreviewPanel';
-import { EventDefinition, QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
+import { AttributeDefinition, QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
 import { useToast } from '@/hooks/use-toast';
 
 interface RuleBuilderSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedRule: QualificationRule | null;
-  selectedEvent: EventDefinition | null;
-  onSelectEvent: (event: EventDefinition) => void;
-  events: EventDefinition[];
+  selectedAttribute: AttributeDefinition | null;
+  onSelectAttribute: (attribute: AttributeDefinition) => void;
+  attributes: AttributeDefinition[];
   matchingUsers: MatchingUser[];
   onSaveRule: (ruleData: any) => void;
   onActivateRule: () => void;
@@ -24,9 +24,9 @@ export const RuleBuilderSheet = ({
   open,
   onOpenChange,
   selectedRule,
-  selectedEvent,
-  onSelectEvent,
-  events,
+  selectedAttribute,
+  onSelectAttribute,
+  attributes,
   matchingUsers,
   onSaveRule,
   onActivateRule,
@@ -48,15 +48,15 @@ export const RuleBuilderSheet = ({
         </div>
         <div className="flex-1 overflow-hidden grid grid-cols-12 gap-6 p-6">
           <div className="col-span-3">
-            <EventList 
-              events={events}
-              onSelectEvent={onSelectEvent}
-              selectedEventId={selectedEvent?.id}
+            <AttributeList 
+              attributes={attributes}
+              onSelectAttribute={onSelectAttribute}
+              selectedAttributeId={selectedAttribute?.id}
             />
           </div>
           <div className="col-span-5">
             <RuleBuilder 
-              events={events}
+              attributes={attributes}
               initialConditions={selectedRule?.conditions}
               onSave={onSaveRule}
             />

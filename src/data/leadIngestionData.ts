@@ -77,12 +77,13 @@ export const eventDefinitions: EventDefinition[] = [
   }
 ];
 
-// Sample qualification rules
+// Sample qualification rules with journey field
 export const qualificationRules: QualificationRule[] = [
   {
     id: '1',
     name: 'High-Intent Visitors',
     description: 'Users who view 3+ product pages in a week',
+    journey: 'Car-Fresh',
     status: 'active',
     tags: ['product', 'high-intent'],
     conditions: [
@@ -106,6 +107,7 @@ export const qualificationRules: QualificationRule[] = [
     id: '2',
     name: 'Cart Abandoners',
     description: 'Users who add items to cart but don\'t complete checkout',
+    journey: 'Bike-New',
     status: 'active',
     tags: ['cart', 'abandonment'],
     conditions: [
@@ -134,6 +136,7 @@ export const qualificationRules: QualificationRule[] = [
     id: '3',
     name: 'Form Submitters',
     description: 'Users who submitted a form of any type',
+    journey: 'Health-Renewal',
     status: 'paused',
     tags: ['form', 'lead-capture'],
     conditions: [
@@ -205,12 +208,10 @@ export const matchingUsers: MatchingUser[] = [
   }
 ];
 
-// Helper function to get formatted time
 export const getTimeAgo = (dateString: string) => {
   return formatDistance(new Date(dateString), new Date(), { addSuffix: true });
 };
 
-// Helper function to get user from id
 export const getUserById = (id: string): { name: string; email: string } => {
   const users = [
     { id: 'sarah.johnson@acko.com', name: 'Sarah Johnson', email: 'sarah.johnson@acko.com' },

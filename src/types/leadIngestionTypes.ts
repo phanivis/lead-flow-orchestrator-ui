@@ -1,4 +1,3 @@
-
 export interface EventDefinition {
   id: string;
   name: string;
@@ -53,6 +52,7 @@ export interface QualificationRule {
   id: string;
   name: string;
   description?: string;
+  journey: string;
   status: 'active' | 'paused' | 'draft';
   tags: string[];
   conditions: RuleCondition[];

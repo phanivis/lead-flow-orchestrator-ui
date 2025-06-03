@@ -82,6 +82,12 @@ export const QualificationRulesTable = ({
           </TableHead>
           <TableHead 
             className="cursor-pointer" 
+            onClick={() => handleSort('journey')}
+          >
+            Journey {getSortIcon('journey')}
+          </TableHead>
+          <TableHead 
+            className="cursor-pointer" 
             onClick={() => handleSort('status')}
           >
             Status {getSortIcon('status')}
@@ -111,7 +117,7 @@ export const QualificationRulesTable = ({
       <TableBody>
         {sortedRules.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
               No qualification rules found. Create your first rule to get started.
             </TableCell>
           </TableRow>
@@ -125,6 +131,11 @@ export const QualificationRulesTable = ({
                     <span className="text-xs text-muted-foreground mt-1">{rule.description}</span>
                   )}
                 </div>
+              </TableCell>
+              <TableCell>
+                <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-800">
+                  {rule.journey}
+                </Badge>
               </TableCell>
               <TableCell>
                 <Badge variant={rule.status === 'active' ? 'success' : 'secondary'}>

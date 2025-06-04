@@ -69,7 +69,7 @@ export const RuleBuilderSheet = ({
                 description: selectedRule.description || '',
                 conditions: selectedRule.conditions
               } : undefined}
-              onSaveRule={onSaveRule}
+              onSave={onSaveRule}
             />
           </div>
         </div>

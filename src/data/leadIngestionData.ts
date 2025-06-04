@@ -1,3 +1,4 @@
+
 import { QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
 import { formatDistance } from 'date-fns';
 
@@ -142,6 +143,9 @@ export const matchingUsers: MatchingUser[] = [
     tags: ['form', 'lead-capture']
   }
 ];
+
+// Re-export eventDefinitions for compatibility
+export { eventDefinitions } from './eventDefinitions';
 
 export const getTimeAgo = (dateString: string) => {
   return formatDistance(new Date(dateString), new Date(), { addSuffix: true });

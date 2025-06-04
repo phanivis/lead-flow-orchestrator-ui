@@ -34,6 +34,8 @@ const LeadIngestionPage = () => {
     handleSaveAlerts,
     sampleUsers
   } = useLeadIngestion();
+
+  const [selectedAttribute, setSelectedAttribute] = React.useState(null);
   
   return (
     <div className="space-y-6">
@@ -61,8 +63,8 @@ const LeadIngestionPage = () => {
         open={isRuleBuilderOpen}
         onOpenChange={setIsRuleBuilderOpen}
         selectedRule={selectedRule}
-        selectedAttribute={selectedEvent}
-        onSelectAttribute={setSelectedEvent}
+        selectedAttribute={selectedAttribute}
+        onSelectAttribute={setSelectedAttribute}
         attributes={attributeDefinitions}
         events={eventDefinitions}
         onSaveRule={handleSaveRule}

@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { EventDefinition } from '@/types/leadIngestionTypes';
 import { cn } from '@/lib/utils';
+import { formatDistance } from 'date-fns';
 
 interface EventListProps {
   events: EventDefinition[];
@@ -55,8 +56,14 @@ export const EventList = ({ events, onSelectEvent, selectedEventId }: EventListP
                   {event.description && (
                     <div className="text-sm text-muted-foreground mt-1">{event.description}</div>
                   )}
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {event.properties.length} {event.properties.length === 1 ? 'property' : 'properties'}
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-xs text-muted-foreground">
+                      {event.properties.length} {event.properties.length === 1 ? 'property' : 'properties'}
+                    </div>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      {formatDistance(new Date(event.lastRefresh || new Date()), new Date(), { addSuffix: true })}
+                    </div>
                   </div>
                 </div>
               ))}

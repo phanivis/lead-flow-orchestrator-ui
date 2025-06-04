@@ -7,6 +7,7 @@ import { AlertsConfigModal } from '@/components/lead-ingestion/AlertsConfigModal
 import { RuleBuilderSheet } from '@/components/lead-ingestion/RuleBuilderSheet';
 import { useLeadIngestion } from '@/hooks/useLeadIngestion';
 import { attributeDefinitions } from '@/data/attributeDefinitions';
+import { eventDefinitions } from '@/data/eventDefinitions';
 
 const LeadIngestionPage = () => {
   const {
@@ -63,7 +64,7 @@ const LeadIngestionPage = () => {
         selectedAttribute={selectedEvent}
         onSelectAttribute={setSelectedEvent}
         attributes={attributeDefinitions}
-        matchingUsers={sampleUsers}
+        events={eventDefinitions}
         onSaveRule={handleSaveRule}
         onActivateRule={handleActivateRule}
         onConfigureAlerts={() => setShowAlertsModal(true)}

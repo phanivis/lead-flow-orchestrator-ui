@@ -79,8 +79,11 @@ export const AttributeList = ({ attributes, onSelectAttribute, selectedAttribute
                     </Badge>
                   </div>
                   {attr.description && (
-                    <p className="text-xs text-muted-foreground">{attr.description}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{attr.description}</p>
                   )}
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium">Source:</span> {attr.source || 'CDP'}
+                  </div>
                 </div>
               ))}
             </div>

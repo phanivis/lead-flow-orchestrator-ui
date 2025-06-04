@@ -2,10 +2,9 @@
 import React from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AttributeList } from '@/components/lead-ingestion/AttributeList';
-import { RuleBuilder } from '@/components/lead-ingestion/RuleBuilder';
-import { PreviewPanel } from '@/components/lead-ingestion/PreviewPanel';
-import { AttributeDefinition, QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
-import { useToast } from '@/hooks/use-toast';
+import { EventList } from '@/components/lead-ingestion/EventList';
+import { RuleCreationForm } from '@/components/lead-ingestion/RuleCreationForm';
+import { AttributeDefinition, QualificationRule, EventDefinition } from '@/types/leadIngestionTypes';
 
 interface RuleBuilderSheetProps {
   open: boolean;
@@ -14,7 +13,7 @@ interface RuleBuilderSheetProps {
   selectedAttribute: AttributeDefinition | null;
   onSelectAttribute: (attribute: AttributeDefinition) => void;
   attributes: AttributeDefinition[];
-  matchingUsers: MatchingUser[];
+  events: EventDefinition[];
   onSaveRule: (ruleData: any) => void;
   onActivateRule: () => void;
   onConfigureAlerts: () => void;
@@ -27,12 +26,12 @@ export const RuleBuilderSheet = ({
   selectedAttribute,
   onSelectAttribute,
   attributes,
-  matchingUsers,
+  events,
   onSaveRule,
   onActivateRule,
   onConfigureAlerts
 }: RuleBuilderSheetProps) => {
-  const { toast } = useToast();
+  const [selectedEvent, setSelectedEvent] = React.useState<EventDefinition | null>(null);
 
   return (
     <Sheet 
@@ -48,6 +47,13 @@ export const RuleBuilderSheet = ({
         </div>
         <div className="flex-1 overflow-hidden grid grid-cols-12 gap-6 p-6">
           <div className="col-span-3">
+            <EventList 
+              events={events}
+              onSelectEvent={setSelectedEvent}
+              selectedEventId={selectedEvent?.id}
+            />
+          </div>
+          <div className="col-span-4">
             <AttributeList 
               attributes={attributes}
               onSelectAttribute={onSelectAttribute}
@@ -55,23 +61,15 @@ export const RuleBuilderSheet = ({
             />
           </div>
           <div className="col-span-5">
-            <RuleBuilder 
+            <RuleCreationForm 
               attributes={attributes}
-              initialConditions={selectedRule?.conditions}
-              onSave={onSaveRule}
-            />
-          </div>
-          <div className="col-span-4">
-            <PreviewPanel 
-              matchingUsers={matchingUsers}
-              onActivate={onActivateRule}
-              onViewAllUsers={() => {
-                toast({
-                  title: "View all users",
-                  description: "This would open the Lead Explorer with this rule's filter applied.",
-                });
-              }}
-              onConfigureAlerts={onConfigureAlerts}
+              events={events}
+              initialRule={selectedRule ? {
+                name: selectedRule.name,
+                description: selectedRule.description || '',
+                conditions: selectedRule.conditions
+              } : undefined}
+              onSaveRule={onSaveRule}
             />
           </div>
         </div>

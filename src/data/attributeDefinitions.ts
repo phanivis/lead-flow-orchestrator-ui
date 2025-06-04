@@ -9,7 +9,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Age',
     type: 'number',
     description: 'User age in years',
-    category: 'demographic'
+    category: 'demographic',
+    source: 'CDP'
   },
   {
     id: 'attr-2',
@@ -17,7 +18,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'City',
     type: 'string',
     description: 'User city',
-    category: 'demographic'
+    category: 'demographic',
+    source: 'CDP'
   },
   {
     id: 'attr-3',
@@ -25,7 +27,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'State',
     type: 'string',
     description: 'User state',
-    category: 'demographic'
+    category: 'demographic',
+    source: 'CDP'
   },
   {
     id: 'attr-4',
@@ -33,7 +36,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Gender',
     type: 'string',
     description: 'User gender',
-    category: 'demographic'
+    category: 'demographic',
+    source: 'CDP'
   },
   {
     id: 'attr-5',
@@ -41,7 +45,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Premium User',
     type: 'boolean',
     description: 'Whether user has premium subscription',
-    category: 'demographic'
+    category: 'demographic',
+    source: 'CRM'
   },
   
   // Behavioral attributes
@@ -51,7 +56,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Total Page Views',
     type: 'number',
     description: 'Total number of page views',
-    category: 'behavioral'
+    category: 'behavioral',
+    source: 'page_view'
   },
   {
     id: 'attr-7',
@@ -59,7 +65,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Average Session Duration',
     type: 'number',
     description: 'Average session duration in minutes',
-    category: 'behavioral'
+    category: 'behavioral',
+    source: 'session_tracking'
   },
   {
     id: 'attr-8',
@@ -67,7 +74,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Last Login Date',
     type: 'date',
     description: 'Date of last login',
-    category: 'behavioral'
+    category: 'behavioral',
+    source: 'user_login'
   },
   {
     id: 'attr-9',
@@ -75,7 +83,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Device Type',
     type: 'string',
     description: 'Primary device type used',
-    category: 'behavioral'
+    category: 'behavioral',
+    source: 'device_tracking'
   },
   
   // Engagement attributes
@@ -85,7 +94,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Email Open Rate',
     type: 'number',
     description: 'Email open rate percentage',
-    category: 'engagement'
+    category: 'engagement',
+    source: 'email_tracking'
   },
   {
     id: 'attr-11',
@@ -93,7 +103,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Clicked CTA (Last 30 Days)',
     type: 'boolean',
     description: 'Whether user clicked any CTA in last 30 days',
-    category: 'engagement'
+    category: 'engagement',
+    source: 'click_tracking'
   },
   {
     id: 'attr-12',
@@ -101,7 +112,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Newsletter Subscriber',
     type: 'boolean',
     description: 'Whether user is subscribed to newsletter',
-    category: 'engagement'
+    category: 'engagement',
+    source: 'email_subscription'
   },
   
   // Transaction attributes
@@ -111,7 +123,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Total Purchase Value',
     type: 'number',
     description: 'Total value of all purchases',
-    category: 'transaction'
+    category: 'transaction',
+    source: 'purchase'
   },
   {
     id: 'attr-14',
@@ -119,7 +132,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Last Purchase Date',
     type: 'date',
     description: 'Date of last purchase',
-    category: 'transaction'
+    category: 'transaction',
+    source: 'purchase'
   },
   {
     id: 'attr-15',
@@ -127,7 +141,8 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Purchase Frequency',
     type: 'number',
     description: 'Number of purchases per month',
-    category: 'transaction'
+    category: 'transaction',
+    source: 'purchase'
   },
   {
     id: 'attr-16',
@@ -135,6 +150,7 @@ export const attributeDefinitions: AttributeDefinition[] = [
     displayName: 'Preferred Payment Method',
     type: 'string',
     description: 'Most used payment method',
-    category: 'transaction'
+    category: 'transaction',
+    source: 'payment_tracking'
   }
 ];

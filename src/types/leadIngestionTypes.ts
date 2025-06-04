@@ -1,9 +1,9 @@
-
 export interface EventDefinition {
   id: string;
   name: string;
   description?: string;
   properties: EventProperty[];
+  lastRefresh?: string;
 }
 
 export interface EventProperty {
@@ -20,6 +20,7 @@ export interface AttributeDefinition {
   type: 'string' | 'number' | 'boolean' | 'date';
   description?: string;
   category: 'demographic' | 'behavioral' | 'engagement' | 'transaction';
+  source?: string;
 }
 
 export type ConditionOperator = 

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Save, Plus, Layers } from 'lucide-react';
 import { RuleCondition, AttributeDefinition, EventDefinition, ConditionGroup, LogicalOperator } from '@/types/leadIngestionTypes';
 import { TimePeriodConfig } from './TimePeriodConfig';
@@ -147,94 +149,100 @@ export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: Ru
   const hasConditions = conditionGroups.some(group => group.conditions.length > 0);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="rule-name">Rule Name</Label>
-          <Input 
-            id="rule-name" 
-            placeholder="Enter rule name" 
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="rule-description">Description</Label>
-          <Textarea 
-            id="rule-description" 
-            placeholder="Enter rule description" 
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-          />
-        </div>
-      </div>
-
-      <TimePeriodConfig
-        eventTimePeriodType={eventTimePeriodType}
-        eventTimeConfigValue={eventTimeConfigValue}
-        retargetTimePeriodType={retargetTimePeriodType}
-        retargetTimeConfigValue={retargetTimeConfigValue}
-        onEventTimePeriodTypeChange={setEventTimePeriodType}
-        onEventTimeConfigValueChange={setEventTimeConfigValue}
-        onRetargetTimePeriodTypeChange={setRetargetTimePeriodType}
-        onRetargetTimeConfigValueChange={setRetargetTimeConfigValue}
-      />
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label className="text-lg font-medium">Rule Configuration</Label>
-          <Button onClick={handleAddGroup} variant="outline" size="sm">
-            <Layers className="h-4 w-4 mr-2" />
-            Add Condition Group
-          </Button>
-        </div>
-
-        {conditionGroups.length === 0 ? (
-          <div className="text-center py-8 border border-dashed rounded-md">
-            <p className="text-muted-foreground">No condition groups added yet</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Add groups to create complex logical expressions like (A AND B) OR (C AND D)
-            </p>
-          </div>
-        ) : (
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1 pr-4">
+        <div className="space-y-6">
           <div className="space-y-4">
-            {conditionGroups.map((group, index) => (
-              <div key={group.id}>
-                {index > 0 && (
-                  <div className="flex justify-center py-2">
-                    <Badge variant="default" className="text-sm">
-                      OR
-                    </Badge>
-                  </div>
-                )}
-                <ConditionGroupBuilder
-                  group={group}
-                  groupIndex={index}
-                  attributes={attributes}
-                  events={events}
-                  onUpdateGroup={handleUpdateGroup}
-                  onRemoveGroup={handleRemoveGroup}
-                  onAddCondition={handleAddCondition}
-                  onUpdateCondition={handleUpdateCondition}
-                  onRemoveCondition={handleRemoveCondition}
-                  showGroupOperator={index > 0}
-                />
-              </div>
-            ))}
+            <div>
+              <Label htmlFor="rule-name">Rule Name</Label>
+              <Input 
+                id="rule-name" 
+                placeholder="Enter rule name" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="rule-description">Description</Label>
+              <Textarea 
+                id="rule-description" 
+                placeholder="Enter rule description" 
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+              />
+            </div>
           </div>
-        )}
-      </div>
 
-      <Button 
-        className="w-full"
-        disabled={!name || !hasConditions}
-        onClick={handleSave}
-      >
-        <Save className="h-4 w-4 mr-2" />
-        Save Rule
-      </Button>
+          <TimePeriodConfig
+            eventTimePeriodType={eventTimePeriodType}
+            eventTimeConfigValue={eventTimeConfigValue}
+            retargetTimePeriodType={retargetTimePeriodType}
+            retargetTimeConfigValue={retargetTimeConfigValue}
+            onEventTimePeriodTypeChange={setEventTimePeriodType}
+            onEventTimeConfigValueChange={setEventTimeConfigValue}
+            onRetargetTimePeriodTypeChange={setRetargetTimePeriodType}
+            onRetargetTimeConfigValueChange={setRetargetTimeConfigValue}
+          />
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-lg font-medium">Rule Configuration</Label>
+              <Button onClick={handleAddGroup} variant="outline" size="sm">
+                <Layers className="h-4 w-4 mr-2" />
+                Add Condition Group
+              </Button>
+            </div>
+
+            {conditionGroups.length === 0 ? (
+              <div className="text-center py-8 border border-dashed rounded-md">
+                <p className="text-muted-foreground">No condition groups added yet</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Add groups to create complex logical expressions like (A AND B) OR (C AND D)
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {conditionGroups.map((group, index) => (
+                  <div key={group.id}>
+                    {index > 0 && (
+                      <div className="flex justify-center py-2">
+                        <Badge variant="default" className="text-sm">
+                          OR
+                        </Badge>
+                      </div>
+                    )}
+                    <ConditionGroupBuilder
+                      group={group}
+                      groupIndex={index}
+                      attributes={attributes}
+                      events={events}
+                      onUpdateGroup={handleUpdateGroup}
+                      onRemoveGroup={handleRemoveGroup}
+                      onAddCondition={handleAddCondition}
+                      onUpdateCondition={handleUpdateCondition}
+                      onRemoveCondition={handleRemoveCondition}
+                      showGroupOperator={index > 0}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </ScrollArea>
+      
+      <div className="pt-4 border-t mt-4">
+        <Button 
+          className="w-full"
+          disabled={!name || !hasConditions}
+          onClick={handleSave}
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Rule
+        </Button>
+      </div>
     </div>
   );
 };

@@ -110,14 +110,13 @@ export const QualificationRulesTable = ({
           >
             Created By {getSortIcon('createdBy')}
           </TableHead>
-          <TableHead>Tags</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {sortedRules.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
               No qualification rules found. Create your first rule to get started.
             </TableCell>
           </TableRow>
@@ -150,15 +149,6 @@ export const QualificationRulesTable = ({
                 </div>
               </TableCell>
               <TableCell>{getUserById(rule.createdBy).name}</TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1">
-                  {rule.tags.map(tag => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   {rule.status === 'active' ? (

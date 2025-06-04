@@ -31,7 +31,7 @@ const LeadIngestionPage = () => {
     handleToggleStatus,
     handleSaveRule,
     handleActivateRule,
-    handleSaveAlerts,
+    createSaveAlertsHandler,
     sampleUsers
   } = useLeadIngestion();
 
@@ -76,7 +76,7 @@ const LeadIngestionPage = () => {
         open={showAlertsModal}
         onOpenChange={setShowAlertsModal}
         initialAlerts={selectedRule?.alerts}
-        onSaveAlerts={handleSaveAlerts}
+        onSaveAlerts={createSaveAlertsHandler(selectedRule)}
       />
     </div>
   );

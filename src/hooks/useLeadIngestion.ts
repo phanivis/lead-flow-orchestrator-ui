@@ -33,7 +33,7 @@ export const useLeadIngestion = () => {
     handleToggleStatus,
     handleSaveRule: saveRule,
     handleActivateRule: activateRule,
-    handleSaveAlerts
+    createSaveAlertsHandler
   } = useRuleOperations(rules, setRules);
   
   const handleCreateRule = () => {
@@ -78,7 +78,7 @@ export const useLeadIngestion = () => {
     handleToggleStatus,
     handleSaveRule,
     handleActivateRule,
-    handleSaveAlerts,
+    createSaveAlertsHandler,
     sampleUsers
   };
 };

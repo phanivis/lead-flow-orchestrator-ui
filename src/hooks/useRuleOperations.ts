@@ -1,6 +1,6 @@
 
 import { useToast } from '@/hooks/use-toast';
-import { QualificationRule } from '@/types/leadIngestionTypes';
+import { QualificationRule, AlertConfig } from '@/types/leadIngestionTypes';
 
 export const useRuleOperations = (
   rules: QualificationRule[],
@@ -94,19 +94,21 @@ export const useRuleOperations = (
     });
   };
 
-  const handleSaveAlerts = (alerts: any, selectedRule: QualificationRule | null) => {
-    if (!selectedRule) return;
-    
-    setRules(prev => 
-      prev.map(rule => 
-        rule.id === selectedRule.id ? { ...rule, alerts } : rule
-      )
-    );
-    
-    toast({
-      title: "Alerts configured",
-      description: `Alerts for "${selectedRule.name}" have been updated.`,
-    });
+  const createSaveAlertsHandler = (selectedRule: QualificationRule | null) => {
+    return (alerts: AlertConfig[]) => {
+      if (!selectedRule) return;
+      
+      setRules(prev => 
+        prev.map(rule => 
+          rule.id === selectedRule.id ? { ...rule, alerts } : rule
+        )
+      );
+      
+      toast({
+        title: "Alerts configured",
+        description: `Alerts for "${selectedRule.name}" have been updated.`,
+      });
+    };
   };
 
   return {
@@ -114,6 +116,6 @@ export const useRuleOperations = (
     handleToggleStatus,
     handleSaveRule,
     handleActivateRule,
-    handleSaveAlerts
+    createSaveAlertsHandler
   };
 };

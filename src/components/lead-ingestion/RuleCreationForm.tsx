@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Save, Plus } from 'lucide-react';
-import { RuleCondition, AttributeDefinition, EventDefinition } from '@/types/leadIngestionTypes';
+import { Save, Plus, Layers } from 'lucide-react';
+import { RuleCondition, AttributeDefinition, EventDefinition, ConditionGroup, LogicalOperator } from '@/types/leadIngestionTypes';
 import { TimePeriodConfig } from './TimePeriodConfig';
-import { RuleConditionBuilder } from './RuleConditionBuilder';
+import { ConditionGroupBuilder } from './ConditionGroupBuilder';
 
 interface RuleCreationFormProps {
   attributes: AttributeDefinition[];
@@ -16,11 +16,15 @@ interface RuleCreationFormProps {
     name: string;
     description: string;
     conditions: RuleCondition[];
+    conditionGroups?: ConditionGroup[];
+    rootOperator?: LogicalOperator;
   };
   onSave: (rule: {
     name: string;
     description: string;
     conditions: RuleCondition[];
+    conditionGroups: ConditionGroup[];
+    rootOperator: LogicalOperator;
     eventTimePeriodType?: string;
     eventTimeConfigValue?: number;
     retargetTimePeriodType?: string;
@@ -32,50 +36,115 @@ interface RuleConditionWithType extends RuleCondition {
   sourceType: 'event' | 'attribute';
 }
 
+interface ConditionGroupWithType extends ConditionGroup {
+  conditions: RuleConditionWithType[];
+}
+
 export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: RuleCreationFormProps) => {
   const [name, setName] = useState(initialRule?.name || '');
   const [description, setDescription] = useState(initialRule?.description || '');
-  const [conditions, setConditions] = useState<RuleConditionWithType[]>(
-    initialRule?.conditions.map(c => ({ ...c, sourceType: 'attribute' })) || []
+  const [conditionGroups, setConditionGroups] = useState<ConditionGroupWithType[]>(
+    initialRule?.conditionGroups?.map(group => ({
+      ...group,
+      conditions: group.conditions.map(c => ({ ...c, sourceType: 'attribute' as const }))
+    })) || []
   );
+  const [rootOperator, setRootOperator] = useState<LogicalOperator>(initialRule?.rootOperator || 'AND');
   const [eventTimePeriodType, setEventTimePeriodType] = useState<string>('');
   const [eventTimeConfigValue, setEventTimeConfigValue] = useState<number | ''>('');
   const [retargetTimePeriodType, setRetargetTimePeriodType] = useState<string>('');
   const [retargetTimeConfigValue, setRetargetTimeConfigValue] = useState<number | ''>('');
 
-  const handleAddCondition = () => {
+  const handleAddGroup = () => {
+    const newGroup: ConditionGroupWithType = {
+      id: `group-${Date.now()}`,
+      conditions: [],
+      operator: 'AND'
+    };
+    setConditionGroups(prev => [...prev, newGroup]);
+  };
+
+  const handleRemoveGroup = (groupId: string) => {
+    setConditionGroups(prev => prev.filter(group => group.id !== groupId));
+  };
+
+  const handleUpdateGroup = (groupId: string, updates: Partial<ConditionGroup>) => {
+    setConditionGroups(prev =>
+      prev.map(group =>
+        group.id === groupId ? { ...group, ...updates } : group
+      )
+    );
+  };
+
+  const handleAddCondition = (groupId: string) => {
     const newCondition: RuleConditionWithType = {
       id: `condition-${Date.now()}`,
       attributeName: '',
       operator: 'exists',
       sourceType: 'attribute'
     };
-    setConditions(prev => [...prev, newCondition]);
+    
+    setConditionGroups(prev =>
+      prev.map(group =>
+        group.id === groupId 
+          ? { ...group, conditions: [...group.conditions, newCondition] }
+          : group
+      )
+    );
   };
 
-  const handleRemoveCondition = (id: string) => {
-    setConditions(prev => prev.filter(condition => condition.id !== id));
+  const handleRemoveCondition = (groupId: string, conditionId: string) => {
+    setConditionGroups(prev =>
+      prev.map(group =>
+        group.id === groupId
+          ? { ...group, conditions: group.conditions.filter(c => c.id !== conditionId) }
+          : group
+      )
+    );
   };
 
-  const handleUpdateCondition = (id: string, updates: Partial<RuleConditionWithType>) => {
-    setConditions(prev => 
-      prev.map(condition => 
-        condition.id === id ? { ...condition, ...updates } : condition
+  const handleUpdateCondition = (groupId: string, conditionId: string, updates: Partial<RuleConditionWithType>) => {
+    setConditionGroups(prev =>
+      prev.map(group =>
+        group.id === groupId
+          ? {
+              ...group,
+              conditions: group.conditions.map(condition =>
+                condition.id === conditionId ? { ...condition, ...updates } : condition
+              )
+            }
+          : group
       )
     );
   };
 
   const handleSave = () => {
+    // Convert condition groups back to the expected format
+    const processedGroups: ConditionGroup[] = conditionGroups.map(group => ({
+      id: group.id,
+      operator: group.operator,
+      conditions: group.conditions.map(({ sourceType, ...rest }) => rest)
+    }));
+
+    // Flatten all conditions for backward compatibility
+    const allConditions = conditionGroups.flatMap(group => 
+      group.conditions.map(({ sourceType, ...rest }) => rest)
+    );
+
     onSave({
       name,
       description,
-      conditions: conditions.map(({ sourceType, ...rest }) => rest),
+      conditions: allConditions,
+      conditionGroups: processedGroups,
+      rootOperator,
       eventTimePeriodType,
       eventTimeConfigValue: eventTimeConfigValue === '' ? undefined : Number(eventTimeConfigValue),
       retargetTimePeriodType,
       retargetTimeConfigValue: retargetTimeConfigValue === '' ? undefined : Number(retargetTimeConfigValue)
     });
   };
+
+  const hasConditions = conditionGroups.some(group => group.conditions.length > 0);
 
   return (
     <div className="space-y-6">
@@ -116,28 +185,43 @@ export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: Ru
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-lg font-medium">Rule Configuration</Label>
-          <Button onClick={handleAddCondition} variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Condition
+          <Button onClick={handleAddGroup} variant="outline" size="sm">
+            <Layers className="h-4 w-4 mr-2" />
+            Add Condition Group
           </Button>
         </div>
 
-        {conditions.length === 0 ? (
+        {conditionGroups.length === 0 ? (
           <div className="text-center py-8 border border-dashed rounded-md">
-            <p className="text-muted-foreground">No conditions added yet</p>
+            <p className="text-muted-foreground">No condition groups added yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Add groups to create complex logical expressions like (A AND B) OR (C AND D)
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {conditions.map((condition, index) => (
-              <RuleConditionBuilder
-                key={condition.id}
-                condition={condition}
-                index={index}
-                attributes={attributes}
-                events={events}
-                onUpdate={handleUpdateCondition}
-                onRemove={handleRemoveCondition}
-              />
+            {conditionGroups.map((group, index) => (
+              <div key={group.id}>
+                {index > 0 && (
+                  <div className="flex justify-center py-2">
+                    <Badge variant="default" className="text-sm">
+                      OR
+                    </Badge>
+                  </div>
+                )}
+                <ConditionGroupBuilder
+                  group={group}
+                  groupIndex={index}
+                  attributes={attributes}
+                  events={events}
+                  onUpdateGroup={handleUpdateGroup}
+                  onRemoveGroup={handleRemoveGroup}
+                  onAddCondition={handleAddCondition}
+                  onUpdateCondition={handleUpdateCondition}
+                  onRemoveCondition={handleRemoveCondition}
+                  showGroupOperator={index > 0}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -145,7 +229,7 @@ export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: Ru
 
       <Button 
         className="w-full"
-        disabled={!name || conditions.length === 0}
+        disabled={!name || !hasConditions}
         onClick={handleSave}
       >
         <Save className="h-4 w-4 mr-2" />

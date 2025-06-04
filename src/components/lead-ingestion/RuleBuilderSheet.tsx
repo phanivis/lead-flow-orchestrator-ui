@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AttributeList } from '@/components/lead-ingestion/AttributeList';
@@ -67,7 +66,9 @@ export const RuleBuilderSheet = ({
               initialRule={selectedRule ? {
                 name: selectedRule.name,
                 description: selectedRule.description || '',
-                conditions: selectedRule.conditions
+                conditions: selectedRule.conditions,
+                conditionGroups: selectedRule.conditionGroups,
+                rootOperator: selectedRule.rootOperator
               } : undefined}
               onSave={onSaveRule}
             />

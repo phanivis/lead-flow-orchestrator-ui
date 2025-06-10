@@ -38,7 +38,7 @@ interface RuleConditionWithType extends RuleCondition {
   sourceType: 'event' | 'attribute';
 }
 
-interface ConditionGroupWithType extends ConditionGroup {
+interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
   conditions: RuleConditionWithType[];
 }
 
@@ -203,31 +203,33 @@ export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: Ru
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {conditionGroups.map((group, index) => (
-                  <div key={group.id}>
-                    {index > 0 && (
-                      <div className="flex justify-center py-2">
-                        <Badge variant="default" className="text-sm">
-                          OR
-                        </Badge>
-                      </div>
-                    )}
-                    <ConditionGroupBuilder
-                      group={group}
-                      groupIndex={index}
-                      attributes={attributes}
-                      events={events}
-                      onUpdateGroup={handleUpdateGroup}
-                      onRemoveGroup={handleRemoveGroup}
-                      onAddCondition={handleAddCondition}
-                      onUpdateCondition={handleUpdateCondition}
-                      onRemoveCondition={handleRemoveCondition}
-                      showGroupOperator={index > 0}
-                    />
-                  </div>
-                ))}
-              </div>
+              <ScrollArea className="max-h-96 pr-4">
+                <div className="space-y-4">
+                  {conditionGroups.map((group, index) => (
+                    <div key={group.id}>
+                      {index > 0 && (
+                        <div className="flex justify-center py-2">
+                          <Badge variant="default" className="text-sm">
+                            OR
+                          </Badge>
+                        </div>
+                      )}
+                      <ConditionGroupBuilder
+                        group={group}
+                        groupIndex={index}
+                        attributes={attributes}
+                        events={events}
+                        onUpdateGroup={handleUpdateGroup}
+                        onRemoveGroup={handleRemoveGroup}
+                        onAddCondition={handleAddCondition}
+                        onUpdateCondition={handleUpdateCondition}
+                        onRemoveCondition={handleRemoveCondition}
+                        showGroupOperator={index > 0}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             )}
           </div>
         </div>

@@ -66,7 +66,8 @@ export const useRuleOperations = (
         createdAt: now,
         updatedAt: now,
         matchCount: 0,
-        version: 1
+        version: 1,
+        tags: []
       };
       
       setRules(prev => [...prev, newRule]);

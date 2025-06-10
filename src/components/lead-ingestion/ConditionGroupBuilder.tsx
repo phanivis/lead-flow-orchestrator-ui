@@ -3,16 +3,26 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus } from 'lucide-react';
-import { ConditionGroup, RuleCondition, AttributeDefinition, EventDefinition, LogicalOperator } from '@/types/leadIngestionTypes';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { X, Plus, Trash2 } from 'lucide-react';
 import { RuleConditionBuilder } from './RuleConditionBuilder';
+import { AttributeDefinition, EventDefinition, LogicalOperator, ConditionGroup } from '@/types/leadIngestionTypes';
 
-interface RuleConditionWithType extends RuleCondition {
+interface RuleConditionWithType {
+  id: string;
+  attributeName: string;
+  operator: string;
+  value?: string | number;
   sourceType: 'event' | 'attribute';
 }
 
+interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
+  conditions: RuleConditionWithType[];
+}
+
 interface ConditionGroupBuilderProps {
-  group: ConditionGroup & { conditions: RuleConditionWithType[] };
+  group: ConditionGroupWithType;
   groupIndex: number;
   attributes: AttributeDefinition[];
   events: EventDefinition[];
@@ -21,7 +31,7 @@ interface ConditionGroupBuilderProps {
   onAddCondition: (groupId: string) => void;
   onUpdateCondition: (groupId: string, conditionId: string, updates: Partial<RuleConditionWithType>) => void;
   onRemoveCondition: (groupId: string, conditionId: string) => void;
-  showGroupOperator: boolean;
+  showGroupOperator?: boolean;
 }
 
 export const ConditionGroupBuilder = ({
@@ -34,26 +44,28 @@ export const ConditionGroupBuilder = ({
   onAddCondition,
   onUpdateCondition,
   onRemoveCondition,
-  showGroupOperator
+  showGroupOperator = false
 }: ConditionGroupBuilderProps) => {
+  const handleOperatorChange = (operator: LogicalOperator) => {
+    onUpdateGroup(group.id, { operator });
+  };
+
+  const handleConditionUpdate = (conditionId: string, updates: any) => {
+    const updatesWithType = {
+      ...updates,
+      sourceType: updates.sourceType || 'attribute'
+    };
+    onUpdateCondition(group.id, conditionId, updatesWithType);
+  };
+
   return (
-    <div className="border border-dashed border-gray-300 p-4 rounded-lg bg-gray-50">
-      <div className="flex items-center justify-between mb-4">
+    <Card className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {showGroupOperator && groupIndex > 0 && (
-            <Badge variant="secondary" className="text-sm">
-              OR
-            </Badge>
-          )}
-          <span className="font-medium">Group {groupIndex + 1}</span>
+          <span className="text-sm font-medium">Group {groupIndex + 1}</span>
           {group.conditions.length > 1 && (
-            <Select
-              value={group.operator}
-              onValueChange={(value: LogicalOperator) => 
-                onUpdateGroup(group.id, { operator: value })
-              }
-            >
-              <SelectTrigger className="w-20">
+            <Select value={group.operator} onValueChange={handleOperatorChange}>
+              <SelectTrigger className="w-20 h-7">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -65,48 +77,60 @@ export const ConditionGroupBuilder = ({
         </div>
         <Button 
           variant="ghost" 
-          size="sm"
+          size="sm" 
           onClick={() => onRemoveGroup(group.id)}
+          className="h-7 w-7 p-0"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
 
-      <div className="space-y-3">
-        {group.conditions.map((condition, conditionIndex) => (
-          <div key={condition.id} className="relative">
-            {conditionIndex > 0 && (
-              <div className="flex justify-center mb-2">
-                <Badge variant="outline" className="text-xs">
-                  {group.operator}
-                </Badge>
+      <ScrollArea className="max-h-60">
+        <div className="space-y-3">
+          {group.conditions.map((condition, conditionIndex) => (
+            <div key={condition.id}>
+              {conditionIndex > 0 && (
+                <div className="flex justify-center py-1">
+                  <Badge variant="secondary" className="text-xs">
+                    {group.operator}
+                  </Badge>
+                </div>
+              )}
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <RuleConditionBuilder
+                    condition={{
+                      ...condition,
+                      sourceType: condition.sourceType || 'attribute'
+                    }}
+                    attributes={attributes}
+                    events={events}
+                    onUpdateCondition={(updates) => handleConditionUpdate(condition.id, updates)}
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveCondition(group.id, condition.id)}
+                  className="h-7 w-7 p-0 mt-1"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-            )}
-            <RuleConditionBuilder
-              condition={condition}
-              index={conditionIndex}
-              attributes={attributes}
-              events={events}
-              onUpdate={(conditionId, updates) => 
-                onUpdateCondition(group.id, conditionId, updates)
-              }
-              onRemove={(conditionId) => 
-                onRemoveCondition(group.id, conditionId)
-              }
-            />
-          </div>
-        ))}
-        
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => onAddCondition(group.id)}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Condition to Group
-        </Button>
-      </div>
-    </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onAddCondition(group.id)}
+        className="w-full"
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Condition
+      </Button>
+    </Card>
   );
 };

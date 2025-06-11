@@ -9,8 +9,12 @@ import { X, Plus, Trash2 } from 'lucide-react';
 import { RuleConditionBuilder } from './RuleConditionBuilder';
 import { AttributeDefinition, EventDefinition, LogicalOperator, ConditionGroup, RuleCondition } from '@/types/leadIngestionTypes';
 
+interface RuleConditionWithType extends RuleCondition {
+  sourceType?: 'event' | 'attribute';
+}
+
 interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
-  conditions: RuleCondition[];
+  conditions: RuleConditionWithType[];
 }
 
 interface ConditionGroupBuilderProps {
@@ -87,20 +91,17 @@ export const ConditionGroupBuilder = ({
               <div className="flex items-start gap-2">
                 <div className="flex-1">
                   <RuleConditionBuilder
-                    condition={condition}
+                    condition={{
+                      ...condition,
+                      sourceType: condition.sourceType || 'attribute'
+                    }}
+                    index={conditionIndex}
                     attributes={attributes}
                     events={events}
-                    onUpdateCondition={(updates) => handleConditionUpdate(condition.id, updates)}
+                    onUpdate={(id, updates) => handleConditionUpdate(id, updates)}
+                    onRemove={(id) => onRemoveCondition(group.id, id)}
                   />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onRemoveCondition(group.id, condition.id)}
-                  className="h-7 w-7 p-0 mt-1"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           ))}

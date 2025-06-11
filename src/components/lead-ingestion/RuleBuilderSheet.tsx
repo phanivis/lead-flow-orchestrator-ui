@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AttributeList } from '@/components/lead-ingestion/AttributeList';
 import { EventList } from '@/components/lead-ingestion/EventList';
 import { RuleCreationForm } from '@/components/lead-ingestion/RuleCreationForm';
@@ -13,8 +15,8 @@ interface RuleBuilderSheetProps {
   onSelectAttribute: (attribute: AttributeDefinition) => void;
   attributes: AttributeDefinition[];
   events: EventDefinition[];
-  onSaveRule: (ruleData: any) => void;
-  onActivateRule: () => void;
+  onSaveRule: (ruleData: any, selectedRule: QualificationRule | null) => void;
+  onActivateRule: (selectedRule: QualificationRule | null) => void;
   onConfigureAlerts: () => void;
 }
 
@@ -44,35 +46,42 @@ export const RuleBuilderSheet = ({
             {selectedRule ? `Edit Rule: ${selectedRule.name}` : 'Create Lead Qualification Rule'}
           </h2>
         </div>
-        <div className="flex-1 overflow-hidden grid grid-cols-12 gap-6 p-6">
-          <div className="col-span-3">
-            <EventList 
-              events={events}
-              onSelectEvent={setSelectedEvent}
-              selectedEventId={selectedEvent?.id}
-            />
-          </div>
-          <div className="col-span-4">
-            <AttributeList 
-              attributes={attributes}
-              onSelectAttribute={onSelectAttribute}
-              selectedAttributeId={selectedAttribute?.id}
-            />
-          </div>
-          <div className="col-span-5">
-            <RuleCreationForm 
-              attributes={attributes}
-              events={events}
-              initialRule={selectedRule ? {
-                name: selectedRule.name,
-                description: selectedRule.description || '',
-                conditions: selectedRule.conditions,
-                conditionGroups: selectedRule.conditionGroups,
-                rootOperator: selectedRule.rootOperator
-              } : undefined}
-              onSave={onSaveRule}
-            />
-          </div>
+        
+        <div className="flex-1 overflow-hidden p-6">
+          <Tabs defaultValue="rule-config" className="h-full flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="rule-config">Rule Configuration</TabsTrigger>
+              <TabsTrigger value="events">Available Events</TabsTrigger>
+              <TabsTrigger value="attributes">Available Attributes</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="rule-config" className="flex-1 overflow-hidden">
+              <RuleCreationForm 
+                selectedRule={selectedRule}
+                attributes={attributes}
+                events={events}
+                onSaveRule={onSaveRule}
+                onActivateRule={onActivateRule}
+                onConfigureAlerts={onConfigureAlerts}
+              />
+            </TabsContent>
+            
+            <TabsContent value="events" className="flex-1 overflow-hidden">
+              <EventList 
+                events={events}
+                onSelectEvent={setSelectedEvent}
+                selectedEventId={selectedEvent?.id}
+              />
+            </TabsContent>
+            
+            <TabsContent value="attributes" className="flex-1 overflow-hidden">
+              <AttributeList 
+                attributes={attributes}
+                onSelectAttribute={onSelectAttribute}
+                selectedAttributeId={selectedAttribute?.id}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </SheetContent>
     </Sheet>

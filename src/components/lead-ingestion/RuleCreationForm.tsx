@@ -6,12 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus } from 'lucide-react';
-import { ConditionGroupBuilder } from './ConditionGroupBuilder';
+import { NestedConditionBuilder } from './NestedConditionBuilder';
 import { AttributeDefinition, EventDefinition, QualificationRule, RuleCondition, ConditionGroup, LogicalOperator } from '@/types/leadIngestionTypes';
 
+interface RuleConditionWithType extends RuleCondition {
+  sourceType?: 'event' | 'attribute';
+}
+
 interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
-  conditions: RuleCondition[];
+  conditions: RuleConditionWithType[];
 }
 
 interface RuleCreationFormProps {
@@ -39,7 +42,10 @@ export const RuleCreationForm = ({
     selectedRule?.conditionGroups?.length ? 
       selectedRule.conditionGroups.map(group => ({
         ...group,
-        conditions: group.conditions || []
+        conditions: group.conditions.map(condition => ({
+          ...condition,
+          sourceType: 'attribute' as const
+        })) || []
       })) :
       [{
         id: `group-${Date.now()}`,
@@ -47,7 +53,8 @@ export const RuleCreationForm = ({
           id: `condition-${Date.now()}`,
           attributeName: '',
           operator: 'equals',
-          value: ''
+          value: '',
+          sourceType: 'attribute' as const
         }],
         operator: 'AND' as LogicalOperator
       }]
@@ -61,7 +68,7 @@ export const RuleCreationForm = ({
       rootOperator,
       conditionGroups: conditionGroups.map(group => ({
         ...group,
-        conditions: group.conditions
+        conditions: group.conditions.map(({ sourceType, ...condition }) => condition)
       }))
     };
     onSaveRule(ruleData, selectedRule);
@@ -74,7 +81,8 @@ export const RuleCreationForm = ({
         id: `condition-${Date.now()}`,
         attributeName: '',
         operator: 'equals',
-        value: ''
+        value: '',
+        sourceType: 'attribute' as const
       }],
       operator: 'AND' as LogicalOperator
     }]);
@@ -106,7 +114,8 @@ export const RuleCreationForm = ({
                   id: `condition-${Date.now()}`,
                   attributeName: '',
                   operator: 'equals',
-                  value: ''
+                  value: '',
+                  sourceType: 'attribute' as const
                 }
               ]
             }
@@ -146,8 +155,8 @@ export const RuleCreationForm = ({
   };
 
   return (
-    <div className="space-y-6">
-      <ScrollArea className="h-[calc(100vh-300px)] pr-4">
+    <div className="h-full flex flex-col">
+      <ScrollArea className="flex-1 pr-4">
         <div className="space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
@@ -189,65 +198,25 @@ export const RuleCreationForm = ({
             </div>
           </div>
 
-          {/* Condition Groups */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Rule Conditions</h3>
-              {conditionGroups.length > 1 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Groups connected by:</span>
-                  <Select value={rootOperator} onValueChange={(value: LogicalOperator) => setRootOperator(value)}>
-                    <SelectTrigger className="w-20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="AND">AND</SelectItem>
-                      <SelectItem value="OR">OR</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              {conditionGroups.map((group, index) => (
-                <div key={group.id}>
-                  {index > 0 && conditionGroups.length > 1 && (
-                    <div className="flex justify-center py-2">
-                      <span className="px-3 py-1 bg-muted rounded-md text-sm font-medium">
-                        {rootOperator}
-                      </span>
-                    </div>
-                  )}
-                  <ConditionGroupBuilder
-                    group={group}
-                    groupIndex={index}
-                    attributes={attributes}
-                    events={events}
-                    onUpdateGroup={updateConditionGroup}
-                    onRemoveGroup={removeConditionGroup}
-                    onAddCondition={addCondition}
-                    onUpdateCondition={updateCondition}
-                    onRemoveCondition={removeCondition}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={addConditionGroup}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Condition Group
-            </Button>
-          </div>
+          {/* Nested Condition Groups */}
+          <NestedConditionBuilder
+            conditionGroups={conditionGroups}
+            rootOperator={rootOperator}
+            attributes={attributes}
+            events={events}
+            onUpdateRootOperator={setRootOperator}
+            onUpdateGroup={updateConditionGroup}
+            onRemoveGroup={removeConditionGroup}
+            onAddGroup={addConditionGroup}
+            onAddCondition={addCondition}
+            onUpdateCondition={updateCondition}
+            onRemoveCondition={removeCondition}
+          />
         </div>
       </ScrollArea>
 
       {/* Action Buttons */}
-      <div className="flex justify-between pt-4 border-t">
+      <div className="flex justify-between pt-4 border-t mt-6">
         <Button variant="outline" onClick={onConfigureAlerts}>
           Configure Alerts
         </Button>

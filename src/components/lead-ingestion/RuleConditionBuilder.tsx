@@ -57,11 +57,6 @@ export const RuleConditionBuilder = ({
     <div className="border p-4 rounded-md space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {index > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              AND
-            </Badge>
-          )}
           <span className="font-medium">Condition {index + 1}</span>
           <Badge 
             variant={condition.sourceType === 'event' ? 'default' : 'outline'}

@@ -7,18 +7,10 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { RuleConditionBuilder } from './RuleConditionBuilder';
-import { AttributeDefinition, EventDefinition, LogicalOperator, ConditionGroup } from '@/types/leadIngestionTypes';
-
-interface RuleConditionWithType {
-  id: string;
-  attributeName: string;
-  operator: string;
-  value?: string | number;
-  sourceType: 'event' | 'attribute';
-}
+import { AttributeDefinition, EventDefinition, LogicalOperator, ConditionGroup, RuleCondition } from '@/types/leadIngestionTypes';
 
 interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
-  conditions: RuleConditionWithType[];
+  conditions: RuleCondition[];
 }
 
 interface ConditionGroupBuilderProps {
@@ -29,7 +21,7 @@ interface ConditionGroupBuilderProps {
   onUpdateGroup: (groupId: string, updates: Partial<ConditionGroup>) => void;
   onRemoveGroup: (groupId: string) => void;
   onAddCondition: (groupId: string) => void;
-  onUpdateCondition: (groupId: string, conditionId: string, updates: Partial<RuleConditionWithType>) => void;
+  onUpdateCondition: (groupId: string, conditionId: string, updates: Partial<RuleCondition>) => void;
   onRemoveCondition: (groupId: string, conditionId: string) => void;
   showGroupOperator?: boolean;
 }
@@ -51,11 +43,7 @@ export const ConditionGroupBuilder = ({
   };
 
   const handleConditionUpdate = (conditionId: string, updates: any) => {
-    const updatesWithType = {
-      ...updates,
-      sourceType: updates.sourceType || 'attribute'
-    };
-    onUpdateCondition(group.id, conditionId, updatesWithType);
+    onUpdateCondition(group.id, conditionId, updates);
   };
 
   return (
@@ -99,10 +87,7 @@ export const ConditionGroupBuilder = ({
               <div className="flex items-start gap-2">
                 <div className="flex-1">
                   <RuleConditionBuilder
-                    condition={{
-                      ...condition,
-                      sourceType: condition.sourceType || 'attribute'
-                    }}
+                    condition={condition}
                     attributes={attributes}
                     events={events}
                     onUpdateCondition={(updates) => handleConditionUpdate(condition.id, updates)}

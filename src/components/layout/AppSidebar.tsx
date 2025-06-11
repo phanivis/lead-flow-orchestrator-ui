@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Upload, Star, List, Search, BarChart2, Activity, Users, Database, Filter } from 'lucide-react';
@@ -32,7 +31,7 @@ const navigationItems = [
     icon: Star
   },
   {
-    name: 'Lead Ingestion',
+    name: 'Lead Qualification Rules',
     path: '/lead-ingestion',
     icon: Filter
   },

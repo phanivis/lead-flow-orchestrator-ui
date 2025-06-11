@@ -4,115 +4,140 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Save, Plus, Layers } from 'lucide-react';
-import { RuleCondition, AttributeDefinition, EventDefinition, ConditionGroup, LogicalOperator } from '@/types/leadIngestionTypes';
-import { TimePeriodConfig } from './TimePeriodConfig';
+import { Plus } from 'lucide-react';
 import { ConditionGroupBuilder } from './ConditionGroupBuilder';
-
-interface RuleCreationFormProps {
-  attributes: AttributeDefinition[];
-  events: EventDefinition[];
-  initialRule?: {
-    name: string;
-    description: string;
-    conditions: RuleCondition[];
-    conditionGroups?: ConditionGroup[];
-    rootOperator?: LogicalOperator;
-  };
-  onSave: (rule: {
-    name: string;
-    description: string;
-    conditions: RuleCondition[];
-    conditionGroups: ConditionGroup[];
-    rootOperator: LogicalOperator;
-    eventTimePeriodType?: string;
-    eventTimeConfigValue?: number;
-    retargetTimePeriodType?: string;
-    retargetTimeConfigValue?: number;
-  }) => void;
-}
-
-interface RuleConditionWithType extends RuleCondition {
-  sourceType: 'event' | 'attribute';
-}
+import { AttributeDefinition, EventDefinition, QualificationRule, RuleCondition, ConditionGroup, LogicalOperator } from '@/types/leadIngestionTypes';
 
 interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
-  conditions: RuleConditionWithType[];
+  conditions: RuleCondition[];
 }
 
-export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: RuleCreationFormProps) => {
-  const [name, setName] = useState(initialRule?.name || '');
-  const [description, setDescription] = useState(initialRule?.description || '');
+interface RuleCreationFormProps {
+  selectedRule: QualificationRule | null;
+  attributes: AttributeDefinition[];
+  events: EventDefinition[];
+  onSaveRule: (ruleData: any, selectedRule: QualificationRule | null) => void;
+  onActivateRule: (selectedRule: QualificationRule | null) => void;
+  onConfigureAlerts: () => void;
+}
+
+export const RuleCreationForm = ({
+  selectedRule,
+  attributes,
+  events,
+  onSaveRule,
+  onActivateRule,
+  onConfigureAlerts
+}: RuleCreationFormProps) => {
+  const [name, setName] = useState(selectedRule?.name || '');
+  const [description, setDescription] = useState(selectedRule?.description || '');
+  const [journey, setJourney] = useState(selectedRule?.journey || 'Car-Fresh');
+  const [rootOperator, setRootOperator] = useState<LogicalOperator>(selectedRule?.rootOperator || 'AND');
   const [conditionGroups, setConditionGroups] = useState<ConditionGroupWithType[]>(
-    initialRule?.conditionGroups?.map(group => ({
-      ...group,
-      conditions: group.conditions.map(c => ({ ...c, sourceType: 'attribute' as const }))
-    })) || []
+    selectedRule?.conditionGroups?.length ? 
+      selectedRule.conditionGroups.map(group => ({
+        ...group,
+        conditions: group.conditions || []
+      })) :
+      [{
+        id: `group-${Date.now()}`,
+        conditions: [{
+          id: `condition-${Date.now()}`,
+          attributeName: '',
+          operator: 'equals',
+          value: ''
+        }],
+        operator: 'AND' as LogicalOperator
+      }]
   );
-  const [rootOperator, setRootOperator] = useState<LogicalOperator>(initialRule?.rootOperator || 'AND');
-  const [eventTimePeriodType, setEventTimePeriodType] = useState<string>('');
-  const [eventTimeConfigValue, setEventTimeConfigValue] = useState<number | ''>('');
-  const [retargetTimePeriodType, setRetargetTimePeriodType] = useState<string>('');
-  const [retargetTimeConfigValue, setRetargetTimeConfigValue] = useState<number | ''>('');
 
-  const handleAddGroup = () => {
-    const newGroup: ConditionGroupWithType = {
-      id: `group-${Date.now()}`,
-      conditions: [],
-      operator: 'AND'
+  const handleSave = () => {
+    const ruleData = {
+      name,
+      description,
+      journey,
+      rootOperator,
+      conditionGroups: conditionGroups.map(group => ({
+        ...group,
+        conditions: group.conditions
+      }))
     };
-    setConditionGroups(prev => [...prev, newGroup]);
+    onSaveRule(ruleData, selectedRule);
   };
 
-  const handleRemoveGroup = (groupId: string) => {
-    setConditionGroups(prev => prev.filter(group => group.id !== groupId));
+  const addConditionGroup = () => {
+    setConditionGroups(prev => [...prev, {
+      id: `group-${Date.now()}`,
+      conditions: [{
+        id: `condition-${Date.now()}`,
+        attributeName: '',
+        operator: 'equals',
+        value: ''
+      }],
+      operator: 'AND' as LogicalOperator
+    }]);
   };
 
-  const handleUpdateGroup = (groupId: string, updates: Partial<ConditionGroup>) => {
-    setConditionGroups(prev =>
-      prev.map(group =>
+  const removeConditionGroup = (groupId: string) => {
+    if (conditionGroups.length > 1) {
+      setConditionGroups(prev => prev.filter(group => group.id !== groupId));
+    }
+  };
+
+  const updateConditionGroup = (groupId: string, updates: Partial<ConditionGroup>) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
         group.id === groupId ? { ...group, ...updates } : group
       )
     );
   };
 
-  const handleAddCondition = (groupId: string) => {
-    const newCondition: RuleConditionWithType = {
-      id: `condition-${Date.now()}`,
-      attributeName: '',
-      operator: 'exists',
-      sourceType: 'attribute'
-    };
-    
-    setConditionGroups(prev =>
-      prev.map(group =>
+  const addCondition = (groupId: string) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
         group.id === groupId 
-          ? { ...group, conditions: [...group.conditions, newCondition] }
-          : group
-      )
-    );
-  };
-
-  const handleRemoveCondition = (groupId: string, conditionId: string) => {
-    setConditionGroups(prev =>
-      prev.map(group =>
-        group.id === groupId
-          ? { ...group, conditions: group.conditions.filter(c => c.id !== conditionId) }
-          : group
-      )
-    );
-  };
-
-  const handleUpdateCondition = (groupId: string, conditionId: string, updates: Partial<RuleConditionWithType>) => {
-    setConditionGroups(prev =>
-      prev.map(group =>
-        group.id === groupId
           ? {
               ...group,
-              conditions: group.conditions.map(condition =>
-                condition.id === conditionId ? { ...condition, ...updates } : condition
+              conditions: [
+                ...group.conditions,
+                {
+                  id: `condition-${Date.now()}`,
+                  attributeName: '',
+                  operator: 'equals',
+                  value: ''
+                }
+              ]
+            }
+          : group
+      )
+    );
+  };
+
+  const removeCondition = (groupId: string, conditionId: string) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              conditions: group.conditions.filter(condition => condition.id !== conditionId)
+            }
+          : group
+      )
+    );
+  };
+
+  const updateCondition = (groupId: string, conditionId: string, updates: Partial<RuleCondition>) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              conditions: group.conditions.map(condition => 
+                condition.id === conditionId 
+                  ? { ...condition, ...updates }
+                  : condition
               )
             }
           : group
@@ -120,130 +145,123 @@ export const RuleCreationForm = ({ attributes, events, initialRule, onSave }: Ru
     );
   };
 
-  const handleSave = () => {
-    // Convert condition groups back to the expected format
-    const processedGroups: ConditionGroup[] = conditionGroups.map(group => ({
-      id: group.id,
-      operator: group.operator,
-      conditions: group.conditions.map(({ sourceType, ...rest }) => rest)
-    }));
-
-    // Flatten all conditions for backward compatibility
-    const allConditions = conditionGroups.flatMap(group => 
-      group.conditions.map(({ sourceType, ...rest }) => rest)
-    );
-
-    onSave({
-      name,
-      description,
-      conditions: allConditions,
-      conditionGroups: processedGroups,
-      rootOperator,
-      eventTimePeriodType,
-      eventTimeConfigValue: eventTimeConfigValue === '' ? undefined : Number(eventTimeConfigValue),
-      retargetTimePeriodType,
-      retargetTimeConfigValue: retargetTimeConfigValue === '' ? undefined : Number(retargetTimeConfigValue)
-    });
-  };
-
-  const hasConditions = conditionGroups.some(group => group.conditions.length > 0);
-
   return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 pr-4">
+    <div className="space-y-6">
+      <ScrollArea className="h-[calc(100vh-300px)] pr-4">
         <div className="space-y-6">
+          {/* Basic Information */}
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="rule-name">Rule Name</Label>
-              <Input 
-                id="rule-name" 
-                placeholder="Enter rule name" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Rule Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter rule name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="journey">Journey</Label>
+                <Select value={journey} onValueChange={setJourney}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Car-Fresh">Car Fresh</SelectItem>
+                    <SelectItem value="Car-Renewal">Car Renewal</SelectItem>
+                    <SelectItem value="Bike-Fresh">Bike Fresh</SelectItem>
+                    <SelectItem value="Bike-Renewal">Bike Renewal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
-            <div>
-              <Label htmlFor="rule-description">Description</Label>
-              <Textarea 
-                id="rule-description" 
-                placeholder="Enter rule description" 
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={2}
+                placeholder="Describe what this rule does"
+                rows={3}
               />
             </div>
           </div>
 
-          <TimePeriodConfig
-            eventTimePeriodType={eventTimePeriodType}
-            eventTimeConfigValue={eventTimeConfigValue}
-            retargetTimePeriodType={retargetTimePeriodType}
-            retargetTimeConfigValue={retargetTimeConfigValue}
-            onEventTimePeriodTypeChange={setEventTimePeriodType}
-            onEventTimeConfigValueChange={setEventTimeConfigValue}
-            onRetargetTimePeriodTypeChange={setRetargetTimePeriodType}
-            onRetargetTimeConfigValueChange={setRetargetTimeConfigValue}
-          />
-
+          {/* Condition Groups */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-lg font-medium">Rule Configuration</Label>
-              <Button onClick={handleAddGroup} variant="outline" size="sm">
-                <Layers className="h-4 w-4 mr-2" />
-                Add Condition Group
-              </Button>
+              <h3 className="text-lg font-medium">Rule Conditions</h3>
+              {conditionGroups.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Groups connected by:</span>
+                  <Select value={rootOperator} onValueChange={(value: LogicalOperator) => setRootOperator(value)}>
+                    <SelectTrigger className="w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AND">AND</SelectItem>
+                      <SelectItem value="OR">OR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
-            {conditionGroups.length === 0 ? (
-              <div className="text-center py-8 border border-dashed rounded-md">
-                <p className="text-muted-foreground">No condition groups added yet</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Add groups to create complex logical expressions like (A AND B) OR (C AND D)
-                </p>
-              </div>
-            ) : (
-              <ScrollArea className="max-h-96 pr-4">
-                <div className="space-y-4">
-                  {conditionGroups.map((group, index) => (
-                    <div key={group.id}>
-                      {index > 0 && (
-                        <div className="flex justify-center py-2">
-                          <Badge variant="default" className="text-sm">
-                            OR
-                          </Badge>
-                        </div>
-                      )}
-                      <ConditionGroupBuilder
-                        group={group}
-                        groupIndex={index}
-                        attributes={attributes}
-                        events={events}
-                        onUpdateGroup={handleUpdateGroup}
-                        onRemoveGroup={handleRemoveGroup}
-                        onAddCondition={handleAddCondition}
-                        onUpdateCondition={handleUpdateCondition}
-                        onRemoveCondition={handleRemoveCondition}
-                        showGroupOperator={index > 0}
-                      />
+            <div className="space-y-4">
+              {conditionGroups.map((group, index) => (
+                <div key={group.id}>
+                  {index > 0 && conditionGroups.length > 1 && (
+                    <div className="flex justify-center py-2">
+                      <span className="px-3 py-1 bg-muted rounded-md text-sm font-medium">
+                        {rootOperator}
+                      </span>
                     </div>
-                  ))}
+                  )}
+                  <ConditionGroupBuilder
+                    group={group}
+                    groupIndex={index}
+                    attributes={attributes}
+                    events={events}
+                    onUpdateGroup={updateConditionGroup}
+                    onRemoveGroup={removeConditionGroup}
+                    onAddCondition={addCondition}
+                    onUpdateCondition={updateCondition}
+                    onRemoveCondition={removeCondition}
+                  />
                 </div>
-              </ScrollArea>
-            )}
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={addConditionGroup}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Condition Group
+            </Button>
           </div>
         </div>
       </ScrollArea>
-      
-      <div className="pt-4 border-t mt-4">
-        <Button 
-          className="w-full"
-          disabled={!name || !hasConditions}
-          onClick={handleSave}
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Save Rule
+
+      {/* Action Buttons */}
+      <div className="flex justify-between pt-4 border-t">
+        <Button variant="outline" onClick={onConfigureAlerts}>
+          Configure Alerts
         </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleSave}>
+            Save as Draft
+          </Button>
+          <Button onClick={() => {
+            handleSave();
+            onActivateRule(selectedRule);
+          }}>
+            Save & Activate
+          </Button>
+        </div>
       </div>
     </div>
   );

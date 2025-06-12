@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { RuleConditionBuilder } from './RuleConditionBuilder';
 import { AttributeDefinition, EventDefinition, LogicalOperator, ConditionGroup, RuleCondition } from '@/types/leadIngestionTypes';
@@ -77,36 +76,34 @@ export const ConditionGroupBuilder = ({
         </Button>
       </div>
 
-      <ScrollArea className="max-h-60">
-        <div className="space-y-3">
-          {group.conditions.map((condition, conditionIndex) => (
-            <div key={condition.id}>
-              {conditionIndex > 0 && (
-                <div className="flex justify-center py-1">
-                  <Badge variant="secondary" className="text-xs">
-                    {group.operator}
-                  </Badge>
-                </div>
-              )}
-              <div className="flex items-start gap-2">
-                <div className="flex-1">
-                  <RuleConditionBuilder
-                    condition={{
-                      ...condition,
-                      sourceType: condition.sourceType || 'attribute'
-                    }}
-                    index={conditionIndex}
-                    attributes={attributes}
-                    events={events}
-                    onUpdate={(id, updates) => handleConditionUpdate(id, updates)}
-                    onRemove={(id) => onRemoveCondition(group.id, id)}
-                  />
-                </div>
+      <div className="space-y-3 max-h-60 overflow-y-auto">
+        {group.conditions.map((condition, conditionIndex) => (
+          <div key={condition.id}>
+            {conditionIndex > 0 && (
+              <div className="flex justify-center py-1">
+                <Badge variant="secondary" className="text-xs">
+                  {group.operator}
+                </Badge>
+              </div>
+            )}
+            <div className="flex items-start gap-2">
+              <div className="flex-1">
+                <RuleConditionBuilder
+                  condition={{
+                    ...condition,
+                    sourceType: condition.sourceType || 'attribute'
+                  }}
+                  index={conditionIndex}
+                  attributes={attributes}
+                  events={events}
+                  onUpdate={(id, updates) => handleConditionUpdate(id, updates)}
+                  onRemove={(id) => onRemoveCondition(group.id, id)}
+                />
               </div>
             </div>
-          ))}
-        </div>
-      </ScrollArea>
+          </div>
+        ))}
+      </div>
 
       <Button
         variant="outline"

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -156,8 +155,8 @@ export const RuleCreationForm = ({
 
   return (
     <div className="h-full flex flex-col">
-      <ScrollArea className="flex-1 pr-4">
-        <div className="space-y-6">
+      <ScrollArea className="flex-1">
+        <div className="space-y-6 pr-4">
           {/* Basic Information */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -215,8 +214,8 @@ export const RuleCreationForm = ({
         </div>
       </ScrollArea>
 
-      {/* Action Buttons */}
-      <div className="flex justify-between pt-4 border-t mt-6">
+      {/* Action Buttons - Fixed at bottom */}
+      <div className="flex justify-between pt-4 border-t mt-6 flex-shrink-0">
         <Button variant="outline" onClick={onConfigureAlerts}>
           Configure Alerts
         </Button>

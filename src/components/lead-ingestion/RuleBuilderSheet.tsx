@@ -41,7 +41,7 @@ export const RuleBuilderSheet = ({
       modal={false}
     >
       <SheetContent className="sm:max-w-none w-full p-0 overflow-hidden flex flex-col h-screen bg-background">
-        <div className="px-6 py-4 border-b">
+        <div className="px-6 py-4 border-b flex-shrink-0">
           <h2 className="text-xl font-semibold">
             {selectedRule ? `Edit Rule: ${selectedRule.name}` : 'Create Lead Qualification Rule'}
           </h2>
@@ -49,13 +49,13 @@ export const RuleBuilderSheet = ({
         
         <div className="flex-1 overflow-hidden p-6">
           <Tabs defaultValue="rule-config" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
               <TabsTrigger value="rule-config">Rule Configuration</TabsTrigger>
               <TabsTrigger value="events">Available Events</TabsTrigger>
               <TabsTrigger value="attributes">Available Attributes</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="rule-config" className="flex-1 overflow-hidden">
+            <TabsContent value="rule-config" className="flex-1 mt-4 overflow-hidden">
               <RuleCreationForm 
                 selectedRule={selectedRule}
                 attributes={attributes}
@@ -66,7 +66,7 @@ export const RuleBuilderSheet = ({
               />
             </TabsContent>
             
-            <TabsContent value="events" className="flex-1 overflow-hidden">
+            <TabsContent value="events" className="flex-1 mt-4 overflow-hidden">
               <EventList 
                 events={events}
                 onSelectEvent={setSelectedEvent}
@@ -74,7 +74,7 @@ export const RuleBuilderSheet = ({
               />
             </TabsContent>
             
-            <TabsContent value="attributes" className="flex-1 overflow-hidden">
+            <TabsContent value="attributes" className="flex-1 mt-4 overflow-hidden">
               <AttributeList 
                 attributes={attributes}
                 onSelectAttribute={onSelectAttribute}

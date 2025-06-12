@@ -64,34 +64,32 @@ export const NestedConditionBuilder = ({
         )}
       </div>
 
-      <ScrollArea className="max-h-[400px]">
-        <div className="space-y-4">
-          {conditionGroups.map((group, index) => (
-            <div key={group.id}>
-              {index > 0 && conditionGroups.length > 1 && (
-                <div className="flex justify-center py-2">
-                  <Badge variant="default" className="text-sm font-medium flex items-center gap-1">
-                    <Parentheses className="h-3 w-3" />
-                    {rootOperator}
-                    <Parentheses className="h-3 w-3" />
-                  </Badge>
-                </div>
-              )}
-              <ConditionGroupBuilder
-                group={group}
-                groupIndex={index}
-                attributes={attributes}
-                events={events}
-                onUpdateGroup={onUpdateGroup}
-                onRemoveGroup={onRemoveGroup}
-                onAddCondition={onAddCondition}
-                onUpdateCondition={onUpdateCondition}
-                onRemoveCondition={onRemoveCondition}
-              />
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
+      <div className="space-y-4 max-h-[500px] overflow-y-auto">
+        {conditionGroups.map((group, index) => (
+          <div key={group.id}>
+            {index > 0 && conditionGroups.length > 1 && (
+              <div className="flex justify-center py-2">
+                <Badge variant="default" className="text-sm font-medium flex items-center gap-1">
+                  <Parentheses className="h-3 w-3" />
+                  {rootOperator}
+                  <Parentheses className="h-3 w-3" />
+                </Badge>
+              </div>
+            )}
+            <ConditionGroupBuilder
+              group={group}
+              groupIndex={index}
+              attributes={attributes}
+              events={events}
+              onUpdateGroup={onUpdateGroup}
+              onRemoveGroup={onRemoveGroup}
+              onAddCondition={onAddCondition}
+              onUpdateCondition={onUpdateCondition}
+              onRemoveCondition={onRemoveCondition}
+            />
+          </div>
+        ))}
+      </div>
 
       <Button
         variant="outline"

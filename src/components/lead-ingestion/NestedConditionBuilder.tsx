@@ -3,9 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Trash2, Parentheses } from 'lucide-react';
+import { Plus, Parentheses } from 'lucide-react';
 import { ConditionGroupBuilder } from './ConditionGroupBuilder';
 import { AttributeDefinition, EventDefinition, LogicalOperator, ConditionGroup, RuleCondition } from '@/types/leadIngestionTypes';
 
@@ -13,8 +11,9 @@ interface RuleConditionWithType extends RuleCondition {
   sourceType?: 'event' | 'attribute';
 }
 
-interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
+interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions' | 'subGroups'> {
   conditions: RuleConditionWithType[];
+  subGroups: ConditionGroupWithType[];
 }
 
 interface NestedConditionBuilderProps {
@@ -29,6 +28,12 @@ interface NestedConditionBuilderProps {
   onAddCondition: (groupId: string) => void;
   onUpdateCondition: (groupId: string, conditionId: string, updates: Partial<RuleCondition>) => void;
   onRemoveCondition: (groupId: string, conditionId: string) => void;
+  onAddSubGroup: (groupId: string) => void;
+  onRemoveSubGroup: (groupId: string, subGroupId: string) => void;
+  onUpdateSubGroup: (groupId: string, subGroupId: string, updates: Partial<ConditionGroup>) => void;
+  onAddConditionToSubGroup: (groupId: string, subGroupId: string) => void;
+  onUpdateConditionInSubGroup: (groupId: string, subGroupId: string, conditionId: string, updates: Partial<RuleCondition>) => void;
+  onRemoveConditionFromSubGroup: (groupId: string, subGroupId: string, conditionId: string) => void;
 }
 
 export const NestedConditionBuilder = ({
@@ -42,7 +47,13 @@ export const NestedConditionBuilder = ({
   onAddGroup,
   onAddCondition,
   onUpdateCondition,
-  onRemoveCondition
+  onRemoveCondition,
+  onAddSubGroup,
+  onRemoveSubGroup,
+  onUpdateSubGroup,
+  onAddConditionToSubGroup,
+  onUpdateConditionInSubGroup,
+  onRemoveConditionFromSubGroup
 }: NestedConditionBuilderProps) => {
   return (
     <div className="space-y-4">
@@ -79,6 +90,7 @@ export const NestedConditionBuilder = ({
             <ConditionGroupBuilder
               group={group}
               groupIndex={index}
+              depth={0}
               attributes={attributes}
               events={events}
               onUpdateGroup={onUpdateGroup}
@@ -86,6 +98,12 @@ export const NestedConditionBuilder = ({
               onAddCondition={onAddCondition}
               onUpdateCondition={onUpdateCondition}
               onRemoveCondition={onRemoveCondition}
+              onAddSubGroup={onAddSubGroup}
+              onRemoveSubGroup={onRemoveSubGroup}
+              onUpdateSubGroup={onUpdateSubGroup}
+              onAddConditionToSubGroup={onAddConditionToSubGroup}
+              onUpdateConditionInSubGroup={onUpdateConditionInSubGroup}
+              onRemoveConditionFromSubGroup={onRemoveConditionFromSubGroup}
             />
           </div>
         ))}

@@ -44,6 +44,14 @@ export const RuleCreationForm = ({
         conditions: group.conditions.map(condition => ({
           ...condition,
           sourceType: 'attribute' as const
+        })) || [],
+        subGroups: group.subGroups?.map(subGroup => ({
+          ...subGroup,
+          conditions: subGroup.conditions?.map(condition => ({
+            ...condition,
+            sourceType: 'attribute' as const
+          })) || [],
+          subGroups: subGroup.subGroups || []
         })) || []
       })) :
       [{
@@ -55,6 +63,7 @@ export const RuleCreationForm = ({
           value: '',
           sourceType: 'attribute' as const
         }],
+        subGroups: [],
         operator: 'AND' as LogicalOperator
       }]
   );
@@ -67,7 +76,12 @@ export const RuleCreationForm = ({
       rootOperator,
       conditionGroups: conditionGroups.map(group => ({
         ...group,
-        conditions: group.conditions.map(({ sourceType, ...condition }) => condition)
+        conditions: group.conditions.map(({ sourceType, ...condition }) => condition),
+        subGroups: group.subGroups.map(subGroup => ({
+          ...subGroup,
+          conditions: subGroup.conditions.map(({ sourceType, ...condition }) => condition),
+          subGroups: subGroup.subGroups || []
+        }))
       }))
     };
     onSaveRule(ruleData, selectedRule);
@@ -83,6 +97,7 @@ export const RuleCreationForm = ({
         value: '',
         sourceType: 'attribute' as const
       }],
+      subGroups: [],
       operator: 'AND' as LogicalOperator
     }]);
   };
@@ -153,6 +168,135 @@ export const RuleCreationForm = ({
     );
   };
 
+  // Sub-group operations
+  const addSubGroup = (groupId: string) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              subGroups: [
+                ...group.subGroups,
+                {
+                  id: `subgroup-${Date.now()}`,
+                  conditions: [{
+                    id: `condition-${Date.now()}`,
+                    attributeName: '',
+                    operator: 'equals',
+                    value: '',
+                    sourceType: 'attribute' as const
+                  }],
+                  subGroups: [],
+                  operator: 'AND' as LogicalOperator
+                }
+              ]
+            }
+          : group
+      )
+    );
+  };
+
+  const removeSubGroup = (groupId: string, subGroupId: string) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              subGroups: group.subGroups.filter(subGroup => subGroup.id !== subGroupId)
+            }
+          : group
+      )
+    );
+  };
+
+  const updateSubGroup = (groupId: string, subGroupId: string, updates: Partial<ConditionGroup>) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              subGroups: group.subGroups.map(subGroup =>
+                subGroup.id === subGroupId ? { ...subGroup, ...updates } : subGroup
+              )
+            }
+          : group
+      )
+    );
+  };
+
+  const addConditionToSubGroup = (groupId: string, subGroupId: string) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              subGroups: group.subGroups.map(subGroup =>
+                subGroup.id === subGroupId 
+                  ? {
+                      ...subGroup,
+                      conditions: [
+                        ...subGroup.conditions,
+                        {
+                          id: `condition-${Date.now()}`,
+                          attributeName: '',
+                          operator: 'equals',
+                          value: '',
+                          sourceType: 'attribute' as const
+                        }
+                      ]
+                    }
+                  : subGroup
+              )
+            }
+          : group
+      )
+    );
+  };
+
+  const updateConditionInSubGroup = (groupId: string, subGroupId: string, conditionId: string, updates: Partial<RuleCondition>) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              subGroups: group.subGroups.map(subGroup =>
+                subGroup.id === subGroupId 
+                  ? {
+                      ...subGroup,
+                      conditions: subGroup.conditions.map(condition => 
+                        condition.id === conditionId 
+                          ? { ...condition, ...updates }
+                          : condition
+                      )
+                    }
+                  : subGroup
+              )
+            }
+          : group
+      )
+    );
+  };
+
+  const removeConditionFromSubGroup = (groupId: string, subGroupId: string, conditionId: string) => {
+    setConditionGroups(prev => 
+      prev.map(group => 
+        group.id === groupId 
+          ? {
+              ...group,
+              subGroups: group.subGroups.map(subGroup =>
+                subGroup.id === subGroupId 
+                  ? {
+                      ...subGroup,
+                      conditions: subGroup.conditions.filter(condition => condition.id !== conditionId)
+                    }
+                  : subGroup
+              )
+            }
+          : group
+      )
+    );
+  };
+
   return (
     <div className="h-full flex flex-col">
       <ScrollArea className="flex-1">
@@ -210,6 +354,12 @@ export const RuleCreationForm = ({
             onAddCondition={addCondition}
             onUpdateCondition={updateCondition}
             onRemoveCondition={removeCondition}
+            onAddSubGroup={addSubGroup}
+            onRemoveSubGroup={removeSubGroup}
+            onUpdateSubGroup={updateSubGroup}
+            onAddConditionToSubGroup={addConditionToSubGroup}
+            onUpdateConditionInSubGroup={updateConditionInSubGroup}
+            onRemoveConditionFromSubGroup={removeConditionFromSubGroup}
           />
         </div>
       </ScrollArea>

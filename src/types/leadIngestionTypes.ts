@@ -1,3 +1,4 @@
+
 export interface EventDefinition {
   id: string;
   name: string;
@@ -55,6 +56,7 @@ export interface RuleCondition {
 export interface ConditionGroup {
   id: string;
   conditions: RuleCondition[];
+  subGroups: ConditionGroup[];
   operator: LogicalOperator;
 }
 

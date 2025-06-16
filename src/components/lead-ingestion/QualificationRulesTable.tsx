@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Play, Pause, Clock, ArrowUp, ArrowDown } from 'lucide-react';
+import { Edit, Trash2, Play, Pause, Clock, ArrowUp, ArrowDown, Eye, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { QualificationRule } from '@/types/leadIngestionTypes';
 import { getTimeAgo, getUserById } from '@/data/leadIngestionData';
+import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,7 @@ export const QualificationRulesTable = ({
   onDelete,
   onToggleStatus 
 }: QualificationRulesTableProps) => {
+  const navigate = useNavigate();
   const [sortField, setSortField] = useState<keyof QualificationRule>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -48,6 +50,11 @@ export const QualificationRulesTable = ({
     return sortDirection === 'asc' ? 
       <ArrowUp className="ml-1 h-4 w-4 inline" /> : 
       <ArrowDown className="ml-1 h-4 w-4 inline" />;
+  };
+
+  const handleViewLeads = (rule: QualificationRule) => {
+    // Navigate to lead explorer with journey filter
+    navigate(`/lead-explorer?journey=${encodeURIComponent(rule.journey)}`);
   };
 
   const sortedRules = [...rules].sort((a, b) => {
@@ -69,6 +76,19 @@ export const QualificationRulesTable = ({
       ? (aValue < bValue ? -1 : 1)
       : (bValue < aValue ? -1 : 1);
   });
+
+  const getStatusBadge = (status: 'active' | 'paused' | 'draft') => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="success">Active</Badge>;
+      case 'paused':
+        return <Badge variant="secondary">Paused</Badge>;
+      case 'draft':
+        return <Badge variant="outline">Draft</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
 
   return (
     <Table>
@@ -106,9 +126,9 @@ export const QualificationRulesTable = ({
           </TableHead>
           <TableHead 
             className="cursor-pointer" 
-            onClick={() => handleSort('createdBy')}
+            onClick={() => handleSort('lastUpdatedBy')}
           >
-            Created By {getSortIcon('createdBy')}
+            Last Updated By {getSortIcon('lastUpdatedBy')}
           </TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -137,9 +157,7 @@ export const QualificationRulesTable = ({
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={rule.status === 'active' ? 'success' : 'secondary'}>
-                  {rule.status === 'active' ? 'Active' : 'Paused'}
-                </Badge>
+                {getStatusBadge(rule.status)}
               </TableCell>
               <TableCell>{rule.matchCount?.toLocaleString() || 0}</TableCell>
               <TableCell>
@@ -148,60 +166,107 @@ export const QualificationRulesTable = ({
                   <span>{getTimeAgo(rule.updatedAt)}</span>
                 </div>
               </TableCell>
-              <TableCell>{getUserById(rule.createdBy).name}</TableCell>
+              <TableCell>{getUserById(rule.lastUpdatedBy || rule.createdBy).name}</TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  {rule.status === 'active' ? (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => onToggleStatus(rule.id, 'paused')}
-                      title="Pause Rule"
-                    >
-                      <Pause className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => onToggleStatus(rule.id, 'active')}
-                      title="Activate Rule"
-                    >
-                      <Play className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => onEdit(rule)}
-                    title="Edit Rule"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                <div className="flex justify-end gap-1">
+                  {rule.status === 'draft' ? (
+                    <>
                       <Button 
                         variant="ghost" 
-                        size="icon"
-                        title="Delete Rule"
+                        size="icon" 
+                        onClick={() => onEdit(rule)}
+                        title="Edit Rule"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Edit className="h-4 w-4" />
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will permanently delete the qualification rule "{rule.name}". 
-                          This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDelete(rule.id)}>Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            title="Delete Rule"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete the qualification rule "{rule.name}". 
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(rule.id)}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  ) : (
+                    <>
+                      {rule.status === 'active' ? (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => onToggleStatus(rule.id, 'paused')}
+                          title="Pause Rule"
+                        >
+                          <Pause className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => onToggleStatus(rule.id, 'active')}
+                          title="Activate Rule"
+                        >
+                          <Play className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => onEdit(rule)}
+                        title="View Rule"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleViewLeads(rule)}
+                        title="View Leads"
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            title="Delete Rule"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete the qualification rule "{rule.name}". 
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(rule.id)}>Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
                 </div>
               </TableCell>
             </TableRow>

@@ -18,8 +18,9 @@ interface RuleConditionWithType extends RuleCondition {
   sourceType?: 'event' | 'attribute';
 }
 
-interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions'> {
+interface ConditionGroupWithType extends Omit<ConditionGroup, 'conditions' | 'subGroups'> {
   conditions: RuleConditionWithType[];
+  subGroups: ConditionGroupWithType[];
 }
 
 interface RuleCreationFormProps {
@@ -80,7 +81,14 @@ export const RuleCreationForm = ({
             ...condition,
             sourceType: 'attribute' as const
           })) || [],
-          subGroups: subGroup.subGroups || []
+          subGroups: subGroup.subGroups?.map(nestedSubGroup => ({
+            ...nestedSubGroup,
+            conditions: nestedSubGroup.conditions?.map(condition => ({
+              ...condition,
+              sourceType: 'attribute' as const
+            })) || [],
+            subGroups: nestedSubGroup.subGroups || []
+          })) || []
         })) || []
       })) :
       [{
@@ -112,7 +120,11 @@ export const RuleCreationForm = ({
         subGroups: group.subGroups.map(subGroup => ({
           ...subGroup,
           conditions: subGroup.conditions.map(({ sourceType, ...condition }) => condition),
-          subGroups: subGroup.subGroups || []
+          subGroups: subGroup.subGroups?.map(nestedSubGroup => ({
+            ...nestedSubGroup,
+            conditions: nestedSubGroup.conditions?.map(({ sourceType, ...condition }) => condition) || [],
+            subGroups: nestedSubGroup.subGroups || []
+          })) || []
         }))
       }))
     };

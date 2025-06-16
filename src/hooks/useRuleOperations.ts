@@ -19,7 +19,12 @@ export const useRuleOperations = (
   const handleToggleStatus = (ruleId: string, newStatus: 'active' | 'paused') => {
     setRules(prev => 
       prev.map(rule => 
-        rule.id === ruleId ? { ...rule, status: newStatus } : rule
+        rule.id === ruleId ? { 
+          ...rule, 
+          status: newStatus,
+          lastUpdatedBy: 'current.user@acko.com',
+          updatedAt: new Date().toISOString()
+        } : rule
       )
     );
     toast({
@@ -41,6 +46,7 @@ export const useRuleOperations = (
         conditionGroups: ruleData.conditionGroups || [],
         rootOperator: ruleData.rootOperator || 'AND',
         updatedAt: now,
+        lastUpdatedBy: 'current.user@acko.com',
         version: selectedRule.version + 1
       };
       
@@ -65,6 +71,7 @@ export const useRuleOperations = (
         createdBy: 'current.user@acko.com',
         createdAt: now,
         updatedAt: now,
+        lastUpdatedBy: 'current.user@acko.com',
         matchCount: 0,
         version: 1,
         tags: []
@@ -84,7 +91,12 @@ export const useRuleOperations = (
     
     setRules(prev => 
       prev.map(rule => 
-        rule.id === selectedRule.id ? { ...rule, status: 'active' } : rule
+        rule.id === selectedRule.id ? { 
+          ...rule, 
+          status: 'active',
+          lastUpdatedBy: 'current.user@acko.com',
+          updatedAt: new Date().toISOString()
+        } : rule
       )
     );
     
@@ -101,7 +113,12 @@ export const useRuleOperations = (
       
       setRules(prev => 
         prev.map(rule => 
-          rule.id === selectedRule.id ? { ...rule, alerts } : rule
+          rule.id === selectedRule.id ? { 
+            ...rule, 
+            alerts,
+            lastUpdatedBy: 'current.user@acko.com',
+            updatedAt: new Date().toISOString()
+          } : rule
         )
       );
       

@@ -73,6 +73,7 @@ export interface QualificationRule {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  lastUpdatedBy: string;
   matchCount?: number;
   version: number;
   alerts?: AlertConfig[];

@@ -1,4 +1,3 @@
-
 import { QualificationRule, MatchingUser } from '@/types/leadIngestionTypes';
 import { formatDistance } from 'date-fns';
 
@@ -30,6 +29,7 @@ export const qualificationRules: QualificationRule[] = [
     createdBy: 'sarah.johnson@acko.com',
     createdAt: '2025-02-15T08:30:00Z',
     updatedAt: '2025-02-15T08:30:00Z',
+    lastUpdatedBy: 'sarah.johnson@acko.com',
     matchCount: 4521,
     version: 1
   },
@@ -59,6 +59,7 @@ export const qualificationRules: QualificationRule[] = [
     createdBy: 'marco.chen@acko.com',
     createdAt: '2025-01-25T14:15:00Z',
     updatedAt: '2025-03-10T16:22:33Z',
+    lastUpdatedBy: 'marco.chen@acko.com',
     matchCount: 2789,
     version: 3
   },
@@ -88,6 +89,7 @@ export const qualificationRules: QualificationRule[] = [
     createdBy: 'rajat.singh@acko.com',
     createdAt: '2025-03-05T10:45:00Z',
     updatedAt: '2025-03-15T11:20:15Z',
+    lastUpdatedBy: 'rajat.singh@acko.com',
     matchCount: 8754,
     version: 2,
     alerts: [
@@ -99,6 +101,42 @@ export const qualificationRules: QualificationRule[] = [
         priority: 'medium'
       }
     ]
+  },
+  {
+    id: '4',
+    name: 'Young Professional Prospects',
+    description: 'Age-based targeting for professional demographics',
+    journey: 'Car-Fresh',
+    status: 'draft',
+    tags: ['demographics', 'age-targeting'],
+    conditions: [
+      {
+        id: '4-1',
+        attributeName: 'age',
+        operator: 'greater_than_or_equal',
+        value: 25
+      },
+      {
+        id: '4-2',
+        attributeName: 'age',
+        operator: 'less_than_or_equal',
+        value: 35
+      },
+      {
+        id: '4-3',
+        attributeName: 'employment_status',
+        operator: 'equals',
+        value: 'employed'
+      }
+    ],
+    conditionGroups: [],
+    rootOperator: 'AND',
+    createdBy: 'sarah.johnson@acko.com',
+    createdAt: '2025-06-16T10:30:00Z',
+    updatedAt: '2025-06-16T10:30:00Z',
+    lastUpdatedBy: 'sarah.johnson@acko.com',
+    matchCount: 0,
+    version: 1
   }
 ];
 
